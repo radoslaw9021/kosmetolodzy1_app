@@ -1,0 +1,131 @@
+/* Global resets and basic styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  color: #333;
+  line-height: 1.5;
+}
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+button {
+  cursor: pointer;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Card style */
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+.checkbox-group label {
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Client list */
+.client-list {
+  list-style: none;
+  padding: 0;
+}
+.client-list li {
+  padding: 0.75rem 1rem;
+  background-color: #fff;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.client-list li:hover {
+  background-color: #eef;
+}
+
+/* Treatment history */
+.treatment-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.treatment-item h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #0077cc;
+}
+.treatment-photos {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.treatment-photos img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .treatment-photos {
+    flex-direction: column;
+  }
+}
+/* Premium efekt na kafelkach w tabeli klientek */
+.client-row {
+  transition: background 0.25s, box-shadow 0.25s, backdrop-filter 0.22s;
+  background: #fff;
+}
+.client-row:hover {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(2px);
+  box-shadow: 0 8px 28px 0 rgba(110, 120, 180, 0.1);
+}
+.viewBtn {
+  background: #000000;
+  color: #fff;
+  border: none;
+  font-weight: 700;
+  border-radius: 1rem;
+  padding: 0.37rem 1.1rem;
+  font-size: 0.97rem;
+  box-shadow: 0 1px 6px 0 rgba(30, 30, 40, 0.1);
+  transition: background 0.15s, color 0.15s, border 0.15s;
+}
