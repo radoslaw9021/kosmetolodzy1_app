@@ -1,8 +1,9 @@
 // src/components/Header.js
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { isAdmin } from "../services/userService";
 
-export default function Header({ isLoggedIn, onLogout }) {
+export default function Header({ currentUser, onLogout }) {
   const [logoUrl, setLogoUrl] = useState(null);
 
   useEffect(() => {
@@ -94,6 +95,18 @@ export default function Header({ isLoggedIn, onLogout }) {
           Klienci
         </NavLink>
         <NavLink
+          to="/calendar"
+          style={({ isActive }) => ({
+            color: isActive ? "#fff" : "#333",
+            backgroundColor: isActive ? "#C8373B" : "transparent",
+            padding: "0.5rem 1rem",
+            borderRadius: 4,
+            textDecoration: "none",
+          })}
+        >
+          Kalendarz
+        </NavLink>
+        <NavLink
           to="/newsletter"
           style={({ isActive }) => ({
             color: isActive ? "#fff" : "#333",
@@ -105,9 +118,34 @@ export default function Header({ isLoggedIn, onLogout }) {
         >
           Newsletter
         </NavLink>
+        {isAdmin(currentUser) && (
+          <NavLink
+            to="/admin"
+            style={({ isActive }) => ({
+              color: isActive ? "#fff" : "#333",
+              backgroundColor: isActive ? "#dc3545" : "transparent",
+              padding: "0.5rem 1rem",
+              borderRadius: 4,
+              textDecoration: "none",
+              fontWeight: "bold",
+            })}
+          >
+            Panel Admin
+          </NavLink>
+        )}
       </nav>
 
-      {isLoggedIn && (
+      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        {currentUser && (
+          <div style={{ textAlign: "right", fontSize: "0.9rem" }}>
+            <div style={{ fontWeight: "bold", color: "#333" }}>
+              {currentUser.name}
+            </div>
+            <div style={{ color: "#666", fontSize: "0.8rem" }}>
+              {isAdmin(currentUser) ? "Administrator" : "Kosmetolog"}
+            </div>
+          </div>
+        )}
         <button
           onClick={onLogout}
           style={{
@@ -121,7 +159,7 @@ export default function Header({ isLoggedIn, onLogout }) {
         >
           Wyloguj się
         </button>
-      )}
+      </div>
     </header>
   );
 }

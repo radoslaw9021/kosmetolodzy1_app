@@ -18,16 +18,15 @@ import ClientCard from "./components/ClientCard";
 import TreatmentForm from "./components/TreatmentForm";
 import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
+import AdminPanel from "./components/AdminPanel";
 
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
 
+import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
+
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // ID bieżącego kosmetologa
-  const [currentUserId, setCurrentUserId] = useState(
-    localStorage.getItem("userId") || null
-  );
+  const [currentUser, setCurrentUserState] = useState(getCurrentUser());
   const [clients, setClients] = useState(() => {
     const stored = localStorage.getItem("clients");
     return stored ? JSON.parse(stored) : [];
@@ -39,23 +38,19 @@ export default function App() {
       if (e.key === "clients") {
         setClients(e.newValue ? JSON.parse(e.newValue) : []);
       }
-      if (e.key === "userId") {
-        setCurrentUserId(e.newValue);
-      }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  const handleLoginSuccess = (userId) => {
-    setIsLoggedIn(true);
-    setCurrentUserId(userId);
-    localStorage.setItem("userId", userId);
+  const handleLoginSuccess = (user) => {
+    setCurrentUserState(user);
+    setCurrentUser(user);
   };
+
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("userId");
-    setCurrentUserId(null);
+    setCurrentUserState(null);
+    setCurrentUser(null);
   };
 
   // dodaj lub zaktualizuj klientkę (z ownerId)
@@ -63,7 +58,7 @@ export default function App() {
     setClients((prev) => {
       const withOwner = {
         ...clientData,
-        ownerId: currentUserId,
+        ownerId: currentUser?.id,
       };
       const next = isUpdate
         ? prev.map((c) => (c.id === withOwner.id ? withOwner : c))
@@ -101,11 +96,10 @@ export default function App() {
   return (
     <Router>
       <AppContent
-        isLoggedIn={isLoggedIn}
+        currentUser={currentUser}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
         clients={clients}
-        currentUserId={currentUserId}
         handleAddOrUpdateClient={handleAddOrUpdateClient}
         handleRemoveClient={handleRemoveClient}
         handleUpdateTreatment={handleUpdateTreatment}
@@ -115,11 +109,10 @@ export default function App() {
 }
 
 function AppContent({
-  isLoggedIn,
+  currentUser,
   onLoginSuccess,
   onLogout,
   clients,
-  currentUserId,
   handleAddOrUpdateClient,
   handleRemoveClient,
   handleUpdateTreatment,
@@ -127,18 +120,22 @@ function AppContent({
   const location = useLocation();
   const isPublicForm = location.pathname === "/ankieta";
 
-  // filtrowana lista dla zalogowanego kosmetologa
-  const myClients = clients.filter((c) => c.ownerId === currentUserId);
+  // Filtrowanie klientów według roli użytkownika
+  const filteredClients = isAdmin(currentUser) 
+    ? clients // Admin widzi wszystkich klientów
+    : clients.filter((c) => c.ownerId === currentUser?.id); // Kosmetolog widzi tylko swoich
 
   return (
     <>
-      {!isPublicForm && <Header isLoggedIn={isLoggedIn} onLogout={onLogout} />}
+      {!isPublicForm && <Header currentUser={currentUser} onLogout={onLogout} />}
       <main style={isPublicForm ? { padding: 0 } : { padding: "1rem" }}>
         <Routes>
           {/* logowanie */}
           <Route
             path="/login"
-            element={<LoginForm onLoginSuccess={onLoginSuccess} />}
+            element={
+              currentUser ? <Navigate to="/clients" /> : <LoginForm onLoginSuccess={onLoginSuccess} />
+            }
           />
 
           {/* publiczny link do ankiety */}
@@ -146,9 +143,23 @@ function AppContent({
             path="/ankieta"
             element={
               <PublicClientForm
-                clientsList={myClients} // TYLKO moi klienci do edycji
+                clientsList={filteredClients}
                 onSubmit={handleAddOrUpdateClient}
               />
+            }
+          />
+
+          {/* Panel administracyjny - tylko dla adminów */}
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                {isAdmin(currentUser) ? (
+                  <AdminPanel />
+                ) : (
+                  <Navigate to="/clients" />
+                )}
+              </PrivateRoute>
             }
           />
 
@@ -156,9 +167,9 @@ function AppContent({
           <Route
             path="/clients"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
+              <PrivateRoute isLoggedIn={!!currentUser}>
                 <ClientList
-                  clients={myClients} // pokazuję tylko swoich klientów
+                  clients={filteredClients}
                   onRemoveClient={handleRemoveClient}
                 />
               </PrivateRoute>
@@ -167,7 +178,7 @@ function AppContent({
           <Route
             path="/client/add"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
+              <PrivateRoute isLoggedIn={!!currentUser}>
                 <ClientForm
                   onAddClient={(c) => handleAddOrUpdateClient(c, false)}
                 />
@@ -177,9 +188,9 @@ function AppContent({
           <Route
             path="/client/:clientId"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
+              <PrivateRoute isLoggedIn={!!currentUser}>
                 <ClientCard
-                  clients={myClients}
+                  clients={filteredClients}
                   onRemoveClient={handleRemoveClient}
                   onUpdateClient={(c) => handleAddOrUpdateClient(c, true)}
                   onUpdateTreatment={handleUpdateTreatment}
@@ -190,7 +201,7 @@ function AppContent({
           <Route
             path="/client/:clientId/treatment/add"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
+              <PrivateRoute isLoggedIn={!!currentUser}>
                 <TreatmentForm
                   onAddTreatment={(c) => handleAddOrUpdateClient(c, true)}
                 />
@@ -198,11 +209,11 @@ function AppContent({
             }
           />
           <Route
-            path="/client/:clientId/history"
+            path="/client/:clientId/treatments"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
+              <PrivateRoute isLoggedIn={!!currentUser}>
                 <TreatmentHistory
-                  clients={myClients}
+                  clients={filteredClients}
                   onUpdateTreatment={handleUpdateTreatment}
                 />
               </PrivateRoute>
@@ -211,21 +222,22 @@ function AppContent({
           <Route
             path="/newsletter"
             element={
-              <PrivateRoute isLoggedIn={isLoggedIn}>
-                <NewsletterPage clients={myClients} />
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <NewsletterPage clients={filteredClients} />
               </PrivateRoute>
             }
           />
-
           <Route
-            path="*"
+            path="/calendar"
             element={
-              isLoggedIn ? (
-                <Navigate to="/clients" replace />
-              ) : (
-                <Navigate to="/login" replace />
-              )
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <CalendarPage clients={filteredClients} />
+              </PrivateRoute>
             }
+          />
+          <Route
+            path="/"
+            element={<Navigate to="/clients" />}
           />
         </Routes>
       </main>
