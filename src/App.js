@@ -20,6 +20,7 @@ import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
 
 import NewsletterPage from "./pages/NewsletterPage";
+import CalendarPage from "./pages/CalendarPage";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

@@ -5,14 +5,22 @@
   "keywords": [],
   "main": "src/index.tsx",
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-scripts": "^5.0.0",
-    "uuid": "11.1.0",
-    "react-router-dom": "7.6.2",
     "@emailjs/browser": "4.4.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@headlessui/react": "^2.2.4",
+    "@mui/icons-material": "^7.1.1",
+    "@mui/material": "^7.1.1",
+    "date-fns": "^4.1.0",
+    "jspdf": "3.0.1",
+    "moment": "^2.30.1",
+    "react": "^19.0.0",
+    "react-big-calendar": "^1.19.4",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "7.6.2",
+    "react-scripts": "^5.0.0",
     "sonner": "2.0.5",
-    "jspdf": "3.0.1"
+    "uuid": "11.1.0"
   },
   "devDependencies": {
     "@types/react": "19.0.0",
