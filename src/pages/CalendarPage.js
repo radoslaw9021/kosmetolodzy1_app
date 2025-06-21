@@ -161,7 +161,7 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                     {isAppointmentFormVisible ? (
                         isClientFormVisible ? (
                             <ClientForm
-                                onClientAdded={handleClientAdded}
+                                onAddClient={handleClientAdded}
                                 onCancel={() => setIsClientFormVisible(false)}
                             />
                         ) : (
