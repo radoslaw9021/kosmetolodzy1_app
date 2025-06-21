@@ -26,7 +26,10 @@ const DaySidebar = ({
     appointments,
     onAddAppointment,
     onEdit,
-    onDelete
+    onDelete,
+    hoveredEventId,
+    setHoveredEventId,
+    getTreatmentColor
 }) => {
     // Zabezpieczenie: upewnij się, że `selectedDate` jest zawsze obiektem Date
     const validDate = selectedDate instanceof Date ? selectedDate : new Date(selectedDate);
@@ -59,19 +62,43 @@ const DaySidebar = ({
                     Brak zaplanowanych wizyt.
                 </div>
             )}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {appointments.map(ev => (
-                    <div key={ev.id} style={{ background: '#f7fafc', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 4px #e5e7eb' }}>
-                        <span style={{ fontSize: 26 }}>{getServiceIcon(ev.resource?.description)}</span>
-                        <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, fontSize: 15 }}>{ev.title}</div>
-                            <div style={{ fontSize: 13, color: '#555' }}>{ev.resource?.description || 'Brak opisu'}</div>
-                            <div style={{ fontSize: 13, color: '#0077cc', marginTop: 2 }}>{format(new Date(ev.start), 'HH:mm')} - {format(new Date(ev.end), 'HH:mm')}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {appointments.map((ev, index) => {
+                    const isHovered = ev.id === hoveredEventId;
+                    const color = getTreatmentColor(ev.resource?.treatment);
+                    const isPast = new Date(ev.end) < new Date();
+
+                    const style = {
+                        background: isHovered ? '#f0f8ff' : '#fff',
+                        borderBottom: index < appointments.length - 1 ? '1px solid #f0f0f0' : 'none',
+                        borderLeft: `5px solid ${color}`,
+                        padding: '16px 8px 16px 12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        transition: 'background-color 0.2s, opacity 0.2s',
+                        cursor: 'pointer',
+                        opacity: isPast ? 0.65 : 1,
+                    };
+
+                    return (
+                        <div
+                            key={ev.id}
+                            style={style}
+                            onMouseEnter={() => setHoveredEventId(ev.id)}
+                            onMouseLeave={() => setHoveredEventId(null)}
+                        >
+                            <span style={{ fontSize: 26 }}>{getServiceIcon(ev.resource?.description)}</span>
+                            <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 600, fontSize: 15 }}>{ev.title}</div>
+                                <div style={{ fontSize: 13, color: '#555' }}>{ev.resource?.description || 'Brak opisu'}</div>
+                                <div style={{ fontSize: 13, color: '#0077cc', marginTop: 2 }}>{format(new Date(ev.start), 'HH:mm')} - {format(new Date(ev.end), 'HH:mm')}</div>
+                            </div>
+                            <button onClick={() => onEdit(ev)} style={{ background: 'none', border: 'none', color: '#0077cc', cursor: 'pointer', padding: '8px' }} title="Edytuj"><EditIcon /></button>
+                            <button onClick={() => onDelete(ev)} style={{ background: 'none', border: 'none', color: '#C8373B', cursor: 'pointer', padding: '8px' }} title="Usuń"><DeleteIcon /></button>
                         </div>
-                        <button onClick={() => onEdit(ev)} style={{ background: 'none', border: 'none', color: '#0077cc', cursor: 'pointer', marginRight: 4 }} title="Edytuj"><EditIcon fontSize="small" /></button>
-                        <button onClick={() => onDelete(ev)} style={{ background: 'none', border: 'none', color: '#C8373B', cursor: 'pointer' }} title="Usuń"><DeleteIcon fontSize="small" /></button>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

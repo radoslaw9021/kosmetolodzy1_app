@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -22,6 +23,67 @@ const localizer = dateFnsLocalizer({
     getDay,
     locales,
 });
+
+const treatmentColorMap = {
+    "Konsultacja kosmetologiczna": "#4A90E2",
+    "Oczyszczanie wodorowe": "#50E3C2",
+    "Peeling kawitacyjny": "#F5A623",
+    "Mikrodermabrazja": "#BD10E0",
+    "Mezoterapia bezigłowa": "#9013FE",
+    "Fale radiowe RF": "#F8E71C",
+    "Zabieg bankietowy": "#D0021B",
+    "Masaż twarzy": "#E55986",
+    "Regulacja brwi": "#7ED321",
+    "Henna brwi i rzęs": "#417505",
+    "default": "#CCCCCC"
+};
+
+const getTreatmentColor = (treatmentName) => {
+    return treatmentColorMap[treatmentName] || treatmentColorMap.default;
+};
+
+const getTextColorForBg = (hexColor) => {
+    if (!hexColor) return '#000000';
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 140) ? '#000000' : '#ffffff'; // Zwraca czarny dla jasnych, biały dla ciemnych
+};
+
+const EventComponent = ({ event, isHovered, onMouseEnter, onMouseLeave }) => {
+    const bgColor = getTreatmentColor(event.resource?.treatment);
+    const textColor = getTextColorForBg(bgColor); // <-- Dynamiczny kolor tekstu
+    const isPast = event.end < new Date();
+
+    const style = {
+        height: '100%',
+        padding: '2px 6px',
+        backgroundColor: bgColor,
+        color: textColor, // Użycie dynamicznego koloru
+        borderRadius: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        fontSize: '13px',
+        fontWeight: 500,
+        transition: 'filter 0.2s, box-shadow 0.2s, opacity 0.2s',
+        cursor: 'pointer',
+        opacity: isPast ? 0.6 : 1,
+        boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.25)' : '0 1px 3px rgba(0,0,0,0.15)',
+        filter: isHovered ? 'brightness(1.1)' : 'brightness(1)',
+    };
+
+    return (
+        <div
+            style={style}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+        >
+            {event.title}
+        </div>
+    );
+};
 
 const CustomToolbar = (toolbar) => {
     const { label, view, views, messages, onNavigate, onView } = toolbar;
@@ -64,20 +126,15 @@ const CustomToolbar = (toolbar) => {
 };
 
 const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
+    const navigate = useNavigate();
     // --- STATE MANAGEMENT ---
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState('month');
     const [isAppointmentFormVisible, setIsAppointmentFormVisible] = useState(false);
     const [isClientFormVisible, setIsClientFormVisible] = useState(false);
     const [treatmentTypes, setTreatmentTypes] = useState([]);
-    const [newAppointment, setNewAppointment] = useState({
-        clientId: '',
-        date: new Date().toISOString().split('T')[0],
-        time: '12:00',
-        duration: 60,
-        treatment: '',
-        description: '',
-    });
+    const [newAppointment, setNewAppointment] = useState(null);
+    const [hoveredEventId, setHoveredEventId] = useState(null);
 
     // Set time range for day/week view
     const minTime = new Date();
@@ -116,8 +173,13 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     };
 
     const handleSelectEvent = (event) => {
-        setCurrentDate(event.start);
-        setCurrentView('day');
+        const clientId = event.resource?.clientId;
+        if (clientId) {
+            navigate(`/client/${clientId}`);
+        } else {
+            console.warn("Próbowano otworzyć wizytę bez przypisanego klienta.", event);
+            toast.warn("Ta wizyta nie ma przypisanego klienta.");
+        }
     };
 
     const getAppointmentsForDate = (date) => {
@@ -138,15 +200,15 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     
     const handleShowAppointmentForm = (date) => {
         const targetDate = date instanceof Date ? date : new Date(date);
-        setNewAppointment(prev => ({
-            ...prev,
-            date: format(targetDate, 'yyyy-MM-dd'),
+        setNewAppointment({
+            id: null,
             clientId: '',
+            date: format(targetDate, 'yyyy-MM-dd'),
             time: '12:00',
             duration: 60,
             treatment: '',
             description: '',
-        }));
+        });
         setIsAppointmentFormVisible(true);
         setIsClientFormVisible(false);
     };
@@ -155,6 +217,27 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
         onAddClient(newlyAddedClient);
         setNewAppointment(prev => ({ ...prev, clientId: newlyAddedClient.id }));
         setIsClientFormVisible(false);
+    };
+
+    const handleEditAppointment = (event) => {
+        setNewAppointment({
+            id: event.id,
+            clientId: event.resource.clientId,
+            date: format(event.start, 'yyyy-MM-dd'),
+            time: format(event.start, 'HH:mm'),
+            duration: (event.end.getTime() - event.start.getTime()) / 60000,
+            treatment: event.resource.treatment,
+            description: event.resource.description,
+        });
+        setIsAppointmentFormVisible(true);
+        setIsClientFormVisible(false);
+    };
+
+    const handleDeleteAppointment = (eventToDelete) => {
+        if (window.confirm("Czy na pewno chcesz usunąć tę wizytę?")) {
+            setEvents(prevEvents => prevEvents.filter(event => event.id !== eventToDelete.id));
+            toast.success("Wizyta została usunięta.");
+        }
     };
 
     const handleSubmitAppointment = (e) => {
@@ -175,7 +258,7 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
         const endDate = new Date(startDate.getTime() + newAppointment.duration * 60000);
 
         const appointmentToSave = {
-            id: Date.now(),
+            id: newAppointment.id || Date.now(),
             title: `${client.firstName} ${client.lastName} - ${newAppointment.treatment}`,
             start: startDate,
             end: endDate,
@@ -185,13 +268,19 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                 description: newAppointment.description,
             }
         };
-        
-        setEvents(prev => [...prev, appointmentToSave]);
-        toast.success("Dodano wizytę!");
+
+        if (newAppointment.id) {
+            setEvents(prev => prev.map(ev => ev.id === newAppointment.id ? appointmentToSave : ev));
+            toast.success("Wizyta zaktualizowana!");
+        } else {
+            setEvents(prev => [...prev, appointmentToSave]);
+            toast.success("Dodano wizytę!");
+        }
         
         setCurrentDate(startDate);
         setCurrentView('day');
         setIsAppointmentFormVisible(false);
+        setNewAppointment(null);
     };
     
     // --- RENDER ---
@@ -219,7 +308,17 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                                 month: "Miesiąc", week: "Tydzień", day: "Dzień", agenda: "Agenda",
                                 showMore: total => `+${total} więcej`
                             }}
-                            components={{ toolbar: CustomToolbar }}
+                            components={{ 
+                                toolbar: CustomToolbar,
+                                event: (props) => (
+                                    <EventComponent
+                                        {...props}
+                                        isHovered={props.event.id === hoveredEventId}
+                                        onMouseEnter={() => setHoveredEventId(props.event.id)}
+                                        onMouseLeave={() => setHoveredEventId(null)}
+                                    />
+                                ),
+                            }}
                             view={currentView}
                             onView={handleViewChange}
                             date={currentDate}
@@ -256,6 +355,11 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                             selectedDate={currentDate}
                             appointments={getAppointmentsForDate(currentDate)}
                             onAddAppointment={() => handleShowAppointmentForm(currentDate)}
+                            onEdit={handleEditAppointment}
+                            onDelete={handleDeleteAppointment}
+                            hoveredEventId={hoveredEventId}
+                            setHoveredEventId={setHoveredEventId}
+                            getTreatmentColor={getTreatmentColor}
                         />
                     )}
                 </div>

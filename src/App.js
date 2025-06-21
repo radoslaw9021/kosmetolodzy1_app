@@ -20,7 +20,6 @@ import TreatmentForm from "./components/TreatmentForm";
 import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
-import AppointmentScheduler from "./components/AppointmentScheduler";
 
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
@@ -334,22 +333,6 @@ function AppContent({
                   events={events}
                   setEvents={setEvents}
                   onAddClient={(newClient) => handleAddOrUpdateClient(newClient, false)}
-                />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/appointment-scheduler"
-            element={
-              <PrivateRoute isLoggedIn={!!currentUser}>
-                <AppointmentScheduler
-                  currentUser={currentUser}
-                  clients={filteredClients}
-                  handleAddAppointment={handleAddAppointment}
-                  handleUpdateAppointment={handleUpdateAppointment}
-                  handleDeleteAppointment={handleDeleteAppointment}
-                  getUserAppointments={getUserAppointments}
-                  getUpcomingUserAppointments={getUpcomingUserAppointments}
                 />
               </PrivateRoute>
             }

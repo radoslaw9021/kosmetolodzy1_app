@@ -125,18 +125,6 @@ export default function Header({ currentUser, onLogout }) {
           Kalendarz
         </NavLink>
         <NavLink
-          to="/appointment-scheduler"
-          style={({ isActive }) => ({
-            color: isActive ? "#fff" : "#333",
-            backgroundColor: isActive ? "#C8373B" : "transparent",
-            padding: "0.5rem 1rem",
-            borderRadius: "4px",
-            textDecoration: "none",
-          })}
-        >
-          Harmonogram
-        </NavLink>
-        <NavLink
           to="/newsletter"
           style={({ isActive }) => ({
             color: isActive ? "#fff" : "#333",
