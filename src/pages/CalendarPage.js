@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'moment/locale/pl';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns';
+import { pl } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { toast } from 'react-toastify';
 
@@ -11,8 +11,57 @@ import AppointmentModal from '../components/AppointmentModal';
 import ClientForm from '../components/ClientForm';
 import * as userService from '../services/userService';
 
-moment.locale('pl');
-const localizer = momentLocalizer(moment);
+const locales = {
+    'pl': pl,
+};
+
+const localizer = dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek: (date) => startOfWeek(date, { locale: pl }),
+    getDay,
+    locales,
+});
+
+const CustomToolbar = (toolbar) => {
+    const { label, view, views, messages, onNavigate, onView } = toolbar;
+    
+    // Provide fallback messages to prevent crash if props are not ready
+    const viewNames = {
+        month: messages?.month || 'Miesiąc',
+        week: messages?.week || 'Tydzień',
+        day: messages?.day || 'Dzień',
+        agenda: messages?.agenda || 'Agenda',
+    };
+
+    const todayLabel = messages?.today || 'Dziś';
+    const previousLabel = messages?.previous || 'Poprzedni';
+    const nextLabel = messages?.next || 'Następny';
+
+    return (
+        <div className="rbc-toolbar">
+            <span className="rbc-btn-group">
+                <button type="button" onClick={() => onNavigate('TODAY')}>{todayLabel}</button>
+                <button type="button" onClick={() => onNavigate('PREV')}>{previousLabel}</button>
+                <button type="button" onClick={() => onNavigate('NEXT')}>{nextLabel}</button>
+            </span>
+            <span className="rbc-toolbar-label">{label}</span>
+            <span className="rbc-btn-group">
+                {views.filter(v => v !== 'day').map(v => (
+                    <button
+                        key={v}
+                        type="button"
+                        className={view === v ? 'rbc-active' : ''}
+                        onClick={() => onView(v)}
+                        disabled={view === v}
+                    >
+                        {viewNames[v]}
+                    </button>
+                ))}
+            </span>
+        </div>
+    );
+};
 
 const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     // --- STATE MANAGEMENT ---
@@ -29,6 +78,12 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
         treatment: '',
         description: '',
     });
+
+    // Set time range for day/week view
+    const minTime = new Date();
+    minTime.setHours(7, 0, 0);
+    const maxTime = new Date();
+    maxTime.setHours(23, 0, 0);
 
     // --- EFFECTS ---
     useEffect(() => {
@@ -48,6 +103,11 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     const handleViewChange = (view) => {
         setCurrentView(view);
     };
+
+    // New handlers for month navigation
+    const handleMonthChange = (newDate) => {
+        setCurrentDate(newDate);
+    };
     
     const handleSelectSlot = ({ start }) => {
         setCurrentDate(start);
@@ -61,14 +121,26 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     };
 
     const getAppointmentsForDate = (date) => {
-        return events.filter(event => moment(event.start).isSame(date, 'day'));
+        return events.filter(event => isSameDay(new Date(event.start), date));
+    };
+    
+    const handleSelectDay = (day) => {
+        setCurrentDate(day);
+        setCurrentView('day');
+        // If form is open, update its date too
+        if (isAppointmentFormVisible) {
+            setNewAppointment(prev => ({
+                ...prev,
+                date: format(day, 'yyyy-MM-dd'),
+            }));
+        }
     };
     
     const handleShowAppointmentForm = (date) => {
         const targetDate = date instanceof Date ? date : new Date(date);
         setNewAppointment(prev => ({
             ...prev,
-            date: targetDate.toISOString().split('T')[0],
+            date: format(targetDate, 'yyyy-MM-dd'),
             clientId: '',
             time: '12:00',
             duration: 60,
@@ -94,11 +166,13 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
             return;
         }
 
-        const [year, month, day] = newAppointment.date.split('-').map(Number);
-        const [hours, minutes] = newAppointment.time.split(':').map(Number);
+        const startDate = parse(
+            `${newAppointment.date} ${newAppointment.time}`, 
+            'yyyy-MM-dd HH:mm', 
+            new Date()
+        );
         
-        const startDate = new Date(year, month - 1, day, hours, minutes);
-        const endDate = moment(startDate).add(newAppointment.duration, 'minutes').toDate();
+        const endDate = new Date(startDate.getTime() + newAppointment.duration * 60000);
 
         const appointmentToSave = {
             id: Date.now(),
@@ -131,13 +205,12 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                         <MonthView
                             calendarEvents={events}
                             selectedDate={currentDate}
-                            handleSelectDay={(day) => {
-                                setCurrentDate(day);
-                                setCurrentView('day');
-                            }}
+                            handleSelectDay={handleSelectDay}
+                            onMonthChange={handleMonthChange}
                         />
                     ) : (
                         <Calendar
+                            culture='pl'
                             localizer={localizer}
                             events={events}
                             style={{ flex: 1, height: 'calc(100vh - 200px)' }}
@@ -146,6 +219,7 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                                 month: "Miesiąc", week: "Tydzień", day: "Dzień", agenda: "Agenda",
                                 showMore: total => `+${total} więcej`
                             }}
+                            components={{ toolbar: CustomToolbar }}
                             view={currentView}
                             onView={handleViewChange}
                             date={currentDate}
@@ -153,6 +227,8 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                             onSelectSlot={handleSelectSlot}
                             onSelectEvent={handleSelectEvent}
                             selectable
+                            min={minTime}
+                            max={maxTime}
                         />
                     )}
                 </div>

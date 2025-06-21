@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { pl } from 'date-fns/locale';
 
@@ -16,38 +16,38 @@ const MonthView = ({
     calendarEvents,
     selectedDate,
     handleSelectDay,
+    onMonthChange,
 }) => {
-    // Dodaję lokalny stan do nawigacji miesiącami
-    const [viewDate, setViewDate] = useState(selectedDate);
+    // Change month handlers now call the parent
+    const handlePrevMonth = () => onMonthChange(subMonths(selectedDate, 1));
+    const handleNextMonth = () => onMonthChange(addMonths(selectedDate, 1));
+    const handleToday = () => onMonthChange(new Date());
 
-    // Zmiana miesiąca
-    const handlePrevMonth = () => setViewDate(prev => subMonths(prev, 1));
-    const handleNextMonth = () => setViewDate(prev => addMonths(prev, 1));
-    const handleToday = () => setViewDate(new Date());
-
-    // Wyznacz zakres miesięczny
-    const monthStart = startOfMonth(viewDate);
+    // Calculate date range based on selectedDate
+    const monthStart = startOfMonth(selectedDate);
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
     const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
-    // Tworzymy siatkę dni
     const rows = [];
-    let days = [];
     let day = startDate;
-    let formattedDate = '';
 
     while (day <= endDate) {
+        const days = [];
+        const weekKey = day.toISOString(); // Unique key for the week row
+
         for (let i = 0; i < 7; i++) {
-            formattedDate = format(day, 'd');
-            const isCurrentMonth = isSameMonth(day, monthStart);
-            const isToday = isSameDay(day, new Date());
-            const eventsForDay = calendarEvents.filter(event => isSameDay(new Date(event.start), day));
+            const currentDay = new Date(day); // Create a new instance for the closure
+            const formattedDate = format(currentDay, 'd');
+            const isCurrentMonth = isSameMonth(currentDay, monthStart);
+            const isToday = isSameDay(currentDay, new Date());
+            const eventsForDay = calendarEvents.filter(event => isSameDay(new Date(event.start), currentDay));
             const count = eventsForDay.length;
+
             days.push(
                 <div
-                    key={day}
-                    onClick={() => isCurrentMonth && handleSelectDay(day)}
+                    key={currentDay.toISOString()} // Use ISO string for a unique key
+                    onClick={() => isCurrentMonth && handleSelectDay(currentDay)}
                     style={{
                         background: getDayColor(count),
                         borderRadius: 10,
@@ -75,11 +75,10 @@ const MonthView = ({
             day = addDays(day, 1);
         }
         rows.push(
-            <div key={day} style={{ display: 'flex', justifyContent: 'center' }}>
+            <div key={weekKey} style={{ display: 'flex', justifyContent: 'center' }}>
                 {days}
             </div>
         );
-        days = [];
     }
 
     // Nazwy dni tygodnia
@@ -87,11 +86,11 @@ const MonthView = ({
 
     return (
         <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #e5e7eb', padding: 32, maxWidth: 480, margin: '0 auto' }}>
-            {/* Nawigacja miesiącami */}
+            {/* Month navigation */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <button onClick={handlePrevMonth} style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 20, cursor: 'pointer' }}>{'‹'}</button>
                 <div style={{ fontWeight: 700, fontSize: 22 }}>
-                    {format(viewDate, 'LLLL yyyy', { locale: pl })}
+                    {format(selectedDate, 'LLLL yyyy', { locale: pl })}
                 </div>
                 <button onClick={handleNextMonth} style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 20, cursor: 'pointer' }}>{'›'}</button>
             </div>
