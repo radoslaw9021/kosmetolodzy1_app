@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { getTreatmentColor } from "../utils/calendarUtils";
 import TreatmentForm from "./TreatmentForm";
 import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
@@ -128,7 +131,7 @@ const style = {
   }),
 };
 
-export default function ClientCard({ clients, onUpdateClient }) {
+export default function ClientCard({ clients, events, onUpdateClient, onRemoveClient, onUpdateTreatment }) {
   const { clientId } = useParams();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
@@ -143,6 +146,12 @@ export default function ClientCard({ clients, onUpdateClient }) {
   });
 
   const client = clients.find((c) => c.id === clientId);
+
+  // Find and sort appointments for this client
+  const clientAppointments = events
+    .filter((event) => event.resource?.clientId === clientId)
+    .sort((a, b) => new Date(b.start) - new Date(a.start));
+
   if (!client) {
     return (
       <div style={{ padding: "1rem" }}>
@@ -195,6 +204,10 @@ export default function ClientCard({ clients, onUpdateClient }) {
     const updatedTreatments = [...(client.treatments || [])];
     updatedTreatments[treatmentIdx] = updatedTreatment;
     onUpdateClient({ ...client, treatments: updatedTreatments });
+  };
+
+  const handleGoToAppointment = (event) => {
+    navigate(`/client/${clientId}/treatment/${event.id}`);
   };
 
   return (
@@ -315,50 +328,104 @@ export default function ClientCard({ clients, onUpdateClient }) {
         )}
       </div>
 
-      <div style={{ ...style.buttonGroup, margin: "2rem 0 0 0" }}>
-        <button
-          onClick={() => {
-            setEmailStatus("");
-            setShowForm((p) => !p);
-          }}
-          style={style.blackButton}
-          onMouseOver={handleButtonHover}
-          onMouseOut={handleButtonOut}
-        >
-          {showForm ? "Anuluj dodawanie zabiegu" : "Dodaj zabieg"}
-        </button>
+      <div style={style.section}>
+        <h3 style={{ fontSize: "1.15rem", marginBottom: "1rem", fontWeight: 700 }}>
+          Historia wizyt
+        </h3>
+        {clientAppointments.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {clientAppointments.map(event => {
+              const isPast = new Date(event.end) < new Date();
+              const color = getTreatmentColor(event.resource?.treatment);
+              return (
+                <div 
+                  key={event.id} 
+                  onClick={() => handleGoToAppointment(event)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '0.8rem 0.5rem',
+                    borderBottom: '1px solid #f5f5f7',
+                    cursor: 'pointer',
+                    transition: 'background .18s',
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#f8f9fb'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <span style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    backgroundColor: color,
+                    marginRight: '1rem',
+                    opacity: isPast ? 0.5 : 1,
+                  }}></span>
+                  <div style={{ flex: 1, opacity: isPast ? 0.6 : 1 }}>
+                    <div style={{ fontWeight: 600 }}>{event.resource?.treatment || 'Brak nazwy'}</div>
+                    <div style={{ fontSize: '0.9rem', color: '#666' }}>
+                      {format(new Date(event.start), 'd MMMM yyyy, HH:mm', { locale: pl })}
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: '0.8rem',
+                    fontWeight: 600,
+                    color: isPast ? '#888' : '#28a745',
+                  }}>
+                    {isPast ? 'Odbyta' : 'Zaplanowana'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p style={{ textAlign: 'center', color: '#888', padding: '1rem 0' }}>Brak zapisanych wizyt.</p>
+        )}
+      </div>
+      
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
+          <button 
+              onClick={() => setShowForm(p => !p)}
+              style={style.blackButton}
+              onMouseOver={handleButtonHover}
+              onMouseOut={handleButtonOut}
+          >
+              {showForm ? "Anuluj zabieg" : "Dodaj zabieg"}
+          </button>
+          <button 
+              onClick={() => navigate('/calendar', { state: { showAppointmentForm: true, clientId: client.id }})}
+              style={style.blackButton}
+              onMouseOver={handleButtonHover}
+              onMouseOut={handleButtonOut}
+          >
+              Dodaj wizytę
+          </button>
       </div>
 
       {showForm && (
-        <>
-          <TreatmentForm
+        <TreatmentForm
             onAddTreatment={(newTreatment) => {
-              const updatedClient = {
+            const updatedClient = {
                 ...client,
                 treatments: [...(client.treatments || []), newTreatment],
-              };
-              onUpdateClient(updatedClient);
-
-              setShowForm(false);
+            };
+            onUpdateClient(updatedClient);
+            setShowForm(false);
             }}
             onCancel={() => setShowForm(false)}
-          />
-
-          {emailStatus && (
-            <div style={style.emailStatus(emailStatus.includes("❌"))}>
-              {emailStatus}
-            </div>
-          )}
-        </>
+        />
       )}
 
       <div style={{ marginTop: "2.3rem" }}>
+        <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', fontWeight: 700, borderTop: '1px solid #eee', paddingTop: '1.5rem' }}>
+            Historia zabiegów (z formularzy)
+        </h3>
         <TreatmentHistory
-          treatments={client.treatments || []}
-          clientId={client.id}
-          onUpdateTreatment={handleUpdateTreatment}
+            treatments={client.treatments || []}
+            clientId={client.id}
+            onUpdateTreatment={onUpdateTreatment}
         />
       </div>
+
     </div>
   );
 }

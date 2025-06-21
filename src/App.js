@@ -24,6 +24,7 @@ import AdminPanel from "./components/AdminPanel";
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
 import DashboardPage from './pages/DashboardPage';
+import TreatmentDetailsPage from './pages/TreatmentDetailsPage';
 
 import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
 import { 
@@ -288,6 +289,7 @@ function AppContent({
               <PrivateRoute isLoggedIn={!!currentUser}>
                 <ClientCard
                   clients={filteredClients}
+                  events={events}
                   onRemoveClient={handleRemoveClient}
                   onUpdateClient={(c) => handleAddOrUpdateClient(c, true)}
                   onUpdateTreatment={handleUpdateTreatment}
@@ -311,6 +313,18 @@ function AppContent({
               <PrivateRoute isLoggedIn={!!currentUser}>
                 <TreatmentHistory
                   clients={filteredClients}
+                  onUpdateTreatment={handleUpdateTreatment}
+                />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/client/:clientId/treatment/:treatmentId"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <TreatmentDetailsPage
+                  events={events}
+                  clients={clients}
                   onUpdateTreatment={handleUpdateTreatment}
                 />
               </PrivateRoute>
