@@ -44,7 +44,7 @@ const AppointmentModal = ({
                             <option value="">-- Wybierz klienta --</option>
                             {clients.map(client => (
                                 <option key={client.id} value={client.id}>
-                                    {client.name}
+                                    {client.firstName} {client.lastName}
                                 </option>
                             ))}
                         </select>

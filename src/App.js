@@ -39,7 +39,16 @@ export default function App() {
   const [currentUser, setCurrentUserState] = useState(getCurrentUser());
   const [clients, setClients] = useState(() => {
     const stored = localStorage.getItem("clients");
-    const parsedClients = stored ? JSON.parse(stored) : [];
+    let parsedClients = [];
+    if (stored) {
+      try {
+        parsedClients = JSON.parse(stored);
+      } catch (e) {
+        console.error("Błąd parsowania klientów z localStorage:", e);
+        // W przypadku błędu, zacznij z pustą listą, aby uniknąć awarii
+        parsedClients = [];
+      }
+    }
     
     // Migracja: dodaj pole appointments do istniejących klientów
     const migratedClients = parsedClients.map(client => ({
@@ -53,6 +62,29 @@ export default function App() {
     
     return migratedClients;
   });
+
+  // JEDYNE ŹRÓDŁO PRAWDY O WIZYTACH
+  const [events, setEvents] = useState(() => {
+    try {
+        const stored = localStorage.getItem('appointments');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            return parsed.map(e => ({
+                ...e,
+                start: new Date(e.start),
+                end: new Date(e.end),
+            }));
+        }
+    } catch (error) {
+        console.error("Błąd wczytywania wizyt z localStorage", error);
+    }
+    return [];
+  });
+
+  // synchronizacja wizyt z localStorage
+  useEffect(() => {
+      localStorage.setItem('appointments', JSON.stringify(events));
+  }, [events]);
 
   // synchronizacja localStorage <-> stan
   useEffect(() => {
@@ -76,7 +108,7 @@ export default function App() {
   };
 
   // dodaj lub zaktualizuj klientkę (z ownerId)
-  const handleAddOrUpdateClient = (clientData, isUpdate) => {
+  const handleAddOrUpdateClient = (clientData, isUpdate = false) => {
     setClients((prev) => {
       const withOwner = {
         ...clientData,
@@ -149,6 +181,9 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
         clients={clients}
+        setClients={setClients}
+        events={events}
+        setEvents={setEvents}
         handleAddOrUpdateClient={handleAddOrUpdateClient}
         handleRemoveClient={handleRemoveClient}
         handleUpdateTreatment={handleUpdateTreatment}
@@ -167,6 +202,9 @@ function AppContent({
   onLoginSuccess,
   onLogout,
   clients,
+  setClients,
+  events,
+  setEvents,
   handleAddOrUpdateClient,
   handleRemoveClient,
   handleUpdateTreatment,
@@ -291,7 +329,12 @@ function AppContent({
             path="/calendar"
             element={
               <PrivateRoute isLoggedIn={!!currentUser}>
-                <CalendarPage clients={filteredClients} />
+                <CalendarPage
+                  clients={filteredClients}
+                  events={events}
+                  setEvents={setEvents}
+                  onAddClient={(newClient) => handleAddOrUpdateClient(newClient, false)}
+                />
               </PrivateRoute>
             }
           />

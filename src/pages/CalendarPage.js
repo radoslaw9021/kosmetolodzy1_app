@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/pl';
@@ -14,39 +14,13 @@ import * as userService from '../services/userService';
 moment.locale('pl');
 const localizer = momentLocalizer(moment);
 
-const CalendarPage = () => {
+const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     // --- STATE MANAGEMENT ---
-    // State for appointments, ensuring dates are proper Date objects
-    const [events, setEvents] = useState(() => {
-        try {
-            const storedAppointments = localStorage.getItem('appointments');
-            if (storedAppointments) {
-                const parsed = JSON.parse(storedAppointments);
-                return parsed.map(e => ({
-                    ...e,
-                    start: new Date(e.start),
-                    end: new Date(e.end),
-                }));
-            }
-        } catch (error) {
-            console.error("Failed to parse appointments from localStorage", error);
-        }
-        return [];
-    });
-
-    // Single source of truth for date and view
     const [currentDate, setCurrentDate] = useState(new Date());
     const [currentView, setCurrentView] = useState('month');
-    
-    // States for controlling the UI
     const [isAppointmentFormVisible, setIsAppointmentFormVisible] = useState(false);
     const [isClientFormVisible, setIsClientFormVisible] = useState(false);
-
-    // States for data
-    const [localClients, setLocalClients] = useState([]);
     const [treatmentTypes, setTreatmentTypes] = useState([]);
-
-    // State for the new appointment form
     const [newAppointment, setNewAppointment] = useState({
         clientId: '',
         date: new Date().toISOString().split('T')[0],
@@ -57,21 +31,7 @@ const CalendarPage = () => {
     });
 
     // --- EFFECTS ---
-    // Initialize users and treatments on component mount
     useEffect(() => {
-        const allUsers = userService.getUsers();
-        const clientsExist = allUsers.some(u => u.role === 'Klient');
-
-        if (!clientsExist) {
-            // If no clients are found, it means the data is from an old version.
-            // A hard reset is performed to ensure the new data structure with clients is present.
-            const freshUsers = userService.resetUsersToDefault();
-            setLocalClients(freshUsers.filter(u => u.role === 'Klient'));
-        } else {
-            // If clients exist, use the current user list.
-            setLocalClients(allUsers.filter(u => u.role === 'Klient'));
-        }
-
         const treatments = [
             "Konsultacja kosmetologiczna", "Oczyszczanie wodorowe", "Peeling kawitacyjny",
             "Mikrodermabrazja", "Mezoterapia bezigłowa", "Fale radiowe RF",
@@ -79,11 +39,6 @@ const CalendarPage = () => {
         ];
         setTreatmentTypes(treatments);
     }, []);
-
-    // Persist events to localStorage
-    useEffect(() => {
-        localStorage.setItem('appointments', JSON.stringify(events));
-    }, [events]);
 
     // --- HANDLERS ---
     const handleNavigate = (newDate) => {
@@ -93,7 +48,7 @@ const CalendarPage = () => {
     const handleViewChange = (view) => {
         setCurrentView(view);
     };
-
+    
     const handleSelectSlot = ({ start }) => {
         setCurrentDate(start);
         setCurrentView('day');
@@ -101,10 +56,8 @@ const CalendarPage = () => {
     };
 
     const handleSelectEvent = (event) => {
-        // For now, simply navigate to the day of the event
         setCurrentDate(event.start);
         setCurrentView('day');
-        // A future implementation could open an edit form here
     };
 
     const getAppointmentsForDate = (date) => {
@@ -123,11 +76,11 @@ const CalendarPage = () => {
             description: '',
         }));
         setIsAppointmentFormVisible(true);
-        setIsClientFormVisible(false); // Ensure client form is hidden
+        setIsClientFormVisible(false);
     };
     
     const handleClientAdded = (newlyAddedClient) => {
-        setLocalClients(prevClients => [...prevClients, newlyAddedClient]);
+        onAddClient(newlyAddedClient);
         setNewAppointment(prev => ({ ...prev, clientId: newlyAddedClient.id }));
         setIsClientFormVisible(false);
     };
@@ -135,7 +88,7 @@ const CalendarPage = () => {
     const handleSubmitAppointment = (e) => {
         e.preventDefault();
         
-        const client = localClients.find(c => c.id.toString() === newAppointment.clientId.toString());
+        const client = clients.find(c => c.id.toString() === newAppointment.clientId.toString());
         if (!client) {
             toast.error('Proszę wybrać klienta.');
             return;
@@ -162,7 +115,6 @@ const CalendarPage = () => {
         setEvents(prev => [...prev, appointmentToSave]);
         toast.success("Dodano wizytę!");
         
-        // Navigate to the new appointment and close the form
         setCurrentDate(startDate);
         setCurrentView('day');
         setIsAppointmentFormVisible(false);
@@ -173,7 +125,6 @@ const CalendarPage = () => {
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem' }}>
             <div style={{ display: 'flex', padding: '2rem 0', gap: '2rem', justifyContent: 'center' }}>
                 
-                {/* --- LEWA KOLUMNA: KALENDARZ --- */}
                 <div style={{ flex: 1, maxWidth: '600px', display: 'flex', flexDirection: 'column' }}>
                     <h1 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '2rem', fontWeight: 'bold' }}>Kalendarz Spotkań</h1>
                     {currentView === 'month' ? (
@@ -189,13 +140,10 @@ const CalendarPage = () => {
                         <Calendar
                             localizer={localizer}
                             events={events}
-                            startAccessor="start"
-                            endAccessor="end"
-                            style={{ flex: 1 }}
+                            style={{ flex: 1, height: 'calc(100vh - 200px)' }}
                             messages={{
                                 next: "Następny", previous: "Poprzedni", today: "Dziś",
                                 month: "Miesiąc", week: "Tydzień", day: "Dzień", agenda: "Agenda",
-                                noEventsInRange: "Brak wizyt w tym zakresie.",
                                 showMore: total => `+${total} więcej`
                             }}
                             view={currentView}
@@ -209,7 +157,6 @@ const CalendarPage = () => {
                     )}
                 </div>
 
-                {/* --- PRAWA KOLUMNA: PANEL BOCZNY --- */}
                 <div style={{ flex: '0 0 450px', paddingTop: '4.5rem' }}>
                     {isAppointmentFormVisible ? (
                         isClientFormVisible ? (
@@ -221,7 +168,7 @@ const CalendarPage = () => {
                             <AppointmentModal
                                 newAppointment={newAppointment}
                                 setNewAppointment={setNewAppointment}
-                                clients={localClients}
+                                clients={clients}
                                 onSave={handleSubmitAppointment}
                                 onCancel={() => setIsAppointmentFormVisible(false)}
                                 onAddNewClient={() => setIsClientFormVisible(true)}
