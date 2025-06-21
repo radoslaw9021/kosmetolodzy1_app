@@ -1,178 +1,111 @@
-import React from 'react';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import { format } from 'date-fns';
+import React, { useState } from 'react';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { pl } from 'date-fns/locale';
-import moment from 'moment';
-import 'moment/locale/pl';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewWeekIcon from '@mui/icons-material/ViewWeek';
-import ViewDayIcon from '@mui/icons-material/ViewDay';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import TodayIcon from '@mui/icons-material/Today';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-
-// Konfiguracja lokalizera
-moment.locale('pl');
-const localizer = momentLocalizer(moment);
-
-// Funkcja do określania ikony na podstawie opisu usługi
-const getServiceIcon = (desc) => {
-    if (!desc) return '';
-    const d = desc.toLowerCase();
-    if (d.includes('mezoterapia')) return '🧬';
-    if (d.includes('oczyszczanie')) return '💧';
-    if (d.includes('laser')) return '🔦';
-    if (d.includes('peeling')) return '✨';
-    if (d.includes('mikrodermabrazja')) return '💎';
-    if (d.includes('botoks')) return '💉';
-    if (d.includes('kwas')) return '🧪';
-    if (d.includes('masaż')) return '💆';
-    if (d.includes('konsultacja')) return '👩‍⚕️';
-    return '💅';
-};
-
-// Komponent niestandardowego wydarzenia z ikoną
-const CustomEvent = ({ event }) => (
-    <div className="flex items-center space-x-2">
-        <div className="w-5 h-5 text-lg">
-            {getServiceIcon(event.resource?.description)}
-        </div>
-        <div>
-            <div className="font-medium text-sm">{event.title}</div>
-            <div className="text-xs text-gray-500">{event.resource?.description}</div>
-        </div>
-    </div>
-);
-
-// Custom Toolbar Component
-const CustomToolbar = ({ label, onNavigate, onView, view }) => {
-    return (
-        <div className="rbc-toolbar custom-toolbar">
-            <span className="rbc-btn-group">
-                <button type="button" onClick={() => onNavigate('PREV')}><ArrowBackIosIcon fontSize="small" /></button>
-                <button type="button" onClick={() => onNavigate('TODAY')}><TodayIcon fontSize="small" /></button>
-                <button type="button" onClick={() => onNavigate('NEXT')}><ArrowForwardIosIcon fontSize="small" /></button>
-            </span>
-            <span className="rbc-toolbar-label">{label}</span>
-            <span className="rbc-btn-group">
-                <button
-                    type="button"
-                    onClick={() => onView('month')}
-                    className={view === 'month' ? 'rbc-active' : ''}
-                >
-                    <ViewModuleIcon />
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onView('week')}
-                    className={view === 'week' ? 'rbc-active' : ''}
-                >
-                    <ViewWeekIcon />
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onView('day')}
-                    className={view === 'day' ? 'rbc-active' : ''}
-                >
-                    <ViewDayIcon />
-                </button>
-                <button
-                    type="button"
-                    onClick={() => onView('agenda')}
-                    className={view === 'agenda' ? 'rbc-active' : ''}
-                >
-                    <EventNoteIcon />
-                </button>
-            </span>
-        </div>
-    );
+const getDayColor = (count) => {
+    // 0 - jasny, 1-2 - lekko, 3-4 - średni, 5+ - ciemny
+    if (count === 0) return '#f7fafc'; // bardzo jasny
+    if (count === 1) return '#c7eaff';
+    if (count === 2) return '#7fd3ff';
+    if (count === 3) return '#3bb0e6';
+    if (count >= 4) return '#0077cc';
+    return '#f7fafc';
 };
 
 const MonthView = ({
     calendarEvents,
     selectedDate,
-    handleSelectEvent,
-    handleSelectSlot,
-    handleEventDrop,
-    handleEventResize,
-    onView
+    handleSelectDay,
 }) => {
-    // 🔥 Heatmapa dostępności
-    const dayPropGetter = (date) => {
-        const eventsForDay = calendarEvents.filter(event =>
-            moment(event.start).isSame(date, 'day')
+    // Dodaję lokalny stan do nawigacji miesiącami
+    const [viewDate, setViewDate] = useState(selectedDate);
+
+    // Zmiana miesiąca
+    const handlePrevMonth = () => setViewDate(prev => subMonths(prev, 1));
+    const handleNextMonth = () => setViewDate(prev => addMonths(prev, 1));
+    const handleToday = () => setViewDate(new Date());
+
+    // Wyznacz zakres miesięczny
+    const monthStart = startOfMonth(viewDate);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    // Tworzymy siatkę dni
+    const rows = [];
+    let days = [];
+    let day = startDate;
+    let formattedDate = '';
+
+    while (day <= endDate) {
+        for (let i = 0; i < 7; i++) {
+            formattedDate = format(day, 'd');
+            const isCurrentMonth = isSameMonth(day, monthStart);
+            const isToday = isSameDay(day, new Date());
+            const eventsForDay = calendarEvents.filter(event => isSameDay(new Date(event.start), day));
+            const count = eventsForDay.length;
+            days.push(
+                <div
+                    key={day}
+                    onClick={() => isCurrentMonth && handleSelectDay(day)}
+                    style={{
+                        background: getDayColor(count),
+                        borderRadius: 10,
+                        minHeight: 54,
+                        minWidth: 54,
+                        margin: 2,
+                        cursor: isCurrentMonth ? 'pointer' : 'default',
+                        opacity: isCurrentMonth ? 1 : 0.4,
+                        border: isToday ? '2px solid #0077cc' : '1px solid #e5e7eb',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: isToday ? 700 : 500,
+                        color: count >= 3 ? '#fff' : '#222',
+                        transition: 'background 0.2s',
+                    }}
+                >
+                    <div>{formattedDate}</div>
+                    {count > 0 && (
+                        <div style={{ fontSize: 11, marginTop: 2 }}>{count} wizyt</div>
+                    )}
+                </div>
+            );
+            day = addDays(day, 1);
+        }
+        rows.push(
+            <div key={day} style={{ display: 'flex', justifyContent: 'center' }}>
+                {days}
+            </div>
         );
+        days = [];
+    }
 
-        const count = eventsForDay.length;
-        let backgroundColor = '';
-
-        if (count === 0) backgroundColor = '#dcfce7'; // jasnozielony
-        else if (count <= 3) backgroundColor = '#fef9c3'; // żółty
-        else backgroundColor = '#fee2e2'; // czerwony
-
-        return {
-            style: {
-                backgroundColor,
-                transition: 'background-color 0.3s ease',
-            }
-        };
-    };
+    // Nazwy dni tygodnia
+    const weekDays = ['pon', 'wto', 'śro', 'czw', 'pią', 'sob', 'nie'];
 
     return (
-        <div className="month-view-container flex-1 bg-white rounded-lg shadow-lg p-6">
-            <Calendar
-                localizer={localizer}
-                events={calendarEvents}
-                defaultView="month"
-                views={['month', 'week', 'day', 'agenda']}
-                date={selectedDate}
-                startAccessor="start"
-                endAccessor="end"
-                style={{ height: '700px' }}
-                components={{
-                    toolbar: (props) => <CustomToolbar {...props} onView={onView} />,
-                    event: CustomEvent,
-                }}
-                dayPropGetter={dayPropGetter}
-                tooltipAccessor={(event) =>
-                    `${event.title}\n${event.resource?.description || ''}`
-                }
-                messages={{
-                    next: 'Następny',
-                    previous: 'Poprzedni',
-                    today: 'Dziś',
-                    month: 'Miesiąc',
-                    week: 'Tydzień',
-                    day: 'Dzień',
-                    agenda: 'Agenda',
-                    date: 'Data',
-                    time: 'Godzina',
-                    event: 'Wydarzenie',
-                    noEventsInRange: 'Brak wizyt w tym zakresie.',
-                    showMore: total => `+ ${total} więcej`,
-                }}
-                formats={{
-                    dateFormat: 'dd.MM.yyyy',
-                    dayFormat: (date, culture, localizer) =>
-                        localizer.format(date, 'EEEE, dd.MM', culture),
-                    timeGutterFormat: (date, culture, localizer) =>
-                        localizer.format(date, 'HH:mm', culture),
-                    eventTimeRangeFormat: ({ start, end }, culture, localizer) =>
-                        `${localizer.format(start, 'HH:mm', culture)} - ${localizer.format(end, 'HH:mm', culture)}`,
-                    dayRangeHeaderFormat: ({ start, end }, culture, localizer) =>
-                        `${localizer.format(start, 'dd.MM', culture)} - ${localizer.format(end, 'dd.MM.yyyy', culture)}`,
-                }}
-                onSelectEvent={handleSelectEvent}
-                onSelectSlot={handleSelectSlot}
-                selectable
-                resizable
-                draggableAccessor={(event) => true}
-                onEventDrop={handleEventDrop}
-                onEventResize={handleEventResize}
-            />
+        <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #e5e7eb', padding: 32, maxWidth: 480, margin: '0 auto' }}>
+            {/* Nawigacja miesiącami */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <button onClick={handlePrevMonth} style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 20, cursor: 'pointer' }}>{'‹'}</button>
+                <div style={{ fontWeight: 700, fontSize: 22 }}>
+                    {format(viewDate, 'LLLL yyyy', { locale: pl })}
+                </div>
+                <button onClick={handleNextMonth} style={{ background: '#f3f4f6', border: 'none', borderRadius: 8, padding: '6px 14px', fontSize: 20, cursor: 'pointer' }}>{'›'}</button>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8, gap: 2 }}>
+                {weekDays.map(d => (
+                    <div key={d} style={{ width: 54, textAlign: 'center', color: '#888', fontWeight: 600 }}>{d}</div>
+                ))}
+            </div>
+            <div>
+                {rows}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 18 }}>
+                <button onClick={handleToday} style={{ background: '#0077cc', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Dziś</button>
+            </div>
         </div>
     );
 };

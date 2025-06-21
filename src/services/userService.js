@@ -27,6 +27,28 @@ const defaultUsers = [
     name: 'Joanna Wójcik',
     role: 'kosmetolog',
     createdAt: new Date().toISOString()
+  },
+  {
+    id: 'klient-1',
+    email: 'jan.kowalski@example.com',
+    password: 'Password1!',
+    name: 'Jan Kowalski',
+    firstName: 'Jan',
+    lastName: 'Kowalski',
+    phone: '123456789',
+    role: 'Klient',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'klient-2',
+    email: 'anna.nowak@example.com',
+    password: 'Password1!',
+    name: 'Anna Nowak',
+    firstName: 'Anna',
+    lastName: 'Nowak',
+    phone: '987654321',
+    role: 'Klient',
+    createdAt: new Date().toISOString()
   }
 ];
 
@@ -118,4 +140,105 @@ export const isKosmetolog = (user) => {
 export const getKosmetolodzy = () => {
   const users = getUsers();
   return users.filter(user => user.role === 'kosmetolog');
+};
+
+// ===== FUNKCJE DO ZARZĄDZANIA WIZYTAMI =====
+
+// Pobierz wszystkie wizyty dla danego użytkownika
+export const getAppointmentsForUser = (userId, clients) => {
+  if (!userId || !clients) return [];
+  
+  const userAppointments = [];
+  
+  clients.forEach(client => {
+    if (client.appointments && Array.isArray(client.appointments)) {
+      client.appointments.forEach(appointment => {
+        userAppointments.push({
+          ...appointment,
+          clientId: client.id,
+          clientName: client.name,
+          clientPhone: client.phone,
+          ownerId: client.ownerId
+        });
+      });
+    }
+  });
+  
+  return userAppointments;
+};
+
+// Dodaj wizytę do klienta
+export const addAppointmentToClient = (clientId, appointmentData, clients, setClients) => {
+  const newAppointment = {
+    id: `apt-${Date.now()}`,
+    ...appointmentData,
+    createdAt: new Date().toISOString(),
+    status: 'confirmed'
+  };
+  
+  const updatedClients = clients.map(client => 
+    client.id === clientId 
+      ? { 
+          ...client, 
+          appointments: [...(client.appointments || []), newAppointment] 
+        }
+      : client
+  );
+  
+  setClients(updatedClients);
+  localStorage.setItem("clients", JSON.stringify(updatedClients));
+  return newAppointment;
+};
+
+// Aktualizuj wizytę
+export const updateAppointment = (clientId, appointmentId, updatedData, clients, setClients) => {
+  const updatedClients = clients.map(client => 
+    client.id === clientId 
+      ? {
+          ...client,
+          appointments: (client.appointments || []).map(apt => 
+            apt.id === appointmentId ? { ...apt, ...updatedData } : apt
+          )
+        }
+      : client
+  );
+  
+  setClients(updatedClients);
+  localStorage.setItem("clients", JSON.stringify(updatedClients));
+};
+
+// Usuń wizytę
+export const deleteAppointment = (clientId, appointmentId, clients, setClients) => {
+  const updatedClients = clients.map(client => 
+    client.id === clientId 
+      ? {
+          ...client,
+          appointments: (client.appointments || []).filter(apt => apt.id !== appointmentId)
+        }
+      : client
+  );
+  
+  setClients(updatedClients);
+  localStorage.setItem("clients", JSON.stringify(updatedClients));
+};
+
+// Pobierz wizyty na konkretny dzień
+export const getAppointmentsForDate = (date, userId, clients) => {
+  const allAppointments = getAppointmentsForUser(userId, clients);
+  return allAppointments.filter(apt => apt.date === date);
+};
+
+// Pobierz nadchodzące wizyty (dzisiaj i później)
+export const getUpcomingAppointments = (userId, clients) => {
+  const allAppointments = getAppointmentsForUser(userId, clients);
+  const today = new Date().toISOString().split('T')[0];
+  
+  return allAppointments
+    .filter(apt => apt.date >= today)
+    .sort((a, b) => {
+      if (a.date === b.date) {
+        return a.time.localeCompare(b.time);
+      }
+      return a.date.localeCompare(b.date);
+    });
 }; 

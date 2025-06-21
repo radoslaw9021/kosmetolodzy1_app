@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // Pełna lista zabiegów z Beauty Room by Joanna Wójcik:
-const treatmentTypes = [
+export const treatmentTypes = [
   "-- wybierz --",
   "Peeling chemiczny",
   "Mezoterapia igłowa",

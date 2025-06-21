@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 
 import LoginForm from "./components/Auth/LoginForm";
@@ -19,17 +20,38 @@ import TreatmentForm from "./components/TreatmentForm";
 import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
+import AppointmentScheduler from "./components/AppointmentScheduler";
 
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
+import DashboardPage from './pages/DashboardPage';
 
 import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
+import { 
+  addAppointmentToClient, 
+  updateAppointment, 
+  deleteAppointment,
+  getAppointmentsForUser,
+  getUpcomingAppointments 
+} from "./services/userService";
 
 export default function App() {
   const [currentUser, setCurrentUserState] = useState(getCurrentUser());
   const [clients, setClients] = useState(() => {
     const stored = localStorage.getItem("clients");
-    return stored ? JSON.parse(stored) : [];
+    const parsedClients = stored ? JSON.parse(stored) : [];
+    
+    // Migracja: dodaj pole appointments do istniejących klientów
+    const migratedClients = parsedClients.map(client => ({
+      ...client,
+      appointments: client.appointments || []
+    }));
+    
+    if (stored && JSON.stringify(parsedClients) !== JSON.stringify(migratedClients)) {
+      localStorage.setItem("clients", JSON.stringify(migratedClients));
+    }
+    
+    return migratedClients;
   });
 
   // synchronizacja localStorage <-> stan
@@ -93,6 +115,33 @@ export default function App() {
     );
   };
 
+  // ===== FUNKCJE DO ZARZĄDZANIA WIZYTAMI =====
+  
+  // dodaj wizytę do klienta
+  const handleAddAppointment = (clientId, appointmentData) => {
+    addAppointmentToClient(clientId, appointmentData, clients, setClients);
+  };
+
+  // aktualizuj wizytę
+  const handleUpdateAppointment = (clientId, appointmentId, updatedData) => {
+    updateAppointment(clientId, appointmentId, updatedData, clients, setClients);
+  };
+
+  // usuń wizytę
+  const handleDeleteAppointment = (clientId, appointmentId) => {
+    deleteAppointment(clientId, appointmentId, clients, setClients);
+  };
+
+  // pobierz wizyty dla użytkownika
+  const getUserAppointments = (userId) => {
+    return getAppointmentsForUser(userId, clients);
+  };
+
+  // pobierz nadchodzące wizyty
+  const getUpcomingUserAppointments = (userId) => {
+    return getUpcomingAppointments(userId, clients);
+  };
+
   return (
     <Router>
       <AppContent
@@ -103,6 +152,11 @@ export default function App() {
         handleAddOrUpdateClient={handleAddOrUpdateClient}
         handleRemoveClient={handleRemoveClient}
         handleUpdateTreatment={handleUpdateTreatment}
+        handleAddAppointment={handleAddAppointment}
+        handleUpdateAppointment={handleUpdateAppointment}
+        handleDeleteAppointment={handleDeleteAppointment}
+        getUserAppointments={getUserAppointments}
+        getUpcomingUserAppointments={getUpcomingUserAppointments}
       />
     </Router>
   );
@@ -116,8 +170,14 @@ function AppContent({
   handleAddOrUpdateClient,
   handleRemoveClient,
   handleUpdateTreatment,
+  handleAddAppointment,
+  handleUpdateAppointment,
+  handleDeleteAppointment,
+  getUserAppointments,
+  getUpcomingUserAppointments,
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const isPublicForm = location.pathname === "/ankieta";
 
   // Filtrowanie klientów według roli użytkownika
@@ -134,7 +194,7 @@ function AppContent({
           <Route
             path="/login"
             element={
-              currentUser ? <Navigate to="/clients" /> : <LoginForm onLoginSuccess={onLoginSuccess} />
+              currentUser ? <Navigate to="/dashboard" /> : <LoginForm onLoginSuccess={onLoginSuccess} />
             }
           />
 
@@ -236,8 +296,36 @@ function AppContent({
             }
           />
           <Route
+            path="/appointment-scheduler"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <AppointmentScheduler
+                  currentUser={currentUser}
+                  clients={filteredClients}
+                  handleAddAppointment={handleAddAppointment}
+                  handleUpdateAppointment={handleUpdateAppointment}
+                  handleDeleteAppointment={handleDeleteAppointment}
+                  getUserAppointments={getUserAppointments}
+                  getUpcomingUserAppointments={getUpcomingUserAppointments}
+                />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <DashboardPage
+                appointments={getUserAppointments(currentUser?.id)}
+                clients={clients}
+                onAddAppointment={() => navigate('/kalendarz')}
+                onAddClient={() => navigate('/klienci')}
+                onGoToCalendar={() => navigate('/kalendarz')}
+              />
+            }
+          />
+          <Route
             path="/"
-            element={<Navigate to="/clients" />}
+            element={<Navigate to="/dashboard" />}
           />
         </Routes>
       </main>

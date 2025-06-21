@@ -89,6 +89,23 @@ select {
   font-size: 1rem;
   color: #0077cc;
 }
+.modern-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  background-color: #f9fafb;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+  font-size: 1rem;
+}
+.modern-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
 .treatment-photos {
   display: flex;
   gap: 1rem;

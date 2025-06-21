@@ -146,6 +146,7 @@ export default function AdminPanel() {
                 >
                   <option value="kosmetolog">Kosmetolog</option>
                   <option value="admin">Administrator</option>
+                  <option value="Klient">Klient</option>
                 </select>
               </div>
               
@@ -208,17 +209,17 @@ export default function AdminPanel() {
               <tbody>
                 {users.map(user => (
                   <tr key={user.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                    <td style={{ padding: '0.75rem' }}>{user.name}</td>
+                    <td style={{ padding: '0.75rem' }}>{user.name || `${user.firstName} ${user.lastName}`}</td>
                     <td style={{ padding: '0.75rem' }}>{user.email}</td>
                     <td style={{ padding: '0.75rem' }}>
                       <span style={{
-                        backgroundColor: user.role === 'admin' ? '#dc3545' : '#28a745',
+                        backgroundColor: user.role === 'admin' ? '#dc3545' : (user.role === 'Klient' ? '#007bff' : '#28a745'),
                         color: 'white',
                         padding: '0.25rem 0.5rem',
                         borderRadius: '4px',
                         fontSize: '0.875rem'
                       }}>
-                        {user.role === 'admin' ? 'Administrator' : 'Kosmetolog'}
+                        {user.role}
                       </span>
                     </td>
                     <td style={{ padding: '0.75rem' }}>

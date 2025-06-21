@@ -37,27 +37,29 @@ export default function Header({ currentUser, onLogout }) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         {logoUrl ? (
-          <img
-            src={logoUrl}
-            alt="Logo"
-            style={{
-              height: 120,
-              width: 120,
-              objectFit: "contain",
-              background: "#fff",
-              borderRadius: 18,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
-              padding: 8,
-              display: "block",
-              transition: "box-shadow 0.2s",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.14)")
-            }
-          />
+          <NavLink to="/dashboard" style={{ display: 'block' }}>
+            <img
+              src={logoUrl}
+              alt="Logo"
+              style={{
+                height: 120,
+                width: 120,
+                objectFit: "contain",
+                background: "#fff",
+                borderRadius: 18,
+                boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
+                padding: 8,
+                display: "block",
+                transition: "box-shadow 0.2s",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.18)")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.14)")
+              }
+            />
+          </NavLink>
         ) : (
           <label
             style={{
@@ -83,6 +85,22 @@ export default function Header({ currentUser, onLogout }) {
 
       <nav style={{ display: "flex", gap: "1.5rem", fontWeight: 500 }}>
         <NavLink
+          to="/dashboard"
+          style={({ isActive }) => ({
+            color: isActive ? "#fff" : "#333",
+            backgroundColor: isActive ? "#0077cc" : "transparent",
+            padding: "0.5rem 1rem",
+            borderRadius: 4,
+            textDecoration: "none",
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          })}
+        >
+          <span style={{ fontSize: 18, marginRight: 2 }}>🏠</span> Dashboard
+        </NavLink>
+        <NavLink
           to="/clients"
           style={({ isActive }) => ({
             color: isActive ? "#fff" : "#333",
@@ -100,11 +118,23 @@ export default function Header({ currentUser, onLogout }) {
             color: isActive ? "#fff" : "#333",
             backgroundColor: isActive ? "#C8373B" : "transparent",
             padding: "0.5rem 1rem",
-            borderRadius: 4,
+            borderRadius: "4px",
             textDecoration: "none",
           })}
         >
           Kalendarz
+        </NavLink>
+        <NavLink
+          to="/appointment-scheduler"
+          style={({ isActive }) => ({
+            color: isActive ? "#fff" : "#333",
+            backgroundColor: isActive ? "#C8373B" : "transparent",
+            padding: "0.5rem 1rem",
+            borderRadius: "4px",
+            textDecoration: "none",
+          })}
+        >
+          Harmonogram
         </NavLink>
         <NavLink
           to="/newsletter"
@@ -112,7 +142,7 @@ export default function Header({ currentUser, onLogout }) {
             color: isActive ? "#fff" : "#333",
             backgroundColor: isActive ? "#C8373B" : "transparent",
             padding: "0.5rem 1rem",
-            borderRadius: 4,
+            borderRadius: "4px",
             textDecoration: "none",
           })}
         >
