@@ -23,6 +23,16 @@ export default function TreatmentDetailsPage({ events, clients, onUpdateTreatmen
     );
   }
 
+  // Przygotuj dane do edycji (pełny zakres pól)
+  const initialData = {
+    type: treatmentEvent.resource?.treatment || '',
+    date: format(new Date(treatmentEvent.start), 'yyyy-MM-dd'),
+    notesInternal: treatmentEvent.resource?.notesInternal || '',
+    notesForClient: treatmentEvent.resource?.notesForClient || '',
+    recommendationsText: (treatmentEvent.resource?.recommendations || []).join('\n'),
+    images: treatmentEvent.resource?.images || [],
+  };
+
   return (
     <div style={{ maxWidth: 600, margin: '2.5rem auto', background: '#fff', borderRadius: 24, boxShadow: '0 8px 40px 0 rgba(80,80,80,0.08)', padding: 32 }}>
       <button onClick={() => navigate(`/client/${clientId}`)} style={{ marginBottom: 18, background: '#eee', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer' }}>← Powrót do klienta</button>
@@ -41,11 +51,7 @@ export default function TreatmentDetailsPage({ events, clients, onUpdateTreatmen
       </div>
       {showForm && (
         <TreatmentForm
-          initialData={{
-            type: treatmentEvent.resource?.treatment,
-            date: format(new Date(treatmentEvent.start), 'yyyy-MM-dd'),
-            // ... inne pola jeśli są w TreatmentForm
-          }}
+          initialData={initialData}
           onAddTreatment={(updated) => {
             onUpdateTreatment(clientId, updated, treatmentEvent.id);
             setShowForm(false);

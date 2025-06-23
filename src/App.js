@@ -132,18 +132,42 @@ export default function App() {
   };
 
   // aktualizacja zabiegu
-  const handleUpdateTreatment = (clientId, updatedTreatment, idx) => {
+  const handleUpdateTreatment = (clientId, updatedTreatment, eventId) => {
+    // 1. Aktualizuj klienta (treatments)
     setClients((prev) =>
       prev.map((c) =>
         c.id === clientId
           ? {
               ...c,
               treatments: c.treatments.map((t, i) =>
-                i === idx ? updatedTreatment : t
+                // Porównaj po dacie i typie, bo nie ma id zabiegu
+                t.date === updatedTreatment.date && t.type === updatedTreatment.type
+                  ? updatedTreatment
+                  : t
               ),
             }
           : c
       )
+    );
+
+    // 2. Aktualizuj event w kalendarzu (events)
+    setEvents((prev) =>
+      prev.map((ev) => {
+        if (ev.id === eventId || ev.id?.toString() === eventId?.toString()) {
+          return {
+            ...ev,
+            resource: {
+              ...ev.resource,
+              treatment: updatedTreatment.type,
+              notesInternal: updatedTreatment.notesInternal,
+              notesForClient: updatedTreatment.notesForClient,
+              recommendations: updatedTreatment.recommendations,
+              images: updatedTreatment.images,
+            },
+          };
+        }
+        return ev;
+      })
     );
   };
 
@@ -355,11 +379,11 @@ function AppContent({
             path="/dashboard"
             element={
               <DashboardPage
-                appointments={getUserAppointments(currentUser?.id)}
+                events={events}
                 clients={clients}
-                onAddAppointment={() => navigate('/kalendarz')}
-                onAddClient={() => navigate('/klienci')}
-                onGoToCalendar={() => navigate('/kalendarz')}
+                onAddAppointment={() => navigate('/calendar')}
+                onAddClient={() => navigate('/clients')}
+                onGoToCalendar={() => navigate('/calendar')}
               />
             }
           />

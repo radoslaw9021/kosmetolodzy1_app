@@ -1,6 +1,7 @@
 // src/components/TreatmentHistory.js
 import React, { useState } from "react";
 import TreatmentDetailsModal from "./TreatmentDetailsModal";
+import { getTreatmentColor } from '../utils/calendarUtils';
 
 const style = {
   container: {
@@ -70,7 +71,18 @@ export default function TreatmentHistory({
       {treatments.map((t, idx) => (
         <div key={idx}>
           <div style={style.row}>
-            <div style={style.cell}>{t.type}</div>
+            <div style={style.cell}>
+              <span style={{
+                display: 'inline-block',
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                background: getTreatmentColor(t.type),
+                marginRight: 8,
+                verticalAlign: 'middle',
+              }}></span>
+              {t.type}
+            </div>
             <div style={style.cell}>{t.date}</div>
             <div style={style.cell}>{t.notesInternal || "-"}</div>
             <div style={style.cell}>
