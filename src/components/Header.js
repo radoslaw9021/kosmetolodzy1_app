@@ -22,6 +22,21 @@ export default function Header({ currentUser, onLogout, theme, setTheme }) {
     reader.readAsDataURL(file);
   };
 
+  // Efekt spotlight na przyciskach nav-link
+  const handleNavLinkMouseMove = (e) => {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    el.style.setProperty('--nav-spotlight-x', `${x}px`);
+    el.style.setProperty('--nav-spotlight-y', `${y}px`);
+  };
+  const handleNavLinkMouseLeave = (e) => {
+    const el = e.currentTarget;
+    el.style.setProperty('--nav-spotlight-x', `50%`);
+    el.style.setProperty('--nav-spotlight-y', `50%`);
+  };
+
   return (
     <header className="main-navbar">
       <div className="navbar-left">
@@ -37,12 +52,27 @@ export default function Header({ currentUser, onLogout, theme, setTheme }) {
         )}
       </div>
       <nav className="navbar-menu">
-        <NavLink to="/dashboard" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>Dashboard</NavLink>
-        <NavLink to="/clients" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>Klienci</NavLink>
-        <NavLink to="/calendar" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>Kalendarz</NavLink>
-        <NavLink to="/newsletter" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>Newsletter</NavLink>
+        <NavLink to="/dashboard" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+          onMouseMove={handleNavLinkMouseMove}
+          onMouseLeave={handleNavLinkMouseLeave}
+        >Dashboard</NavLink>
+        <NavLink to="/clients" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+          onMouseMove={handleNavLinkMouseMove}
+          onMouseLeave={handleNavLinkMouseLeave}
+        >Klienci</NavLink>
+        <NavLink to="/calendar" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+          onMouseMove={handleNavLinkMouseMove}
+          onMouseLeave={handleNavLinkMouseLeave}
+        >Kalendarz</NavLink>
+        <NavLink to="/newsletter" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+          onMouseMove={handleNavLinkMouseMove}
+          onMouseLeave={handleNavLinkMouseLeave}
+        >Newsletter</NavLink>
         {isAdmin(currentUser) && (
-          <NavLink to="/admin" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}>Panel Admin</NavLink>
+          <NavLink to="/admin" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+            onMouseMove={handleNavLinkMouseMove}
+            onMouseLeave={handleNavLinkMouseLeave}
+          >Panel Admin</NavLink>
         )}
       </nav>
       <div className="navbar-right">

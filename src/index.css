@@ -855,17 +855,37 @@ body.theme-dark {
   font-weight: 500;
   padding: 0.5rem 1.1rem;
   border-radius: 0.8rem;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, text-shadow 0.2s;
   position: relative;
   text-decoration: none;
   font-size: 1.08rem;
   letter-spacing: 0.01em;
+  overflow: hidden;
+  --nav-spotlight-x: 50%;
+  --nav-spotlight-y: 50%;
+  z-index: 2;
 }
 
-.nav-link:hover, .nav-link.active {
-  background: rgba(255,255,255,0.10);
-  color: #f3e8ff;
-  box-shadow: 0 2px 12px #a855f733;
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  border-radius: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+  background: radial-gradient(600px circle at var(--nav-spotlight-x, 50%) var(--nav-spotlight-y, 50%),
+    #f472b6 0%, #a855f7 30%, #38bdf8 60%, #f59e42 85%, transparent 100%);
+  box-shadow: 0 0 48px 16px #a855f7cc, 0 0 32px 8px #38bdf8cc, 0 0 24px 4px #f59e42cc;
+  z-index: 1;
+}
+
+.nav-link:hover, .nav-link:focus, .nav-link.active {
+  background: rgba(255,255,255,0.13);
+  color: #fff;
+  box-shadow: 0 2px 16px #a855f7cc, 0 0 24px #38bdf8cc;
+  text-shadow: 0 0 16px #f472b6, 0 0 24px #a855f7, 0 0 32px #38bdf8, 0 0 40px #f59e42;
+  z-index: 2;
 }
 
 .user-info {
