@@ -97,6 +97,17 @@ export default function App() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Motyw: light/dark
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('theme');
+    return stored === 'dark' ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.body.className = theme === 'dark' ? 'theme-dark' : 'theme-light';
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   const handleLoginSuccess = (user) => {
     setCurrentUserState(user);
     setCurrentUser(user);
@@ -216,6 +227,8 @@ export default function App() {
         handleDeleteAppointment={handleDeleteAppointment}
         getUserAppointments={getUserAppointments}
         getUpcomingUserAppointments={getUpcomingUserAppointments}
+        theme={theme}
+        setTheme={setTheme}
       />
     </Router>
   );
@@ -237,6 +250,8 @@ function AppContent({
   handleDeleteAppointment,
   getUserAppointments,
   getUpcomingUserAppointments,
+  theme,
+  setTheme,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -249,7 +264,7 @@ function AppContent({
 
   return (
     <>
-      {!isPublicForm && <Header currentUser={currentUser} onLogout={onLogout} />}
+      {!isPublicForm && <Header currentUser={currentUser} onLogout={onLogout} theme={theme} setTheme={setTheme} />}
       <main style={isPublicForm ? { padding: 0 } : { padding: "1rem" }}>
         <Routes>
           {/* logowanie */}

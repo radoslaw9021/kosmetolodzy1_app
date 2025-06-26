@@ -9,10 +9,11 @@
 }
 body {
   font-family: 'Inter', Arial, sans-serif;
-  background: #f7f7f7;
-  color: #333;
+  background: var(--bg-main);
+  color: var(--text-main);
   line-height: 1.6;
   letter-spacing: 0.02em;
+  transition: background 0.3s, color 0.3s;
 }
 .container {
   max-width: 900px;
@@ -30,9 +31,9 @@ select {
 
 /* Card style */
 .card {
-  background-color: #fffbea;
+  background-color: var(--bg-card);
   border-radius: 1.5rem;
-  box-shadow: 0 4px 24px 0 rgba(80, 80, 80, 0.10);
+  box-shadow: var(--shadow);
   padding: 2rem;
   margin-bottom: 1.5rem;
 }
@@ -609,13 +610,20 @@ h1, .dashboard-title {
 }
 
 .dashboard-title {
-  font-size: 22px;
+  font-size: 2.2rem;
   font-weight: 700;
-  color: var(--primary);
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  color: #222;
+  text-shadow: 0 2px 8px rgba(168,85,247,0.08);
+  margin-bottom: 1.5rem;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+  text-fill-color: unset !important;
+}
+body.theme-dark .dashboard-title {
+  color: #fff;
+  text-shadow: 0 2px 12px #a855f7;
 }
 
 .appointment-card, .dashboard-stat-tile, .card {
@@ -729,4 +737,267 @@ h1, .dashboard-title {
 }
 .active-link, .dashboard-title {
   color: var(--primary) !important;
+}
+
+body.theme-light {
+  --bg-main: #f5f5f5;
+  --bg-card: #fff;
+  --bg-glass: #fff;
+  --text-main: #222;
+  --text-muted: #666;
+  --text-strong: #1976d2;
+  --shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+body.theme-dark {
+  --bg-main: #0b0b14;
+  --bg-card: rgba(22, 17, 34, 0.5);
+  --bg-glass: rgba(255,255,255,0.1);
+  --text-main: #fff;
+  --text-muted: rgba(255,255,255,0.6);
+  --text-strong: #c084fc;
+  --shadow: 0 8px 32px rgba(80,0,120,0.18);
+}
+
+.card, .dashboard-container {
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+  color: var(--text-main);
+}
+
+.appointment-card-glass {
+  background: var(--bg-glass);
+  color: var(--text-main);
+}
+
+.appointment-client-details {
+  color: var(--text-main);
+}
+.appointment-time {
+  color: var(--text-muted);
+}
+
+.btn-inverted {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
+.btn-inverted:hover {
+  background: #f3f3fa;
+  color: var(--text-main);
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  color: var(--text-main);
+  transition: color 0.2s;
+}
+.theme-toggle-btn:hover {
+  color: var(--text-strong);
+}
+
+/* --- HEADER --- */
+.main-navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  background: var(--bg-card, #fff);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  min-height: 80px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navbar-logo {
+  height: 56px;
+  width: 56px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 4px;
+  display: block;
+  transition: box-shadow 0.2s;
+}
+
+.navbar-logo-upload {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px dashed #aaa;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #555;
+  background: #fafafa;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-main, #222);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  transition: background 0.18s, color 0.18s;
+}
+.nav-link.active, .nav-link:hover {
+  background: var(--text-strong, #1976d2);
+  color: #fff;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.user-info {
+  font-size: 1rem;
+  color: var(--text-main, #222);
+  margin-right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.user-role {
+  font-size: 0.92em;
+  color: var(--text-muted, #666);
+  margin-left: 0.3em;
+}
+
+.btn-primary {
+  background: var(--text-strong, #1976d2);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.btn-primary:hover {
+  background: #1250a3;
+}
+
+.dashboard-bg {
+  min-height: 100vh;
+  background: var(--bg-main);
+  padding: 2rem 1rem;
+}
+
+.hover-border-gradient-title-container {
+  display: inline-block;
+  position: relative;
+  border-radius: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.hover-border-gradient-title-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(2px);
+}
+body.theme-light .dashboard-title {
+  background: #fff;
+  color: #222;
+}
+body.theme-dark .dashboard-title {
+  background: #181022;
+  color: #fff;
+}
+
+.aceternity-border {
+  position: relative;
+  display: inline-block;
+  border-radius: 2.5rem;
+  padding: 2.5px;
+  background: linear-gradient(90deg, #a855f7 0%, #38bdf8 100%);
+  margin-bottom: 1.5rem;
+}
+.aceternity-border-anim {
+  position: absolute;
+  inset: 0;
+  border-radius: 2.5rem;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(2.5px);
+}
+.aceternity-inner {
+  background: transparent;
+  border-radius: 2.5rem;
+  padding: 0.4em 2.5em;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dashboard-title {
+  background: transparent !important;
+  color: var(--text-main, #fff);
+  font-weight: 700;
+  font-size: 2.2rem;
+  letter-spacing: -1px;
+  margin: 0;
+  padding: 0;
+}
+
+.aceternity-border-pseudo {
+  position: relative;
+  display: inline-block;
+  border-radius: 1.5rem;
+  padding: 3px;
+  margin-bottom: 1.5rem;
+  z-index: 1;
+}
+.aceternity-border-pseudo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, #a855f7 0%, #f472b6 100%);
+  filter: blur(2.5px) brightness(1.08);
+  opacity: 0.45;
+}
+.aceternity-inner {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border-radius: 1.2rem;
+  padding: 0.4em 2em;
+  text-align: center;
+}
+.dashboard-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: 2rem;
+  letter-spacing: -1px;
+  margin: 0;
+  padding: 0;
+  text-shadow: 0 0 6px #a855f7, 0 0 2px #fff;
 }

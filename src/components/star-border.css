@@ -1,0 +1,32 @@
+.star-border-outer {
+  position: relative;
+  display: inline-block;
+  border-radius: 1.5rem;
+  overflow: visible;
+}
+
+.star-border-inner {
+  position: relative;
+  z-index: 2;
+  background: #181022;
+  border-radius: 1.5rem;
+  padding: 1rem 2rem;
+  color: white;
+}
+
+.star-border-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 1.5rem;
+  z-index: 1;
+  pointer-events: none;
+  background: conic-gradient(from 0deg, #a78bfa, #f472b6, #a78bfa 100%);
+  filter: blur(8px) brightness(1.2);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 
