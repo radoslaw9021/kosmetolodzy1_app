@@ -4,7 +4,7 @@
       {
         "id": 11,
         "title": "Refaktoryzacja modułu Komunikacja zgodnie z nowymi założeniami",
-        "status": "in-progress",
+        "status": "done",
         "priority": "high",
         "dependencies": [],
         "description": "Usuń z modułu Komunikacja zbędne zakładki i popraw UX pozostałych funkcji.\n\n✅ Zachować:\n- Przegląd (klientów/zabiegów), dodać tooltipy z awatarami i nazwami klientów\n- Kampanie – poprawić UX, dodać lepsze zarządzanie kampaniami\n- Powiadomienia – umożliwić tworzenie i zapisywanie szablonów, poprawić wygląd UI\n\n❌ Usunąć z zakładki Komunikacja:\n- Email\n- SMS\n- Social Media\n- Newsletter (bo to osobna zakładka)\n\n🔧 Inspiracja do UI: https://ui.aceternity.com/components/animated-tooltip\n🎯 Cel: uproszczenie interfejsu, skupienie na realnie używanych funkcjach i poprawa czytelności.",
@@ -23,7 +23,7 @@
             "title": "Dodaj tooltipy w zakładce Przegląd",
             "description": "Zaimplementuj animowane tooltipy z awatarami i nazwami klientów.",
             "details": "Zastosuj komponent tooltip z inspiracji UI. Tooltip powinien pojawiać się po najechaniu na element klienta/zabiegu.",
-            "status": "in-progress"
+            "status": "done"
           },
           {
             "id": 3,
@@ -44,7 +44,7 @@
             "title": "Zoptymalizuj UI modułu Komunikacja",
             "description": "Uprość wygląd i układ elementów interfejsu.",
             "details": "Usuń zbędne kolumny, dodaj odstępy i ujednolić wygląd fontów i ikon. Skorzystaj z tailwind/ui-kit.",
-            "status": "pending"
+            "status": "done"
           }
         ]
       }
