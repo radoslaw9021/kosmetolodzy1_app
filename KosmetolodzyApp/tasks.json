@@ -37,7 +37,7 @@
             "title": "Dodaj szablony w module Powiadomienia",
             "description": "Dodaj możliwość tworzenia i zapisywania szablonów wiadomości.",
             "details": "Zaimplementuj CRUD szablonów oraz popraw responsywność i czytelność interfejsu modułu powiadomień.",
-            "status": "pending"
+            "status": "done"
           },
           {
             "id": 5,
