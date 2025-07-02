@@ -280,28 +280,72 @@ export default function InventoryList() {
   const categories = [...new Set(inventory.map(item => item.category).filter(Boolean))];
 
   return (
-    <div className="inventory-page">
-      {/* Nagłówek */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <Package className="w-8 h-8 text-blue-500" />
-            <h1 className="text-2xl font-bold text-gray-900">Zarządzanie zapasami</h1>
+    <div className="inventory-page" style={{ 
+      background: 'var(--glass-bg, rgba(30,18,40,0.65))',
+      minHeight: '100vh',
+      padding: '2rem 1rem'
+    }}>
+      {/* Nagłówek Premium */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)'
+            }}>
+              <Package className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold" style={{
+                background: 'linear-gradient(90deg, #a18cd1, #fbc2eb 60%, #667eea 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 2px 12px rgba(168, 85, 247, 0.3)'
+              }}>
+                Zarządzanie zapasami
+              </h1>
+              <p className="text-gray-300 mt-1">Monitoruj stan magazynu i zarządzaj produktami</p>
+            </div>
           </div>
           <button
             onClick={handleAddItem}
             className="btn-primary flex items-center space-x-2"
+            style={{
+              background: 'linear-gradient(135deg, #a855f7, #c084fc)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '0.8rem 1.5rem',
+              fontWeight: '600',
+              boxShadow: '0 4px 20px rgba(168, 85, 247, 0.3)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-2px) scale(1.05)';
+              e.target.style.boxShadow = '0 8px 32px rgba(168, 85, 247, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0) scale(1)';
+              e.target.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.3)';
+            }}
           >
             <Plus className="w-4 h-4" />
             <span>Dodaj produkt</span>
           </button>
         </div>
 
-        {/* Statystyki */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        {/* Statystyki Premium */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-8">
           <div className="stat-card">
-            <div className="stat-icon bg-blue-100">
-              <Package className="w-5 h-5 text-blue-600" />
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              marginBottom: '1rem'
+            }}>
+              <Package className="w-6 h-6 text-white" />
             </div>
             <div className="stat-content">
               <div className="stat-value">{stats.total}</div>
@@ -310,8 +354,13 @@ export default function InventoryList() {
           </div>
           
           <div className="stat-card">
-            <div className="stat-icon bg-orange-100">
-              <TrendingDown className="w-5 h-5 text-orange-600" />
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #f093fb, #f5576c)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              marginBottom: '1rem'
+            }}>
+              <TrendingDown className="w-6 h-6 text-white" />
             </div>
             <div className="stat-content">
               <div className="stat-value">{stats.lowStock}</div>
@@ -320,8 +369,13 @@ export default function InventoryList() {
           </div>
           
           <div className="stat-card">
-            <div className="stat-icon bg-red-100">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              marginBottom: '1rem'
+            }}>
+              <AlertTriangle className="w-6 h-6 text-white" />
             </div>
             <div className="stat-content">
               <div className="stat-value">{stats.outOfStock}</div>
@@ -330,8 +384,13 @@ export default function InventoryList() {
           </div>
           
           <div className="stat-card">
-            <div className="stat-icon bg-yellow-100">
-              <Calendar className="w-5 h-5 text-yellow-600" />
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #feca57, #ff9ff3)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              marginBottom: '1rem'
+            }}>
+              <Calendar className="w-6 h-6 text-white" />
             </div>
             <div className="stat-content">
               <div className="stat-value">{stats.expiring}</div>
@@ -340,8 +399,13 @@ export default function InventoryList() {
           </div>
           
           <div className="stat-card">
-            <div className="stat-icon bg-red-100">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #ff3838, #ff6348)',
+              borderRadius: '50%',
+              padding: '0.8rem',
+              marginBottom: '1rem'
+            }}>
+              <AlertTriangle className="w-6 h-6 text-white" />
             </div>
             <div className="stat-content">
               <div className="stat-value">{stats.expired}</div>
@@ -351,30 +415,79 @@ export default function InventoryList() {
         </div>
       </div>
 
-      {/* Filtry i wyszukiwanie */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Filtry i wyszukiwanie Premium */}
+      <div className="mb-8" style={{
+        background: 'rgba(30, 28, 50, 0.5)',
+        backdropFilter: 'blur(18px)',
+        border: '1.5px solid rgba(255, 255, 255, 0.13)',
+        borderRadius: '1.5rem',
+        padding: '2rem',
+        boxShadow: '0 0 32px 0 #a855f7aa, 0 1.5px 0 0 #fff1'
+      }}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Wyszukiwanie */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
               placeholder="Szukaj produktów..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                width: '100%',
+                padding: '0.8rem 1rem 0.8rem 3rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                color: '#fff',
+                fontSize: '1rem',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.target.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+                e.target.style.boxShadow = '0 0 20px rgba(168, 85, 247, 0.3)';
+              }}
+              onBlur={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.boxShadow = 'none';
+              }}
             />
+            <style jsx>{`
+              input::placeholder {
+                color: rgba(255, 255, 255, 0.6);
+              }
+            `}</style>
           </div>
 
           {/* Kategoria */}
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{
+              padding: '0.8rem 1rem',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              color: '#fff',
+              fontSize: '1rem',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+              e.target.style.boxShadow = '0 0 20px rgba(168, 85, 247, 0.3)';
+            }}
+            onBlur={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.boxShadow = 'none';
+            }}
           >
-            <option value="">Wszystkie kategorie</option>
+            <option value="" style={{ background: '#1e1b2e', color: '#fff' }}>Wszystkie kategorie</option>
             {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+              <option key={category} value={category} style={{ background: '#1e1b2e', color: '#fff' }}>{category}</option>
             ))}
           </select>
 
@@ -382,18 +495,36 @@ export default function InventoryList() {
           <select
             value={selectedStatus}
             onChange={(e) => setSelectedStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{
+              padding: '0.8rem 1rem',
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              color: '#fff',
+              fontSize: '1rem',
+              transition: 'all 0.2s ease'
+            }}
+            onFocus={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+              e.target.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+              e.target.style.boxShadow = '0 0 20px rgba(168, 85, 247, 0.3)';
+            }}
+            onBlur={(e) => {
+              e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              e.target.style.boxShadow = 'none';
+            }}
           >
-            <option value="">Wszystkie statusy</option>
-            <option value="low">Niski stan</option>
-            <option value="out">Brak w magazynie</option>
-            <option value="expiring">Wkrótce przeterminowane</option>
-            <option value="expired">Przeterminowane</option>
+            <option value="" style={{ background: '#1e1b2e', color: '#fff' }}>Wszystkie statusy</option>
+            <option value="low" style={{ background: '#1e1b2e', color: '#fff' }}>Niski stan</option>
+            <option value="out" style={{ background: '#1e1b2e', color: '#fff' }}>Brak w magazynie</option>
+            <option value="expiring" style={{ background: '#1e1b2e', color: '#fff' }}>Wkrótce przeterminowane</option>
+            <option value="expired" style={{ background: '#1e1b2e', color: '#fff' }}>Przeterminowane</option>
           </select>
 
           {/* Sortowanie */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Sortuj:</span>
+          <div className="flex items-center space-x-3">
+            <span className="text-sm text-gray-300 font-medium">Sortuj:</span>
             <select
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
@@ -401,15 +532,33 @@ export default function InventoryList() {
                 setSortBy(field);
                 setSortOrder(order);
               }}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                padding: '0.8rem 1rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                color: '#fff',
+                fontSize: '1rem',
+                transition: 'all 0.2s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+                e.target.style.borderColor = 'rgba(168, 85, 247, 0.5)';
+                e.target.style.boxShadow = '0 0 20px rgba(168, 85, 247, 0.3)';
+              }}
+              onBlur={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.target.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.target.style.boxShadow = 'none';
+              }}
             >
-              <option value="name-asc">Nazwa A-Z</option>
-              <option value="name-desc">Nazwa Z-A</option>
-              <option value="quantity-asc">Ilość rosnąco</option>
-              <option value="quantity-desc">Ilość malejąco</option>
-              <option value="price-asc">Cena rosnąco</option>
-              <option value="price-desc">Cena malejąco</option>
-              <option value="expiry-asc">Data ważności</option>
+              <option value="name-asc" style={{ background: '#1e1b2e', color: '#fff' }}>Nazwa A-Z</option>
+              <option value="name-desc" style={{ background: '#1e1b2e', color: '#fff' }}>Nazwa Z-A</option>
+              <option value="quantity-asc" style={{ background: '#1e1b2e', color: '#fff' }}>Ilość rosnąco</option>
+              <option value="quantity-desc" style={{ background: '#1e1b2e', color: '#fff' }}>Ilość malejąco</option>
+              <option value="price-asc" style={{ background: '#1e1b2e', color: '#fff' }}>Cena rosnąco</option>
+              <option value="price-desc" style={{ background: '#1e1b2e', color: '#fff' }}>Cena malejąco</option>
+              <option value="expiry-asc" style={{ background: '#1e1b2e', color: '#fff' }}>Data ważności</option>
             </select>
           </div>
         </div>
@@ -418,12 +567,31 @@ export default function InventoryList() {
       {/* Lista produktów */}
       <div className="space-y-4">
         {filteredInventory.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <div className="text-center py-16" style={{
+            background: 'rgba(30, 28, 50, 0.5)',
+            backdropFilter: 'blur(18px)',
+            border: '1.5px solid rgba(255, 255, 255, 0.13)',
+            borderRadius: '1.5rem',
+            boxShadow: '0 0 32px 0 #a855f7aa, 0 1.5px 0 0 #fff1'
+          }}>
+            <div className="stat-icon" style={{ 
+              background: 'linear-gradient(135deg, #667eea, #764ba2)',
+              borderRadius: '50%',
+              padding: '1.5rem',
+              margin: '0 auto 2rem auto',
+              width: 'fit-content'
+            }}>
+              <Package className="w-16 h-16 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3" style={{
+              background: 'linear-gradient(90deg, #a18cd1, #fbc2eb 60%, #667eea 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 12px rgba(168, 85, 247, 0.3)'
+            }}>
               {inventory.length === 0 ? 'Brak produktów w magazynie' : 'Nie znaleziono produktów'}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-300 mb-6 text-lg">
               {inventory.length === 0 
                 ? 'Dodaj pierwszy produkt, aby rozpocząć zarządzanie zapasami.'
                 : 'Spróbuj zmienić filtry wyszukiwania.'
@@ -432,7 +600,26 @@ export default function InventoryList() {
             {inventory.length === 0 && (
               <button
                 onClick={handleAddItem}
-                className="btn-primary"
+                style={{
+                  background: 'linear-gradient(135deg, #a855f7, #c084fc)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '1rem 2rem',
+                  fontWeight: '600',
+                  fontSize: '1.1rem',
+                  boxShadow: '0 4px 20px rgba(168, 85, 247, 0.3)',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px) scale(1.05)';
+                  e.target.style.boxShadow = '0 8px 32px rgba(168, 85, 247, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0) scale(1)';
+                  e.target.style.boxShadow = '0 4px 20px rgba(168, 85, 247, 0.3)';
+                }}
               >
                 Dodaj pierwszy produkt
               </button>
