@@ -1,159 +1,11 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendNewsletterEmail } from "../services/emailService";
-
-// Style premium – KOLORY ZMIENIONE!
-const style = {
-  container: {
-    maxWidth: "950px",
-    margin: "3rem auto",
-    background: "#fff",
-    borderRadius: "2rem",
-    boxShadow:
-      "0 8px 40px 0 rgba(80,80,80,0.07), 0 1.5px 7px 0 rgba(80,80,80,0.06)",
-    padding: "2.3rem 2rem 2.7rem 2rem",
-    fontFamily: "'Inter', 'Montserrat', Arial, sans-serif",
-    color: "#232323",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1.8rem",
-  },
-  h2: {
-    fontSize: "2.1rem",
-    fontWeight: 700,
-    letterSpacing: "-0.01em",
-    margin: 0,
-  },
-  btn: {
-    padding: "0.5rem 1.2rem",
-    border: "none",
-    borderRadius: "1.3rem",
-    fontWeight: 600,
-    fontSize: "1rem",
-    cursor: "pointer",
-    boxShadow: "0 1px 4px 0 rgba(80,120,230,0.09)",
-    transition: "background .16s",
-    marginLeft: "0.6rem",
-  },
-  addBtn: {
-    background: "#fff",
-    color: "#333",
-    border: "1.5px solid #e0e0e0",
-    fontWeight: 700,
-    borderRadius: "1.3rem",
-    padding: "0.5rem 1.2rem",
-    fontSize: "1rem",
-    boxShadow: "0 1px 4px 0 rgba(220, 80, 120, 0.06)",
-    transition: "background .15s, color .15s, border .15s",
-    marginLeft: "0.6rem",
-  },
-  inviteBtn: {
-    background: "#151516",
-    color: "#fff",
-    border: "none",
-    fontWeight: 700,
-    borderRadius: "1.3rem",
-    padding: "0.5rem 1.2rem",
-    fontSize: "1rem",
-    boxShadow: "0 1px 4px 0 rgba(30,30,40,0.09)",
-    transition: "background .15s, color .15s, border .15s",
-    marginLeft: "0.6rem",
-  },
-  viewBtn: {
-    padding: "0.37rem 1.1rem",
-    background: "#151516",
-    color: "#fff",
-    border: "none",
-    fontWeight: 700,
-    cursor: "pointer",
-    fontSize: "0.97rem",
-    borderRadius: "1rem",
-    boxShadow: "0 1px 6px 0 rgba(30,30,40,0.10)",
-    transition: "background .15s, color .15s, border .15s",
-  },
-  inviteForm: {
-    // **nowy kontener** dla obu przycisków
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-    margin: "1.2rem 0",
-  },
-  inviteInput: {
-    flex: 1,
-    padding: "0.6rem",
-    border: "1px solid #e0e0e0",
-    borderRadius: "0.8rem",
-    fontSize: "1rem",
-    outline: "none",
-    background: "#fafbfc",
-  },
-  searchBox: {
-    margin: "1.2rem 0 1.5rem 0",
-    display: "flex",
-    gap: "1rem",
-  },
-  searchInput: {
-    width: "100%",
-    padding: "0.6rem",
-    border: "1px solid #e5e7eb",
-    borderRadius: "1.1rem",
-    fontSize: "1.05rem",
-    background: "#f8f9fb",
-    outline: "none",
-    fontFamily: "inherit",
-  },
-  tableWrapper: {
-    borderRadius: "1.5rem",
-    boxShadow: "0 1px 8px 0 rgba(0,0,0,0.02)",
-    background: "#f7f7fb",
-  },
-  table: {
-    width: "100%",
-    borderCollapse: "separate",
-    borderSpacing: 0,
-    background: "transparent",
-    borderRadius: "1.5rem",
-    overflow: "hidden",
-  },
-  th: {
-    background: "#f6f8fa",
-    color: "#7a8290",
-    fontWeight: 600,
-    fontSize: "1rem",
-    padding: "0.9rem 0.8rem",
-    borderBottom: "2px solid #e4e7ec",
-    textAlign: "left",
-    letterSpacing: "0.01em",
-  },
-  td: {
-    padding: "0.7rem 0.8rem",
-    background: "#fff",
-    borderBottom: "1.5px solid #f1f3f6",
-    fontSize: "1.07rem",
-  },
-  statusMsg: (success) => ({
-    marginLeft: "1rem",
-    fontWeight: 600,
-    color: success ? "#22bb66" : "#dc3545",
-    fontSize: "1rem",
-    letterSpacing: "0.01em",
-  }),
-  empty: {
-    textAlign: "center",
-    color: "#8a97a9",
-    margin: "2.7rem 0",
-    fontSize: "1.22rem",
-  },
-};
+import { User, Mail, Phone, Calendar, Eye, Plus, Search, Send } from "lucide-react";
 
 export default function ClientList({ clients }) {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-
-  // stan dla panelu wysyłki formularza
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteStatus, setInviteStatus] = useState("");
@@ -178,13 +30,40 @@ export default function ClientList({ clients }) {
     return dates.length ? dates.reduce((a, b) => (a > b ? a : b)) : "-";
   };
 
+  // helper: generuj avatar z inicjałów
+  const getClientAvatar = (firstName, lastName) => {
+    const initials = `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase();
+    return initials || '?';
+  };
+
+  // helper: status klientki
+  const getClientStatus = (client) => {
+    if (!client.treatments || client.treatments.length === 0) return 'new';
+    const lastTreatment = new Date(getLastTreatmentDate(client.treatments));
+    const now = new Date();
+    const daysSinceLastTreatment = Math.floor((now - lastTreatment) / (1000 * 60 * 60 * 24));
+    
+    if (daysSinceLastTreatment <= 30) return 'active';
+    if (daysSinceLastTreatment <= 90) return 'inactive';
+    return 'inactive';
+  };
+
+  // helper: status text
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'active': return 'Aktywna';
+      case 'inactive': return 'Nieaktywna';
+      case 'new': return 'Nowa';
+      default: return 'Nieznany';
+    }
+  };
+
   // wyślij link do formularza klientce
   const handleSendInvite = () => {
     if (!inviteEmail.trim()) {
       setInviteStatus("Podaj adres e-mail ❌");
       return;
     }
-    // <-- tutaj zmieniony endpoint
     const link = `${window.location.origin}/client/add?ref=${Date.now()}`;
     const message =
       `Dzień dobry,\n\n` +
@@ -198,133 +77,126 @@ export default function ClientList({ clients }) {
       message,
     })
       .then(() => setInviteStatus("Link został wysłany ✅"))
-      .catch(() => setInviteStatus("Błąd wysyłki linku ❌"));
-  };
-
-  // kopiuj link do schowka
-  const handleCopyInviteLink = () => {
-    if (!inviteEmail.trim()) {
-      setInviteStatus("Podaj adres e-mail ❌");
-      return;
-    }
-    // <-- i tutaj endpoint do skopiowania
-    const link = `${window.location.origin}/client/add?ref=${Date.now()}`;
-    navigator.clipboard
-      .writeText(link)
-      .then(() => setInviteStatus("Link skopiowany ✅"))
-      .catch(() => setInviteStatus("Błąd kopiowania ❌"));
+      .catch(() => setInviteStatus("Błąd wysyłki ❌"));
   };
 
   return (
-    <div style={style.container}>
-      {/* Nagłówek */}
-      <div style={style.header}>
-        <h2 style={style.h2}>Lista klientek</h2>
-        <div>
-          <button
-            onClick={() => navigate("/client/add")}
-            style={{ ...style.btn, ...style.addBtn }}
-          >
-            + Dodaj klientkę
-          </button>
-          <button
-            onClick={() => {
-              setShowInviteForm((v) => !v);
-              setInviteStatus("");
-            }}
-            style={{ ...style.btn, ...style.inviteBtn }}
-          >
-            {showInviteForm ? "Anuluj wysyłkę" : "Wyślij formularz"}
-          </button>
-        </div>
+    <div className="client-list-container card">
+      <div className="client-list-header flex" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h2 className="gradient-title" style={{ fontSize: '2.1rem', fontWeight: 700, margin: 0 }}>Lista klientek</h2>
+        <button className="btn btn-primary" onClick={() => navigate('/client/add')} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Plus size={20} />
+          Dodaj klientkę
+        </button>
       </div>
-
-      {/* Formularz wysyłki */}
-      {showInviteForm && (
-        <div style={style.inviteForm}>
+      <div className="client-list-search flex" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#a855f7' }} />
           <input
-            type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            placeholder="np. klientka@przyklad.pl"
-            style={style.inviteInput}
+            className="input-dark"
+            type="text"
+            placeholder="Szukaj klientki..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            style={{ paddingLeft: '2.5rem' }}
           />
-          <button
-            onClick={handleCopyInviteLink}
-            style={{ ...style.btn, ...style.inviteBtn }}
-          >
-            Pobierz link
-          </button>
-          <button
-            onClick={handleSendInvite}
-            style={{ ...style.btn, ...style.inviteBtn }}
-          >
+        </div>
+        <button className="btn btn-secondary" onClick={() => setShowInviteForm(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Send size={18} />
+          {showInviteForm ? 'Anuluj' : 'Wyślij link'}
+        </button>
+      </div>
+      {showInviteForm && (
+        <div className="client-list-invite flex" style={{ gap: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
+            <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#a855f7' }} />
+            <input
+              className="input-dark"
+              type="email"
+              placeholder="Adres e-mail klientki"
+              value={inviteEmail}
+              onChange={e => setInviteEmail(e.target.value)}
+              style={{ paddingLeft: '2.5rem' }}
+            />
+          </div>
+          <button className="btn btn-primary" onClick={handleSendInvite} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Send size={18} />
             Wyślij
           </button>
-          {inviteStatus && (
-            <span style={style.statusMsg(inviteStatus.includes("✅"))}>
-              {inviteStatus}
-            </span>
-          )}
+          {inviteStatus && <span className="status-msg">{inviteStatus}</span>}
         </div>
       )}
-
-      {/* Wyszukiwarka */}
-      <div style={style.searchBox}>
-        <input
-          type="text"
-          placeholder="Wyszukaj po imieniu, nazwisku, e-mailu lub numerze telefonu"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={style.searchInput}
-        />
-      </div>
-
-      {/* Tabela */}
-      <div style={style.tableWrapper}>
-        {filteredClients.length === 0 ? (
-          <div style={style.empty}>Brak zarejestrowanych klientek.</div>
-        ) : (
-          <table style={style.table}>
-            <thead>
-              <tr>
-                <th style={style.th}>Imię</th>
-                <th style={style.th}>Nazwisko</th>
-                <th style={style.th}>E-mail</th>
-                <th style={style.th}>Telefon</th>
-                <th style={style.th}>Ilość zabiegów</th>
-                <th style={style.th}>Ostatni zabieg</th>
-                <th style={style.th}>Akcje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map((c) => {
-                const count = (c.treatments || []).length;
-                const lastDate = getLastTreatmentDate(c.treatments);
-                return (
-                  <tr key={c.id}>
-                    <td style={style.td}>{c.firstName}</td>
-                    <td style={style.td}>{c.lastName}</td>
-                    <td style={style.td}>{c.email}</td>
-                    <td style={style.td}>{c.phone}</td>
-                    <td style={{ ...style.td, textAlign: "center" }}>
-                      {count}
-                    </td>
-                    <td style={style.td}>{lastDate}</td>
-                    <td style={{ ...style.td, textAlign: "center" }}>
-                      <button
-                        onClick={() => navigate(`/client/${c.id}`)}
-                        style={style.viewBtn}
-                      >
-                        Zobacz
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+      <div className="client-list-table-wrapper">
+        <div className="client-list-grid">
+          <div className="client-list-grid-row client-list-grid-header">
+            <div className="client-list-grid-cell">
+              <span className="client-avatar" style={{opacity:0, pointerEvents:'none'}}>AA</span>
+              Klientka
+            </div>
+            <div className="client-list-grid-cell">
+              <Mail size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
+              Email
+            </div>
+            <div className="client-list-grid-cell">
+              <Phone size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
+              Telefon
+            </div>
+            <div className="client-list-grid-cell" style={{justifyContent:'center'}}>Status</div>
+            <div className="client-list-grid-cell last-visit-cell">
+              <Calendar size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
+              Ostatni zabieg
+            </div>
+            <div className="client-list-grid-cell" style={{justifyContent:'flex-end'}}></div>
+          </div>
+          {filteredClients.length === 0 ? (
+            <div className="client-list-grid-row">
+              <div className="client-list-grid-cell" style={{gridColumn: '1 / -1', textAlign: 'center'}}>Brak klientek</div>
+            </div>
+          ) : (
+            filteredClients.map(client => {
+              const status = getClientStatus(client);
+              return (
+                <div className="client-list-grid-row" key={client.id}>
+                  <div className="client-list-grid-cell">
+                    <div className="client-name-cell">
+                      <div className="client-avatar">
+                        {getClientAvatar(client.firstName, client.lastName)}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 600, color: '#fff' }}>
+                          {client.firstName} {client.lastName}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="client-list-grid-cell">
+                    <Mail size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
+                    {client.email}
+                  </div>
+                  <div className="client-list-grid-cell">
+                    <Phone size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
+                    {client.phone}
+                  </div>
+                  <div className="client-list-grid-cell" style={{justifyContent:'center'}}>
+                    <span className={`client-status ${status}`}>
+                      {getStatusText(status)}
+                    </span>
+                  </div>
+                  <div className="client-list-grid-cell last-visit-cell">
+                    <Calendar size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
+                    {getLastTreatmentDate(client.treatments)}
+                  </div>
+                  <div className="client-list-grid-cell" style={{justifyContent:'flex-end'}}>
+                    <button className="btn btn-secondary" onClick={() => navigate(`/client/${client.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Eye size={16} />
+                      Podgląd
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );

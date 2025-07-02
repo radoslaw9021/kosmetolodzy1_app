@@ -20,11 +20,14 @@ import TreatmentForm from "./components/TreatmentForm";
 import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
+import Gallery from "./components/Gallery/Gallery";
+import CommunicationDashboard from './components/Communication/CommunicationDashboard';
 
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
 import DashboardPage from './pages/DashboardPage';
 import TreatmentDetailsPage from './pages/TreatmentDetailsPage';
+import InventoryPage from './pages/InventoryPage';
 
 import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
 import { 
@@ -400,6 +403,30 @@ function AppContent({
                 onAddClient={() => navigate('/clients')}
                 onGoToCalendar={() => navigate('/calendar')}
               />
+            }
+          />
+          <Route
+            path="/gallery"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <Gallery />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/communication"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <CommunicationDashboard clients={filteredClients} events={events} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <InventoryPage />
+              </PrivateRoute>
             }
           />
           <Route

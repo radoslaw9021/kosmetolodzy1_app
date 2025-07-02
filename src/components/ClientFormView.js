@@ -1,49 +1,13 @@
 import React from "react";
 
-const containerStyle = {
-  fontFamily: "Arial, sans-serif",
-  fontSize: "14px",
-  color: "#333",
-  lineHeight: 1.6,
-  margin: 0,
-  padding: 0,
-};
-const sectionStyle = {
-  margin: "1.5rem 0",
-  padding: "1.2rem",
-  backgroundColor: "#fff",
-  border: "1px solid #e0e0e0",
-  borderRadius: "6px",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-};
-const titleStyle = {
-  fontSize: "1.3rem",
-  fontWeight: "600",
-  marginBottom: "0.75rem",
-  color: "#2c3e50",
-  borderBottom: "2px solid #ecf0f1",
-  paddingBottom: "0.5rem",
-};
-const listStyle = {
-  paddingLeft: "1.4rem",
-  marginTop: 0,
-  marginBottom: "1rem",
-};
-const itemStyle = {
-  marginBottom: "0.3rem",
-};
-const textStyle = {
-  margin: "0.5rem 0",
-};
-
 export default function ClientFormView({ client }) {
   const renderCheckboxes = (data = {}, labels = {}) => {
     const selected = Object.entries(data).filter(([, v]) => v);
-    if (selected.length === 0) return <p style={textStyle}>-</p>;
+    if (selected.length === 0) return <p className="client-form-empty">-</p>;
     return (
-      <ul style={listStyle}>
+      <ul className="client-form-list">
         {selected.map(([key]) => (
-          <li key={key} style={itemStyle}>
+          <li key={key} className="client-form-list-item">
             {labels[key] || key}
           </li>
         ))}
@@ -112,81 +76,44 @@ export default function ClientFormView({ client }) {
   );
 
   return (
-    <div style={containerStyle}>
-      <div style={sectionStyle}>
-        <div style={titleStyle}>A. Dane osobowe i kontaktowe</div>
-        <p style={textStyle}>
-          <strong>Imię:</strong> {client.firstName || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Nazwisko:</strong> {client.lastName || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Email:</strong> {client.email || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Telefon:</strong> {client.phone || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Płeć:</strong>{" "}
-          {client.gender === "female"
-            ? "Kobieta"
-            : client.gender === "male"
-            ? "Mężczyzna"
-            : "-"}
-        </p>
+    <div className="client-form-container">
+      <div className="client-form-section">
+        <div className="client-form-title">A. Dane osobowe i kontaktowe</div>
+        <p><span className="client-form-label">Imię:</span> <span className="client-form-value">{client.firstName || "-"}</span></p>
+        <p><span className="client-form-label">Nazwisko:</span> <span className="client-form-value">{client.lastName || "-"}</span></p>
+        <p><span className="client-form-label">Email:</span> <span className="client-form-value">{client.email || "-"}</span></p>
+        <p><span className="client-form-label">Telefon:</span> <span className="client-form-value">{client.phone || "-"}</span></p>
+        <p><span className="client-form-label">Płeć:</span> <span className="client-form-value">{client.gender === "female" ? "Kobieta" : client.gender === "male" ? "Mężczyzna" : "-"}</span></p>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={titleStyle}>B. Informacje medyczne i przeciwwskazania</div>
-        <p style={textStyle}>
-          <strong>Choroby przewlekłe:</strong> {client.chronicDiseases || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Przeciwwskazania:</strong>
-        </p>
+      <div className="client-form-section">
+        <div className="client-form-title">B. Informacje medyczne i przeciwwskazania</div>
+        <p><span className="client-form-label">Choroby przewlekłe:</span> <span className="client-form-value">{client.chronicDiseases || "-"}</span></p>
+        <p className="client-form-label">Przeciwwskazania:</p>
         {renderCheckboxes(client.contraindications, contraindicationLabels)}
-        <p style={textStyle}>
-          <strong>Uwagi:</strong> {client.additionalNotes || "-"}
-        </p>
+        <p><span className="client-form-label">Uwagi:</span> <span className="client-form-value">{client.additionalNotes || "-"}</span></p>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={titleStyle}>C. Styl życia i zwyczaje</div>
+      <div className="client-form-section">
+        <div className="client-form-title">C. Styl życia i zwyczaje</div>
         {renderCheckboxes(lifestyleData, lifestyleLabels)}
         <div style={{ height: "0.75rem" }} />
-        <p style={textStyle}>
-          <strong>Leki:</strong> {client.medications || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Suplementy:</strong> {client.supplements || "-"}
-        </p>
-        <p style={textStyle}>
-          <strong>Alergie:</strong> {client.allergies || "-"}
-        </p>
+        <p><span className="client-form-label">Leki:</span> <span className="client-form-value">{client.medications || "-"}</span></p>
+        <p><span className="client-form-label">Suplementy:</span> <span className="client-form-value">{client.supplements || "-"}</span></p>
+        <p><span className="client-form-label">Alergie:</span> <span className="client-form-value">{client.allergies || "-"}</span></p>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={titleStyle}>D. Problemy skórne</div>
+      <div className="client-form-section">
+        <div className="client-form-title">D. Problemy skórne</div>
         {renderCheckboxes(client.skinIssues, skinIssueLabels)}
-        <p style={textStyle}>
-          <strong>Inne problemy:</strong> {client.otherSkinIssue || "-"}
-        </p>
+        <p><span className="client-form-label">Inne problemy:</span> <span className="client-form-value">{client.otherSkinIssue || "-"}</span></p>
       </div>
 
-      <div style={sectionStyle}>
-        <div style={titleStyle}>E. Zgody</div>
-        <p style={textStyle}>
-          <strong>Zgoda RODO:</strong> {client.rodoConsent ? "✓" : "✗"}
-        </p>
-        <p style={textStyle}>
-          <strong>Zgoda na newsletter:</strong>{" "}
-          {client.marketingConsent ? "✓" : "✗"}
-        </p>
-        <p style={textStyle}>
-          <strong>Rezygnacja z newslettera:</strong>{" "}
-          {client.unsubscribed ? "✓" : "✗"}
-        </p>
+      <div className="client-form-section">
+        <div className="client-form-title">E. Zgody</div>
+        <p><span className="client-form-label">Zgoda RODO:</span> <span className="client-form-value">{client.rodoConsent ? "✓" : "✗"}</span></p>
+        <p><span className="client-form-label">Zgoda na newsletter:</span> <span className="client-form-value">{client.marketingConsent ? "✓" : "✗"}</span></p>
+        <p><span className="client-form-label">Rezygnacja z newslettera:</span> <span className="client-form-value">{client.unsubscribed ? "✓" : "✗"}</span></p>
       </div>
     </div>
   );

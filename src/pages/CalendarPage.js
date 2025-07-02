@@ -164,8 +164,8 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
         setCurrentView('day');
         // If form is open, update its date too
         if (isAppointmentFormVisible) {
-            setNewAppointment(prev => ({
-                ...prev,
+        setNewAppointment(prev => ({
+            ...prev,
                 date: format(day, 'yyyy-MM-dd'),
             }));
         }
@@ -236,9 +236,9 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
             start: startDate,
             end: endDate,
             resource: {
-                clientId: client.id,
+            clientId: client.id,
                 treatment: newAppointment.treatment,
-                description: newAppointment.description,
+            description: newAppointment.description,
             }
         };
 
@@ -257,7 +257,7 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     };
     
     // --- RENDER ---
-    return (
+        return (
         <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem' }}>
             <div style={{ display: 'flex', padding: '2rem 0', gap: '2rem', justifyContent: 'center' }}>
                 

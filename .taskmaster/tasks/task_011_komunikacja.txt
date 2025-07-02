@@ -1,0 +1,57 @@
+# Task ID: 11
+# Title: Refaktoryzacja modułu Komunikacja zgodnie z nowymi założeniami
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Usuń z modułu Komunikacja zbędne zakładki i popraw UX pozostałych funkcji.
+
+✅ Zachować:
+- Przegląd (klientów/zabiegów), dodać tooltipy z awatarami i nazwami klientów
+- Kampanie – poprawić UX, dodać lepsze zarządzanie kampaniami
+- Powiadomienia – umożliwić tworzenie i zapisywanie szablonów, poprawić wygląd UI
+
+❌ Usunąć z zakładki Komunikacja:
+- Email
+- SMS
+- Social Media
+- Newsletter (bo to osobna zakładka)
+
+🔧 Inspiracja do UI: https://ui.aceternity.com/components/animated-tooltip
+🎯 Cel: uproszczenie interfejsu, skupienie na realnie używanych funkcjach i poprawa czytelności.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Usuń zbędne moduły z zakładki Komunikacja [pending]
+### Dependencies: None
+### Description: Usuń Email, SMS, Social Media oraz Newsletter z interfejsu.
+### Details:
+Zlokalizuj i usuń komponenty odpowiadające za wyżej wymienione moduły. Upewnij się, że nie wpływa to na inne części aplikacji.
+
+## 2. Dodaj tooltipy w zakładce Przegląd [pending]
+### Dependencies: None
+### Description: Zaimplementuj animowane tooltipy z awatarami i nazwami klientów.
+### Details:
+Zastosuj komponent tooltip z inspiracji UI. Tooltip powinien pojawiać się po najechaniu na element klienta/zabiegu.
+
+## 3. Popraw UX zarządzania kampaniami [pending]
+### Dependencies: None
+### Description: Przebuduj interfejs i logikę zarządzania kampaniami.
+### Details:
+Ułatw dodawanie, edycję i filtrowanie kampanii. Użyj komponentów UI zgodnych z design systemem aplikacji.
+
+## 4. Dodaj szablony w module Powiadomienia [pending]
+### Dependencies: None
+### Description: Dodaj możliwość tworzenia i zapisywania szablonów wiadomości.
+### Details:
+Zaimplementuj CRUD szablonów oraz popraw responsywność i czytelność interfejsu modułu powiadomień.
+
+## 5. Zoptymalizuj UI modułu Komunikacja [pending]
+### Dependencies: None
+### Description: Uprość wygląd i układ elementów interfejsu.
+### Details:
+Usuń zbędne kolumny, dodaj odstępy i ujednolić wygląd fontów i ikon. Skorzystaj z tailwind/ui-kit.
+

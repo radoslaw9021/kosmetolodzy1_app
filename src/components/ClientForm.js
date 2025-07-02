@@ -1,117 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RodoModal from "./RodoModal";
-
-const style = {
-  container: {
-    maxWidth: 660,
-    margin: "2.5rem auto",
-    padding: "2.5rem 2rem",
-    background: "#fff",
-    borderRadius: 28,
-    boxShadow: "0 4px 32px rgba(0,0,0,0.12)",
-    transition: "box-shadow 0.25s",
-  },
-  section: { marginBottom: "2.4rem" },
-  sectionTitle: {
-    fontSize: "1.22rem",
-    fontWeight: 700,
-    marginBottom: "0.75rem",
-    borderBottom: "1.5px solid #efefef",
-    paddingBottom: "0.5rem",
-    letterSpacing: "0.03em",
-    color: "#C8373B",
-  },
-  formGroup: { marginBottom: "1.3rem" },
-  label: {
-    display: "block",
-    fontWeight: 500,
-    marginBottom: "0.45rem",
-    color: "#1a1a1a",
-  },
-  input: {
-    width: "100%",
-    padding: "11px 16px",
-    border: "1.2px solid #ececec",
-    borderRadius: 13,
-    background: "#faf9f8",
-    fontSize: 16,
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.22s, box-shadow 0.22s",
-  },
-  textarea: {
-    width: "100%",
-    padding: "11px 16px",
-    border: "1.2px solid #ececec",
-    borderRadius: 13,
-    background: "#faf9f8",
-    fontSize: 16,
-    resize: "vertical",
-    outline: "none",
-    boxSizing: "border-box",
-    transition: "border-color 0.22s, box-shadow 0.22s",
-  },
-  checkboxGroup: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "0.5rem",
-    marginTop: 7,
-  },
-  checkboxLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.65rem",
-    fontSize: 15,
-    background: "#faf9f8",
-    borderRadius: 8,
-    padding: "5px 11px",
-    cursor: "pointer",
-    transition: "background 0.18s",
-  },
-  radioGroup: { display: "flex", gap: "2rem", marginTop: "0.45rem" },
-  radioLabel: {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.45rem",
-    fontSize: 15,
-  },
-  errorText: {
-    color: "#C8373B",
-    fontSize: "0.98rem",
-    minHeight: 18,
-    marginTop: "0.22rem",
-    opacity: 1,
-    transition: "opacity 0.22s",
-  },
-  submitButton: {
-    width: "100%",
-    padding: "1rem",
-    background: "#C8373B",
-    color: "#fff",
-    fontSize: "1.1rem",
-    fontWeight: 700,
-    border: "none",
-    borderRadius: 11,
-    cursor: "pointer",
-    marginTop: 12,
-    boxShadow: "0 2px 12px rgba(200,55,59,0.09)",
-    transition: "background 0.18s, box-shadow 0.18s, transform 0.13s",
-  },
-  backButton: {
-    padding: "0.6rem 1.2rem",
-    background: "#fff",
-    color: "#C8373B",
-    border: "1.5px solid #C8373B",
-    borderRadius: 11,
-    cursor: "pointer",
-    marginBottom: "2rem",
-    fontWeight: 600,
-    fontSize: "1rem",
-    boxShadow: "0 1px 4px rgba(200,55,59,0.07)",
-    transition: "background 0.16s, color 0.16s, border 0.16s",
-  },
-};
+import '../styles/theme.css';
 
 const initialState = {
   firstName: "",
@@ -287,372 +177,287 @@ export default function ClientForm({ onAddClient }) {
   };
 
   return (
-    <div style={style.container}>
+    <div className="client-form-container">
       <button
         onClick={() => navigate("/clients")}
-        style={style.backButton}
-        onMouseOver={(e) => {
-          e.currentTarget.style.background = "#C8373B";
-          e.currentTarget.style.color = "#fff";
-          e.currentTarget.style.border = "1.5px solid #C8373B";
-        }}
-        onMouseOut={(e) => {
-          e.currentTarget.style.background = "#fff";
-          e.currentTarget.style.color = "#C8373B";
-          e.currentTarget.style.border = "1.5px solid #C8373B";
-        }}
+        className="client-form-back-btn"
       >
         ← Powrót do panelu
       </button>
       <h2
-        style={{
-          textAlign: "center",
-          marginBottom: 32,
-          fontWeight: 800,
-          letterSpacing: ".03em",
-        }}
+        className="client-form-title"
       >
         Karta klientki – dane wstępne
       </h2>
       <form onSubmit={handleSubmit} autoComplete="off">
         {/* Sekcja A */}
-        <div style={style.section}>
-          <div style={style.sectionTitle}>A. Dane osobowe i kontaktowe</div>
-          {["firstName", "lastName", "email", "phone"].map((field) => (
-            <div key={field} style={style.formGroup}>
-              <label style={style.label}>
-                {field === "firstName" && "Imię"}
-                {field === "lastName" && "Nazwisko"}
-                {field === "email" && "E-mail"}
-                {field === "phone" && "Telefon"}{" "}
-                <span style={{ color: "#C8373B" }}>*</span>
-              </label>
+        <div className="client-form-section">
+          <div className="client-form-section-title">A. Dane osobowe i kontaktowe</div>
+          <div className="client-form-label">Imię</div>
+          <input
+            className="client-form-input"
+            type="text"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            placeholder="Imię"
+            onFocus={() => setFocusField("firstName")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Nazwisko</div>
+          <input
+            className="client-form-input"
+            type="text"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            placeholder="Nazwisko"
+            onFocus={() => setFocusField("lastName")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Email</div>
+          <input
+            className="client-form-input"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Email"
+            onFocus={() => setFocusField("email")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Telefon</div>
+          <input
+            className="client-form-input"
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Telefon"
+            onFocus={() => setFocusField("phone")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Data urodzenia</div>
+          <input
+            className="client-form-input"
+            type="date"
+            name="birthDate"
+            value={formData.birthDate}
+            onChange={handleChange}
+            onFocus={() => setFocusField("birthDate")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Płeć</div>
+          <div className="client-form-radio-group">
+            <label className="client-form-radio-label">
               <input
-                type={
-                  field === "email"
-                    ? "email"
-                    : field === "phone"
-                    ? "tel"
-                    : "text"
-                }
-                name={field}
-                value={formData[field]}
-                onChange={handleChange}
-                onFocus={() => setFocusField(field)}
-                onBlur={() => setFocusField("")}
-                style={getInputStyle(field, errors[field])}
-                placeholder={
-                  field === "email"
-                    ? "np. jan.kowalski@email.com"
-                    : field === "phone"
-                    ? "np. 500600700"
-                    : undefined
-                }
+                className="client-form-radio"
+                type="radio"
+                name="gender"
+                value="female"
+                checked={formData.gender === "female"}
+                onChange={handleRadio}
               />
-              <div
-                style={{ ...style.errorText, opacity: errors[field] ? 1 : 0 }}
-              >
-                {errors[field]}
-              </div>
-            </div>
-          ))}
-          <div style={style.formGroup}>
-            <label style={style.label}>Data urodzenia</label>
-            <input
-              type="date"
-              name="birthDate"
-              value={formData.birthDate}
-              onChange={handleChange}
-              onFocus={() => setFocusField("birthDate")}
-              onBlur={() => setFocusField("")}
-              style={getInputStyle("birthDate")}
-            />
-          </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>
-              Płeć <span style={{ color: "#C8373B" }}>*</span>
+              Kobieta
             </label>
-            <div style={style.radioGroup}>
-              <label style={style.radioLabel}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="female"
-                  checked={formData.gender === "female"}
-                  onChange={handleRadio}
-                />{" "}
-                Kobieta
-              </label>
-              <label style={style.radioLabel}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="male"
-                  checked={formData.gender === "male"}
-                  onChange={handleRadio}
-                />{" "}
-                Mężczyzna
-              </label>
-            </div>
-            <div style={{ ...style.errorText, opacity: errors.gender ? 1 : 0 }}>
-              {errors.gender}
-            </div>
+            <label className="client-form-radio-label">
+              <input
+                className="client-form-radio"
+                type="radio"
+                name="gender"
+                value="male"
+                checked={formData.gender === "male"}
+                onChange={handleRadio}
+              />
+              Mężczyzna
+            </label>
           </div>
         </div>
-
         {/* Sekcja B */}
-        <div style={style.section}>
-          <div style={style.sectionTitle}>
-            B. Informacje medyczne i przeciwwskazania
-          </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>Choroby przewlekłe</label>
-            <textarea
-              name="chronicDiseases"
-              rows="2"
-              value={formData.chronicDiseases}
-              onChange={handleChange}
-              onFocus={() => setFocusField("chronicDiseases")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("chronicDiseases")}
-              placeholder="np. nadciśnienie, cukrzyca..."
-            />
-          </div>
-          <div style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
-            Przeciwwskazania:
-          </div>
-          <div style={style.checkboxGroup}>
+        <div className="client-form-section">
+          <div className="client-form-section-title">B. Informacje medyczne i przeciwwskazania</div>
+          <div className="client-form-label">Choroby przewlekłe</div>
+          <textarea
+            className="client-form-textarea"
+            name="chronicDiseases"
+            rows="2"
+            value={formData.chronicDiseases}
+            onChange={handleChange}
+            placeholder="Choroby przewlekłe"
+            onFocus={() => setFocusField("chronicDiseases")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Przeciwwskazania</div>
+          <div className="client-form-checkbox-group">
             {Object.entries(contraindicationLabels).map(([key, label]) => (
-              <label
-                key={key}
-                style={style.checkboxLabel}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.background = "#f5e9ea")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.background = "#faf9f8")
-                }
-              >
+              <label key={key} className="client-form-checkbox-label">
                 <input
+                  className="client-form-checkbox"
                   type="checkbox"
                   name={key}
                   checked={formData.contraindications[key]}
-                  onChange={(e) => handleCheckboxGroup(e, "contraindications")}
-                />{" "}
+                  onChange={e => handleCheckboxGroup(e, "contraindications")}
+                />
                 {label}
               </label>
             ))}
           </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>Uwagi dodatkowe</label>
-            <textarea
-              name="additionalNotes"
-              rows="2"
-              value={formData.additionalNotes}
-              onChange={handleChange}
-              onFocus={() => setFocusField("additionalNotes")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("additionalNotes")}
-              placeholder="Inne istotne informacje..."
-            />
-          </div>
+          <div className="client-form-label">Uwagi</div>
+          <textarea
+            className="client-form-textarea"
+            name="additionalNotes"
+            rows="2"
+            value={formData.additionalNotes}
+            onChange={handleChange}
+            placeholder="Uwagi"
+            onFocus={() => setFocusField("additionalNotes")}
+            onBlur={() => setFocusField("")}
+          />
         </div>
-
         {/* Sekcja C */}
-        <div style={style.section}>
-          <div style={style.sectionTitle}>C. Styl życia i zwyczaje</div>
-          <div style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
-            Zaznacz wszystkie:
-          </div>
-          <div style={style.checkboxGroup}>
+        <div className="client-form-section">
+          <div className="client-form-section-title">C. Styl życia i zwyczaje</div>
+          <div className="client-form-checkbox-group">
             {Object.entries(lifestyleLabels).map(([key, label]) => (
-              <label
-                key={key}
-                style={style.checkboxLabel}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.background = "#f5e9ea")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.background = "#faf9f8")
-                }
-              >
+              <label key={key} className="client-form-checkbox-label">
                 <input
+                  className="client-form-checkbox"
                   type="checkbox"
                   name={key}
                   checked={formData[key]}
                   onChange={handleSingleCheckbox}
-                />{" "}
+                />
                 {label}
               </label>
             ))}
           </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>Leki</label>
-            <textarea
-              name="medications"
-              rows="2"
-              value={formData.medications}
-              onChange={handleChange}
-              onFocus={() => setFocusField("medications")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("medications")}
-              placeholder="Przyjmowane leki"
-            />
-          </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>Suplementy</label>
-            <textarea
-              name="supplements"
-              rows="2"
-              value={formData.supplements}
-              onChange={handleChange}
-              onFocus={() => setFocusField("supplements")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("supplements")}
-              placeholder="Suplementy diety"
-            />
-          </div>
-          <div style={style.formGroup}>
-            <label style={style.label}>Alergie</label>
-            <textarea
-              name="allergies"
-              rows="2"
-              value={formData.allergies}
-              onChange={handleChange}
-              onFocus={() => setFocusField("allergies")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("allergies")}
-              placeholder="Znane alergie"
-            />
-          </div>
+          <div className="client-form-label">Leki</div>
+          <textarea
+            className="client-form-textarea"
+            name="medications"
+            rows="2"
+            value={formData.medications}
+            onChange={handleChange}
+            placeholder="Przyjmowane leki"
+            onFocus={() => setFocusField("medications")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Suplementy</div>
+          <textarea
+            className="client-form-textarea"
+            name="supplements"
+            rows="2"
+            value={formData.supplements}
+            onChange={handleChange}
+            placeholder="Suplementy diety"
+            onFocus={() => setFocusField("supplements")}
+            onBlur={() => setFocusField("")}
+          />
+          <div className="client-form-label">Alergie</div>
+          <textarea
+            className="client-form-textarea"
+            name="allergies"
+            rows="2"
+            value={formData.allergies}
+            onChange={handleChange}
+            placeholder="Znane alergie"
+            onFocus={() => setFocusField("allergies")}
+            onBlur={() => setFocusField("")}
+          />
         </div>
-
         {/* Sekcja D */}
-        <div style={style.section}>
-          <div style={style.sectionTitle}>D. Problemy skórne</div>
-          <div style={{ marginBottom: "0.5rem", fontWeight: 500 }}>
-            Zaznacz wszystkie:
-          </div>
-          <div style={style.checkboxGroup}>
+        <div className="client-form-section">
+          <div className="client-form-section-title">D. Problemy skórne</div>
+          <div className="client-form-label">Zaznacz wszystkie</div>
+          <div className="client-form-checkbox-group">
             {Object.entries(skinIssueLabels).map(([key, label]) => (
-              <label
-                key={key}
-                style={style.checkboxLabel}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.background = "#f5e9ea")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.background = "#faf9f8")
-                }
-              >
+              <label key={key} className="client-form-checkbox-label">
                 <input
+                  className="client-form-checkbox"
                   type="checkbox"
                   name={key}
                   checked={formData.skinIssues[key]}
-                  onChange={(e) => handleCheckboxGroup(e, "skinIssues")}
-                />{" "}
+                  onChange={e => handleCheckboxGroup(e, "skinIssues")}
+                />
                 {label}
               </label>
             ))}
           </div>
-          <div style={{ ...style.formGroup, marginTop: "1.5rem" }}>
-            <label style={style.label}>Inne problemy skórne</label>
-            <textarea
-              name="otherSkinIssue"
-              rows="5"
-              value={formData.otherSkinIssue}
-              onChange={handleChange}
-              onFocus={() => setFocusField("otherSkinIssue")}
-              onBlur={() => setFocusField("")}
-              style={getTextareaStyle("otherSkinIssue")}
-              placeholder="Inne zauważone zmiany"
-            />
-          </div>
+          <div className="client-form-label">Inne problemy skórne</div>
+          <textarea
+            className="client-form-textarea"
+            name="otherSkinIssue"
+            rows="3"
+            value={formData.otherSkinIssue}
+            onChange={handleChange}
+            placeholder="Inne zauważone zmiany"
+            onFocus={() => setFocusField("otherSkinIssue")}
+            onBlur={() => setFocusField("")}
+          />
         </div>
-
         {/* Sekcja F */}
-        <div style={style.section}>
-          <div style={style.sectionTitle}>F. Zgody i newsletter</div>
-          <div style={style.formGroup}>
-            <label style={style.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="rodoConsent"
-                checked={formData.rodoConsent}
-                onChange={handleSingleCheckbox}
-                required
-              />{" "}
-              Zgoda RODO
-              <button
-                type="button"
-                style={{
-                  background: "none",
-                  color: "#1c89fa",
-                  border: "none",
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                  fontSize: "1em",
-                  marginLeft: 6,
-                  padding: 0,
-                }}
-                onClick={() => setShowRODO(true)}
-              >
-                Zobacz treść zgody
-              </button>
-              <span style={{ color: "#C8373B", marginLeft: 2 }}>*</span>
-            </label>
-            <div
+        <div className="client-form-section">
+          <div className="client-form-section-title">F. Zgody i newsletter</div>
+          <label className="client-form-checkbox-label">
+            <input
+              className="client-form-checkbox"
+              type="checkbox"
+              name="rodoConsent"
+              checked={formData.rodoConsent}
+              onChange={handleSingleCheckbox}
+              required
+            />
+            Zgoda RODO
+            <button
+              type="button"
               style={{
-                ...style.errorText,
-                opacity: errors.rodoConsent ? 1 : 0,
+                background: "none",
+                color: "#1c89fa",
+                border: "none",
+                cursor: "pointer",
+                textDecoration: "underline",
+                fontSize: "1em",
+                marginLeft: 6,
+                padding: 0,
               }}
+              onClick={() => setShowRODO(true)}
             >
-              {errors.rodoConsent}
-            </div>
+              Zobacz treść zgody
+            </button>
+            <span style={{ color: "#C8373B", marginLeft: 2 }}>*</span>
+          </label>
+          <div className="client-form-error">
+            {errors.rodoConsent}
           </div>
-          <div style={style.formGroup}>
-            <label style={style.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="marketingConsent"
-                checked={formData.marketingConsent}
-                onChange={handleSingleCheckbox}
-              />{" "}
-              Zgoda na newsletter
-            </label>
-          </div>
-          <div style={style.formGroup}>
-            <label style={style.checkboxLabel}>
-              <input
-                type="checkbox"
-                name="unsubscribed"
-                checked={formData.unsubscribed}
-                onChange={handleSingleCheckbox}
-              />{" "}
-              Rezygnuję z newslettera
-            </label>
-          </div>
+          <label className="client-form-checkbox-label">
+            <input
+              className="client-form-checkbox"
+              type="checkbox"
+              name="marketingConsent"
+              checked={formData.marketingConsent}
+              onChange={handleSingleCheckbox}
+            />
+            Zgoda na newsletter
+          </label>
+          <label className="client-form-checkbox-label">
+            <input
+              className="client-form-checkbox"
+              type="checkbox"
+              name="unsubscribed"
+              checked={formData.unsubscribed}
+              onChange={handleSingleCheckbox}
+            />
+            Rezygnuję z newslettera
+          </label>
         </div>
-
         <RodoModal
           open={showRODO}
           onClose={() => setShowRODO(false)}
           companyName={companyName}
         />
-
         <button
           type="submit"
-          style={style.submitButton}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = "#b22c2f";
-            e.currentTarget.style.transform = "scale(1.04)";
-            e.currentTarget.style.boxShadow = "0 8px 32px rgba(200,55,59,0.13)";
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = "#C8373B";
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "0 2px 12px rgba(200,55,59,0.09)";
-          }}
+          className="client-form-submit-btn"
         >
           Wyślij
         </button>

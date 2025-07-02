@@ -1,0 +1,58 @@
+{
+  "komunikacja": {
+    "tasks": [
+      {
+        "id": 11,
+        "title": "Refaktoryzacja modułu Komunikacja zgodnie z nowymi założeniami",
+        "status": "in-progress",
+        "priority": "high",
+        "dependencies": [],
+        "description": "Usuń z modułu Komunikacja zbędne zakładki i popraw UX pozostałych funkcji.\n\n✅ Zachować:\n- Przegląd (klientów/zabiegów), dodać tooltipy z awatarami i nazwami klientów\n- Kampanie – poprawić UX, dodać lepsze zarządzanie kampaniami\n- Powiadomienia – umożliwić tworzenie i zapisywanie szablonów, poprawić wygląd UI\n\n❌ Usunąć z zakładki Komunikacja:\n- Email\n- SMS\n- Social Media\n- Newsletter (bo to osobna zakładka)\n\n🔧 Inspiracja do UI: https://ui.aceternity.com/components/animated-tooltip\n🎯 Cel: uproszczenie interfejsu, skupienie na realnie używanych funkcjach i poprawa czytelności.",
+        "complexity": "medium",
+        "created_at": "2025-06-27T12:07:51.470473",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Usuń zbędne moduły z zakładki Komunikacja",
+            "description": "Usuń Email, SMS, Social Media oraz Newsletter z interfejsu.",
+            "details": "Zlokalizuj i usuń komponenty odpowiadające za wyżej wymienione moduły. Upewnij się, że nie wpływa to na inne części aplikacji.",
+            "status": "done"
+          },
+          {
+            "id": 2,
+            "title": "Dodaj tooltipy w zakładce Przegląd",
+            "description": "Zaimplementuj animowane tooltipy z awatarami i nazwami klientów.",
+            "details": "Zastosuj komponent tooltip z inspiracji UI. Tooltip powinien pojawiać się po najechaniu na element klienta/zabiegu.",
+            "status": "in-progress"
+          },
+          {
+            "id": 3,
+            "title": "Popraw UX zarządzania kampaniami",
+            "description": "Przebuduj interfejs i logikę zarządzania kampaniami.",
+            "details": "Ułatw dodawanie, edycję i filtrowanie kampanii. Użyj komponentów UI zgodnych z design systemem aplikacji.",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Dodaj szablony w module Powiadomienia",
+            "description": "Dodaj możliwość tworzenia i zapisywania szablonów wiadomości.",
+            "details": "Zaimplementuj CRUD szablonów oraz popraw responsywność i czytelność interfejsu modułu powiadomień.",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Zoptymalizuj UI modułu Komunikacja",
+            "description": "Uprość wygląd i układ elementów interfejsu.",
+            "details": "Usuń zbędne kolumny, dodaj odstępy i ujednolić wygląd fontów i ikon. Skorzystaj z tailwind/ui-kit.",
+            "status": "pending"
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-27T13:01:53.474Z",
+      "updated": "2025-06-27T13:28:15.935Z",
+      "description": "Tag created on 27.06.2025"
+    }
+  }
+}

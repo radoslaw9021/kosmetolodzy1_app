@@ -1,0 +1,13 @@
+name: infinite_design
+trigger:
+  on_file_change: source.html
+description: Generate 3 UI design variations automatically when source.html changes
+steps:
+  - read_file: source.html
+  - run_prompt:
+      prompt: |
+        Take the following HTML and generate 3 UI variations, keeping layout but changing style and colors. Use modern, premium, dark and glassmorphism-inspired styles. Each variant should have a distinct color accent and visual mood, but all should be clean and readable.
+        Input:
+        {{file_contents}}
+  - write_files:
+      filenames: [design1.html, design2.html, design3.html] 

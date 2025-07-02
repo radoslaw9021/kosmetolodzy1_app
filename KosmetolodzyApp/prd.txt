@@ -1,0 +1,112 @@
+Nazwa projektu:
+Kosmetolodzy.app – Nowoczesny system zarządzania salonem kosmetologicznym
+1. Cel projektu
+Stworzenie kompleksowej, nowoczesnej i responsywnej aplikacji webowej do zarządzania salonem kosmetologicznym, obsługującej klientów, wizyty, zabiegi, galerię zdjęć, komunikację, analitykę i magazyn.
+2. Główne moduły aplikacji
+A. Użytkownicy i autoryzacja
+Logowanie z rolami (admin, kosmetolog, klient)
+Panel administracyjny do zarządzania użytkownikami
+Uprawnienia: admin widzi wszystko, kosmetolog tylko swoje klientki
+B. Klienci
+Dodawanie/edycja klientek z danymi osobowymi i medycznymi
+Historia zabiegów i wizyt
+Zgody RODO
+Filtrowanie klientów
+C. Kalendarz i wizyty
+Widoki: miesiąc, tydzień, dzień, agenda
+Dodawanie/edycja/usuwanie wizyt
+Kolorowanie i ikony dla typów zabiegów
+Sidebar z wizytami na dany dzień
+D. Dashboard
+Statystyki (wizyty dziś/jutro, nowe klientki)
+Najbliższe wizyty
+Kafelki z efektem spotlight, glassmorphism, gradienty, animacje
+Nowoczesny nagłówek z gradientem i animacją
+E. Newsletter
+Wysyłka e-maili do klientek (EmailJS)
+Wybór odbiorców, raporty wysyłki
+F. System motywów
+Jasny i ciemny motyw, przełącznik, pastelowe i fioletowe akcenty
+G. Galeria zdjęć
+Zaawansowana galeria zdjęć z lokalizacją, timeline, sliderem przed/po, tagowaniem klientek i kosmetologów
+Mapa lokalizacji zdjęć (np. Leaflet)
+Filtrowanie po kliencie, zabiegu, lokalizacji, dacie
+Komponenty inspirowane reactbits.dev: masonry grid, modale, animowane karty, timeline, drag&drop upload
+H. Zarządzanie zabiegami
+Katalog zabiegów z cenami, czasem trwania, opisem
+Planowanie serii zabiegów
+Notatki i zdjęcia do zabiegu
+I. Analityka i raporty
+Raporty sprzedaży, popularności zabiegów, aktywności klientek
+Eksport do PDF/Excel
+Wykresy (np. Chart.js, inspiracja z reactbits.dev)
+J. Komunikacja i marketing
+SMS-y przypominające o wizytach
+Chat z klientkami
+System ocen i recenzji
+K. Mobilność
+Aplikacja mobilna (React Native)
+Push notifications
+L. Zarządzanie zasobami
+Magazyn kosmetyków, alerty o kończących się produktach
+3. Inspiracje i komponenty z reactbits.dev
+Masonry Grid – do galerii zdjęć
+Animated Modal – do podglądu zdjęcia, szczegółów zabiegu
+Timeline – do historii zdjęć lub zabiegów klientki
+Animated Card – do kafelków statystyk, kart zabiegów
+Drag & Drop Upload – do uploadu zdjęć
+Responsive Navbar – do lepszej nawigacji na mobile
+Animated Tabs – do przełączania widoków (kalendarz/galeria/timeline)
+4. Roadmap rozwoju (propozycja)
+Faza 1 (1-2 miesiące):
+Moduł galerii zdjęć (PhotoGrid, PhotoCard, Timeline, Map)
+Katalog zabiegów i szczegóły zabiegu
+Podstawowe raporty i wykresy
+Faza 2 (2-3 miesiące):
+Zaawansowane raporty i eksport
+Komunikacja (SMS, oceny)
+Magazyn kosmetyków
+Faza 3 (3-4 miesiące):
+Aplikacja mobilna
+Chat z klientkami
+Integracja z social media
+5. Propozycje zmian i rozwoju dla każdego modułu
+A. Użytkownicy
+Rozszerzenie panelu admina o logi aktywności i zarządzanie uprawnieniami
+B. Klienci
+Dodanie historii komunikacji (wiadomości, powiadomienia)
+Szybkie podglądy postępów (timeline, galeria)
+C. Kalendarz
+Integracja z Google Calendar
+Drag&drop wizyt, szybkie podglądy zdjęć z wizyty
+D. Dashboard
+Widgety z wykresami (np. liczba zabiegów, przychody, aktywność klientek)
+Szybkie akcje (dodaj wizytę, klientkę, zabieg)
+E. Newsletter
+Szablony e-maili, statystyki otwarć
+F. Motywy
+Więcej opcji personalizacji (np. własne kolory, logo)
+G. Galeria
+Mapa lokalizacji, timeline, slider przed/po, drag&drop upload, tagowanie
+Komponenty z reactbits.dev: masonry grid, modale, timeline, animowane karty
+H. Zabiegi
+Planowanie serii, notatki, zdjęcia, slider efektów
+I. Analityka
+Eksport PDF/Excel, dashboard z wykresami, filtry zaawansowane
+J. Komunikacja
+SMS, chat, system ocen, automatyczne powiadomienia
+K. Mobilność
+Aplikacja mobilna, push, offline mode
+L. Zasoby
+Magazyn, alerty, historia zakupów
+6. Stack technologiczny
+Frontend: React, Framer Motion, Material-UI, react-leaflet, Chart.js, EmailJS
+Backend (propozycja): Node.js/Express lub Firebase (w przyszłości)
+Baza danych: localStorage (MVP), docelowo MongoDB/PostgreSQL
+Mobile: React Native (w przyszłości)
+7. Podsumowanie
+Projekt ma bardzo nowoczesny fundament, a dalszy rozwój powinien skupić się na:
+Galerii zdjęć (z mapą, timeline, uploadem, inspiracje z reactbits.dev)
+Analityce i raportach
+Komunikacji i mobilności
+Personalizacji i UX

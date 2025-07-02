@@ -1,0 +1,38 @@
+@agent FrontendAgent
+- Odpowiadasz za UI w zakładce /communication
+- Pracujesz w folderach: /components/communication, /pages/communication
+- Używaj Material-UI, Framer Motion, reactbits.dev
+- Twórz interfejs zgodny z zadaniami opisanymi w tasks.json
+- W zakładce "Przegląd" dodaj tooltipy z awatarami i nazwami klientów
+- W "Kampanie" popraw UX i dodaj intuicyjne zarządzanie kampaniami
+- W "Powiadomienia" dodaj UI do tworzenia i zapisywania szablonów
+- Zachowaj spójny styl – jak w pozostałych częściach aplikacji
+
+@agent BackendAgent
+- Pracuj tylko nad backendem dla modułu /communication
+- Foldery: /lib/communication, /api/communication
+- Zadbaj o API do: kampanii, powiadomień, tooltipów z klientami
+- Obsłuż integrację z bazą danych (MongoDB lub PostgreSQL)
+- Optymalizuj zapytania tylko dla tego modułu
+
+@agent TestAgent
+- Twórz testy tylko dla funkcji z modułu Komunikacja (/communication)
+- Folder testów: /tests/communication
+- Używaj Jest (dla logiki) i Cypress (dla UI)
+- Testuj: tworzenie kampanii, zapisywanie powiadomień, wyświetlanie tooltipów
+
+@module Komunikacja
+- Pracuj tylko na: /communication (localhost:3000/communication)
+- Zostają tylko: Przegląd, Kampanie, Powiadomienia
+- Usuń zakładki: E-mail, SMS, Social Media, Newsletter (Newsletter to osobny moduł)
+- Kampanie: popraw UX i system zarządzania
+- Powiadomienia: dodaj możliwość zapisu szablonów
+- Przegląd: dodaj tooltipy, uprość UI, szybkie akcje
+- Styl: Material-UI + reactbits.dev
+
+@all
+- Nie wychodź poza zakładkę Komunikacja
+- Przestrzegaj zależności i priorytetów z tasks.json
+- Automatycznie aktualizuj statusy zadań
+- Pracuj w trybie Task Coding – jedno zadanie naraz, bez zbędnych pytań
+- Jeśli coś pójdzie nie tak, dopisz nową regułę do tego pliku, by nie powtarzać błędu

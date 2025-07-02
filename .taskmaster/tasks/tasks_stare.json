@@ -1,0 +1,139 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up Project Structure and Dependencies",
+        "description": "Create a new React project with the necessary dependencies for the frontend, backend, and mobile applications.",
+        "details": "npm init, npm install react react-dom framer-motion material-ui react-leaflet chart.js emailjs",
+        "testStrategy": "Unit testing using Jest and Enzyme",
+        "priority": "high",
+        "dependencies": [],
+        "status": "in-progress",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Implement User Management Module (A. Użytkownicy)",
+        "description": "Create a user management module with login, registration, and role-based access control.",
+        "details": "npm install react-auth",
+        "testStrategy": "Integration testing using Cypress",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Develop Client Module (B. Klienci)",
+        "description": "Create a client module with CRUD operations for clients, including personal and medical data.",
+        "details": "npm install react-table",
+        "testStrategy": "Unit testing using Jest and Enzyme",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Calendar Module (C. Kalendarz)",
+        "description": "Create a calendar module with scheduling, event management, and integration with Google Calendar.",
+        "details": "npm install fullcalendar",
+        "testStrategy": "Integration testing using Cypress",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Develop Dashboard Module (D. Dashboard)",
+        "description": "Create a dashboard module with statistics, upcoming appointments, and customizable widgets.",
+        "details": "npm install react-chartjs-2",
+        "testStrategy": "Unit testing using Jest and Enzyme",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Newsletter Module (E. Newsletter)",
+        "description": "Create a newsletter module with email sending, subscription management, and analytics.",
+        "details": "npm install emailjs",
+        "testStrategy": "Integration testing using Cypress",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Develop System Motywy Module (F. System motywów)",
+        "description": "Create a system motif module with light and dark themes, customizable colors, and logo support.",
+        "details": "npm install react-color",
+        "testStrategy": "Unit testing using Jest and Enzyme",
+        "priority": "low",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Gallery Module (G. Galeria)",
+        "description": "Create a gallery module with advanced features, including map integration, timeline, and drag-and-drop upload.",
+        "details": "npm install react-leaflet",
+        "testStrategy": "Integration testing using Cypress",
+        "priority": "high",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Develop Treatment Module (H. Zarządzanie zabiegami)",
+        "description": "Create a treatment module with treatment planning, notes, and photos.",
+        "details": "npm install react-table",
+        "testStrategy": "Unit testing using Jest and Enzyme",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Analytics Module (I. Analityka)",
+        "description": "Create an analytics module with reporting, exporting to PDF/Excel, and advanced filtering.",
+        "details": "npm install chart.js",
+        "testStrategy": "Integration testing using Cypress",
+        "priority": "high",
+        "dependencies": [
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-06-26T15:55:51.064Z",
+      "updated": "2025-06-26T16:07:18.679Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

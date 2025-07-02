@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap');
+@import './styles/theme.css';
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -173,16 +176,30 @@ select {
 }
 
 .dashboard-tile {
-  background: rgba(255,255,255,0.85);
-  border-radius: 1.5rem;
-  box-shadow: 0 2px 12px #e5e7eb;
-  padding: 2rem;
-  transition: box-shadow 0.18s, transform 0.18s;
-  position: relative;
+  background: rgba(40,30,60,0.85);
+  border-radius: 18px;
+  box-shadow: 0 2px 16px 0 #a855f7aa, 0 1.5px 0 0 #fff1;
+  color: #f3f3fa;
+  padding: 24px 18px;
+  transition: filter 0.2s, box-shadow 0.2s;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 .dashboard-tile:hover {
-  box-shadow: 0 8px 28px 0 rgba(110, 120, 180, 0.13);
-  transform: scale(1.02);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 24px 0 #a855f7cc, 0 2px 0 0 #fff2;
+}
+.dashboard-tile .dashboard-tile-title {
+  color: #fff;
+  font-size: 1.05em;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.dashboard-tile .dashboard-tile-value {
+  color: #fff;
+  font-size: 2em;
+  font-weight: 700;
+  margin-top: 6px;
 }
 
 .dashboard-icon {

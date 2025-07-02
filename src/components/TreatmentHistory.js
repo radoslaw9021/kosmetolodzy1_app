@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import TreatmentDetailsModal from "./TreatmentDetailsModal";
 import { getTreatmentColor } from '../utils/calendarUtils';
+import { Eye } from 'lucide-react';
 
 const style = {
   container: {
@@ -53,44 +54,37 @@ export default function TreatmentHistory({
   const [openIdx, setOpenIdx] = useState(null);
 
   if (!treatments || treatments.length === 0) {
-    return <p style={style.noData}>Brak zapisanych zabiegów.</p>;
+    return <p className="treatment-history-empty">Brak zapisanych zabiegów.</p>;
   }
 
   return (
-    <div style={style.container}>
-      <div style={style.header}>
+    <div className="treatment-history-container">
+      <div className="treatment-history-header">
         <h3>Historia zabiegów</h3>
       </div>
-      <div style={{ ...style.row, fontWeight: "500", color: "#333" }}>
-        <div style={style.cell}>Typ</div>
-        <div style={style.cell}>Data</div>
-        <div style={style.cell}>Notatka dla kosmetologa</div>
-        <div style={style.cell}>Akcje</div>
+      <div className="treatment-history-row treatment-history-row-head">
+        <div className="treatment-history-cell">Typ</div>
+        <div className="treatment-history-cell">Data</div>
+        <div className="treatment-history-cell">Notatka dla kosmetologa</div>
+        <div className="treatment-history-cell">Akcje</div>
       </div>
 
       {treatments.map((t, idx) => (
         <div key={idx}>
-          <div style={style.row}>
-            <div style={style.cell}>
-              <span style={{
-                display: 'inline-block',
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: getTreatmentColor(t.type),
-                marginRight: 8,
-                verticalAlign: 'middle',
-              }}></span>
+          <div className="treatment-history-row">
+            <div className="treatment-history-cell">
+              <span className="treatment-history-dot" style={{ background: getTreatmentColor(t.type) }}></span>
               {t.type}
             </div>
-            <div style={style.cell}>{t.date}</div>
-            <div style={style.cell}>{t.notesInternal || "-"}</div>
-            <div style={style.cell}>
+            <div className="treatment-history-cell">{t.date}</div>
+            <div className="treatment-history-cell">{t.notesInternal || "-"}</div>
+            <div className="treatment-history-cell">
               <button
                 onClick={() => setOpenIdx(idx)}
-                style={style.toggleButton}
+                className="treatment-history-btn treatment-history-btn-icononly"
+                aria-label="Szczegóły"
               >
-                Pokaż szczegóły
+                <Eye size={20} className="treatment-history-btn-icon" />
               </button>
             </div>
           </div>

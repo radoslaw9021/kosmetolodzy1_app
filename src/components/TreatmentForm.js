@@ -118,7 +118,7 @@ export default function TreatmentForm({ onAddTreatment, onCancel }) {
     notesInternal: "",
     notesForClient: "",
     recommendationsText: defaultRecommendationsText,
-    images: [], // ← Nowa galeria
+    images: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -199,155 +199,111 @@ export default function TreatmentForm({ onAddTreatment, onCancel }) {
       date: formState.date,
       notesInternal: formState.notesInternal,
       notesForClient: formState.notesForClient,
-      recommendations, // ← tablica zaleceń
-      images: formState.images, // ← wszystkie zdjęcia
+      recommendations,
+      images: formState.images,
     };
-
     onAddTreatment(treatmentObject);
   };
 
   return (
-    <div style={style.container}>
-      <h3>Dodaj nowy zabieg</h3>
-
-      {/* Typ zabiegu */}
-      <div style={style.formGroup}>
-        <label style={style.label}>
-          Typ zabiegu <span style={{ color: "#C8373B" }}>*</span>
-        </label>
+    <div className="treatment-form-container">
+      <div className="treatment-form-title">Dodaj nowy zabieg</div>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label" htmlFor="type">Typ zabiegu <span style={{ color: '#f472b6' }}>*</span></label>
         <select
+          id="type"
           name="type"
+          className="treatment-form-input"
           value={formState.type}
           onChange={handleChange}
-          style={style.select}
         >
-          {treatmentTypes.map((tt, idx) => (
-            <option key={idx} value={tt === "-- wybierz --" ? "" : tt}>
-              {tt}
-            </option>
+          {treatmentTypes.map((type, idx) => (
+            <option key={idx} value={type === "-- wybierz --" ? "" : type}>{type}</option>
           ))}
         </select>
-        {errors.type && <div style={style.errorText}>{errors.type}</div>}
+        {errors.type && <div className="treatment-form-error">{errors.type}</div>}
       </div>
-
-      {/* Data zabiegu */}
-      <div style={style.formGroup}>
-        <label style={style.label}>
-          Data zabiegu <span style={{ color: "#C8373B" }}>*</span>
-        </label>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label" htmlFor="date">Data zabiegu <span style={{ color: '#f472b6' }}>*</span></label>
         <input
-          type="date"
+          id="date"
           name="date"
+          type="date"
+          className="treatment-form-input"
           value={formState.date}
           onChange={handleChange}
-          style={style.dateInput}
         />
-        {errors.date && <div style={style.errorText}>{errors.date}</div>}
+        {errors.date && <div className="treatment-form-error">{errors.date}</div>}
       </div>
-
-      {/* Upload zdjęć (wielu) */}
-      <div style={style.formGroup}>
-        <label style={style.label}>Zdjęcia do zabiegu:</label>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label">Zdjęcia do zabiegu:</label>
         <input
           type="file"
-          accept="image/*"
           multiple
+          className="treatment-form-input"
           onChange={handleImagesUpload}
-          style={style.fileInput}
         />
-        <div style={style.imagePreviewContainer}>
-          {formState.images.map((img, idx) => (
-            <div key={idx} style={{ position: "relative" }}>
-              <img
-                src={img.url}
-                alt={img.label || `Zdjęcie ${idx + 1}`}
-                style={style.previewImage}
-              />
-              <input
-                placeholder="Podpis (np. Przed)"
-                value={img.label}
-                onChange={(e) => handleImageLabel(idx, e.target.value)}
-                style={{
-                  width: "92px",
-                  fontSize: 13,
-                  padding: "2px 5px",
-                  borderRadius: 6,
-                  border: "1px solid #ccc",
-                  marginTop: 2,
-                  marginRight: 4,
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(idx)}
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 2,
-                  background: "#fff",
-                  border: "none",
-                  color: "#C8373B",
-                  fontWeight: 700,
-                  fontSize: 17,
-                  borderRadius: "50%",
-                  width: 19,
-                  height: 19,
-                  cursor: "pointer",
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
+        {formState.images.length > 0 && (
+          <div className="treatment-form-image-preview">
+            {formState.images.map((img, idx) => (
+              <div key={idx} className="treatment-form-image-thumb">
+                <img src={img.url} alt="Podgląd" />
+                <input
+                  type="text"
+                  className="treatment-form-input treatment-form-image-label"
+                  placeholder="Opis zdjęcia"
+                  value={img.label}
+                  onChange={e => handleImageLabel(idx, e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="treatment-form-btn treatment-form-btn-cancel treatment-form-image-remove"
+                  onClick={() => handleRemoveImage(idx)}
+                  aria-label="Usuń zdjęcie"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Notatka wewnętrzna */}
-      <div style={style.formGroup}>
-        <label style={style.label}>Notatka wewnętrzna:</label>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label" htmlFor="notesInternal">Notatka wewnętrzna:</label>
         <textarea
+          id="notesInternal"
           name="notesInternal"
-          rows="3"
+          className="treatment-form-input"
           value={formState.notesInternal}
           onChange={handleChange}
-          style={style.textarea}
           placeholder="Notatka dla kosmetologa"
         />
       </div>
-
-      {/* Notatka dla klientki */}
-      <div style={style.formGroup}>
-        <label style={style.label}>Notatka dla klientki:</label>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label" htmlFor="notesForClient">Notatka dla klientki:</label>
         <textarea
+          id="notesForClient"
           name="notesForClient"
-          rows="3"
+          className="treatment-form-input"
           value={formState.notesForClient}
           onChange={handleChange}
-          style={style.textarea}
           placeholder="Notatka, którą otrzyma klientka"
         />
       </div>
-
-      {/* Zalecenia pozabiegowe */}
-      <div style={style.formGroup}>
-        <label style={style.label}>Zalecenia pozabiegowe:</label>
+      <div className="treatment-form-group">
+        <label className="treatment-form-label" htmlFor="recommendationsText">Zalecenia pozabiegowe:</label>
         <textarea
+          id="recommendationsText"
           name="recommendationsText"
-          rows="6"
+          className="treatment-form-input"
           value={formState.recommendationsText}
           onChange={handleChange}
-          style={style.textarea}
+          rows={6}
         />
       </div>
-
-      {/* Przyciski */}
-      <div style={style.buttonGroup}>
-        <button type="button" onClick={onCancel} style={style.cancelButton}>
-          Anuluj
-        </button>
-        <button type="button" onClick={handleSubmit} style={style.saveButton}>
-          Zapisz zabieg
-        </button>
+      <div className="treatment-form-btn-group">
+        <button type="button" className="treatment-form-btn treatment-form-btn-cancel" onClick={onCancel}>Anuluj</button>
+        <button type="button" className="treatment-form-btn treatment-form-btn-save" onClick={handleSubmit}>Zapisz zabieg</button>
       </div>
     </div>
   );
