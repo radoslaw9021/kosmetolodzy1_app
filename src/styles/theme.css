@@ -1993,3 +1993,72 @@ header h1 {
     padding: 6px 10px;
   }
 } 
+
+/* === PREMIUM FORMULARZ KLIENTKI - INPUTS === */
+.client-form-input, .client-form-textarea {
+  width: 100%;
+  padding: 0.7rem 1.1rem;
+  margin-bottom: 1.1rem;
+  border: 1.5px solid #a855f7;
+  border-radius: 1.1rem;
+  background: rgba(40, 30, 60, 0.92);
+  color: #fff;
+  font-size: 1.08rem;
+  font-family: var(--font-primary);
+  outline: none;
+  transition: border 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 16px #a855f733, 0 0 0 2px #fff2 inset;
+}
+.client-form-input:focus, .client-form-textarea:focus {
+  border-color: #ec4899;
+  box-shadow: 0 0 0 3px #a855f7cc, 0 2px 24px #a855f7cc, 0 0 0 4px #fff2 inset;
+}
+
+.client-form-textarea {
+  min-height: 48px;
+  resize: vertical;
+}
+
+.client-form-checkbox-group, .client-form-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+  margin-bottom: 1.1rem;
+}
+.client-form-checkbox-label, .client-form-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.04rem;
+  color: #f7f3f0;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+.client-form-checkbox, .client-form-radio {
+  accent-color: #a855f7;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.3em;
+  border-radius: 0.3em;
+  border: 1.5px solid #a855f7;
+  background: #1e1b2e;
+  transition: box-shadow 0.18s, border 0.18s;
+}
+.client-form-checkbox:focus, .client-form-radio:focus {
+  outline: 2px solid #ec4899;
+  box-shadow: 0 0 0 2px #a855f7cc;
+}
+
+@media (max-width: 600px) {
+  .client-form-input, .client-form-textarea {
+    font-size: 0.98rem;
+    padding: 0.5rem 0.7rem;
+  }
+  .client-form-checkbox-group, .client-form-radio-group {
+    gap: 0.5rem 0.7rem;
+  }
+  .client-form-checkbox-label, .client-form-radio-label {
+    font-size: 0.95rem;
+  }
+}
