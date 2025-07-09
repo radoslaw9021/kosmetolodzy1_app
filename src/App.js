@@ -22,6 +22,8 @@ import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
 import Gallery from "./components/Gallery/Gallery";
 import CommunicationDashboard from './components/Communication/CommunicationDashboard';
+import ArchivePage from './pages/ArchivePage';
+import ArchiveClientDetails from './components/ArchiveClientDetails';
 
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
@@ -127,6 +129,8 @@ export default function App() {
       const withOwner = {
         ...clientData,
         ownerId: currentUser?.id,
+        // Dodaj datę utworzenia dla nowych klientów
+        createdAt: isUpdate ? clientData.createdAt : new Date().toISOString(),
       };
       const next = isUpdate
         ? prev.map((c) => (c.id === withOwner.id ? withOwner : c))
@@ -426,6 +430,22 @@ function AppContent({
             element={
               <PrivateRoute isLoggedIn={!!currentUser}>
                 <InventoryPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/archive"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <ArchivePage clients={filteredClients} events={events} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/archive/:clientId"
+            element={
+              <PrivateRoute isLoggedIn={!!currentUser}>
+                <ArchiveClientDetails clients={filteredClients} events={events} />
               </PrivateRoute>
             }
           />

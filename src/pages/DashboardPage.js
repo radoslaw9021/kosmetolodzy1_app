@@ -108,13 +108,13 @@ const DashboardPage = ({ events = [], clients = [], onAddAppointment, onAddClien
                             >
                                 <span>{clientName} – {event.resource?.treatment || 'Brak nazwy zabiegu'}</span>
                                 <span>{format(new Date(event.start), 'HH:mm', { locale: pl })} - {format(new Date(event.end), 'HH:mm', { locale: pl })}</span>
-                            </div>
+                </div>
                         );
                     })
                 ) : (
-                    <div className="appointment">
+                <div className="appointment">
                         <span>Brak zaplanowanych wizyt</span>
-                    </div>
+                </div>
                 )}
             </section>
         </div>

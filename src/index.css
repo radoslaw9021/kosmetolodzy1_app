@@ -1039,92 +1039,176 @@ body.theme-dark .dashboard-title {
   text-shadow: 0 0 6px #a855f7, 0 0 2px #fff;
 }
 
-/* --- Grid layout for client list --- */
-.client-list-table-wrapper {
-  overflow-x: auto;
-  max-width: 100%;
-}
-
+/* Grid 6 kolumn: Awatar | Imię | Email | Telefon+Status | Ostatni zabieg | Przycisk */
 .client-list-grid {
-  display: grid;
-  grid-template-columns:
-    minmax(140px, 1.5fr)  /* Klientka */
-    minmax(200px, 2.5fr)  /* Email */
-    minmax(140px, 1.5fr)  /* Telefon */
-    minmax(100px, 1fr)    /* Status */
-    minmax(160px, 1.8fr)  /* Ostatni zabieg */
-    minmax(120px, 1fr);   /* Podgląd */
-  gap: 0.75rem;
+  display: table;
+  table-layout: fixed;
   width: 100%;
-  min-width: 100%;
+  border-radius: 18px;
+  background: rgba(30, 20, 50, 0.95);
+  box-shadow: 0 4px 32px rgba(168, 85, 247, 0.10);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
 }
 
-.client-list-grid-row,
 .client-list-grid-header {
-  display: grid;
-  grid-template-columns: inherit;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  min-width: 0;
+  display: table-header-group;
 }
 
-.client-list-grid-row:not(.client-list-grid-header):hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.15);
-  border-radius: 12px;
-  transition: all 0.2s ease-in-out;
+.client-list-grid-header th {
+  background: linear-gradient(90deg, #a855f7 0%, #6366f1 60%, #ec4899 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.18rem;
+  border-top-left-radius: 2rem;
+  border-top-right-radius: 2rem;
+  box-shadow: 0 2px 16px #a855f7aa;
+}
+
+.client-list-grid-row {
+  display: table-row;
+  border-bottom: 1.5px solid rgba(168,85,247,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.client-list-grid-row:last-child {
+  border-bottom: none;
+}
+
+.client-list-grid-row:hover {
+  background: rgba(168, 85, 247, 0.08);
+  box-shadow: 0 2px 24px #a855f7cc;
+  border-radius: 1.5rem;
+  z-index: 2;
 }
 
 .client-list-grid-cell {
-  min-width: 0;
+  display: table-cell;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  vertical-align: middle;
+  border-radius: 8px;
+}
+
+/* Szerokości kolumn w procentach */
+.client-list-grid-cell:nth-child(1) { width: 8%; }  /* Awatar */
+.client-list-grid-cell:nth-child(2) { width: 15%; } /* Imię */
+.client-list-grid-cell:nth-child(3) { width: 25%; min-width: 200px; max-width: 300px; } /* Email */
+.client-list-grid-cell:nth-child(4) { width: 20%; min-width: 150px; max-width: 200px; } /* Telefon */
+.client-list-grid-cell:nth-child(5) { width: 15%; } /* Ostatni zabieg */
+.client-list-grid-cell:nth-child(6) { width: 17%; } /* Przycisk */
+
+.client-list-grid-cell.button {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: visible;
+  min-width: 140px;
+  max-width: 160px;
+}
+
+/* Badge statusu */
+.client-status-badge {
+  display: inline-block;
+  margin-left: 0.7em;
+  padding: 0.15em 0.7em;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  background: #222;
+  color: #fff;
+}
+.client-status-badge.active, .client-status-badge.aktywna { background: #22c55e; color: #fff; }
+.client-status-badge.nowa { background: #2563eb; color: #fff; }
+.client-status-badge.inactive, .client-status-badge.nieaktywna { background: #a855f7; color: #fff; }
+
+/* Neonowy, wyrazisty przycisk Podgląd */
+.btn-gradient {
+  background: linear-gradient(90deg, #a855f7 0%, #38bdf8 100%);
+  color: #fff;
+  border: 2px solid #a855f7;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 0 12px 2px #a855f7, 0 2px 12px rgba(168, 85, 247, 0.25);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s, border-color 0.2s;
   display: flex;
   align-items: center;
-  padding: 0.25rem 0;
+  gap: 0.6rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px #a855f7;
+  z-index: 1;
+  position: relative;
+}
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #9333ea 0%, #0ea5e9 100%);
+  box-shadow: 0 0 24px 4px #a855f7, 0 8px 32px rgba(168, 85, 247, 0.25);
+  border-color: #c084fc;
+  transform: scale(1.07);
 }
 
-/* Specific column constraints */
-.client-list-grid-cell:nth-child(2) { /* Email column */
-  min-width: 180px;
-  max-width: 300px;
+/* Usuń glow jeśli jeszcze jest */
+.btn-glow { box-shadow: none !important; border: none !important; background: inherit !important; }
+
+/* Efekt hover na wierszu */
+.client-list-grid-row:hover .client-list-grid-cell {
+  background: rgba(168, 85, 247, 0.08);
+  transition: background 0.2s;
+  border-radius: 12px;
 }
 
-.client-list-grid-cell:nth-child(3) { /* Phone column */
-  min-width: 120px;
-  max-width: 180px;
-}
-
-.client-list-grid-cell:last-child { /* Podgląd button column */
-  justify-content: flex-end;
-  min-width: 100px;
-}
-
-.btn-secondary {
-  max-width: 100%;
-  white-space: nowrap;
-  font-size: 0.9rem;
-  padding: 0.4rem 0.8rem;
+@media (max-width: 1200px) {
+  .client-list-grid-cell:nth-child(3) { width: 22%; min-width: 180px; max-width: 250px; } /* Email */
+  .client-list-grid-cell:nth-child(4) { width: 18%; min-width: 130px; max-width: 180px; } /* Telefon */
+  .client-list-grid-cell:nth-child(5) { width: 13%; } /* Ostatni zabieg */
+  .client-list-grid-cell:nth-child(6) { width: 15%; min-width: 120px; max-width: 140px; } /* Przycisk */
 }
 
 @media (max-width: 900px) {
-  .client-list-grid {
-    grid-template-columns: 1fr 1.8fr 1fr 0.8fr 1.5fr 1fr;
-    gap: 0.5rem;
+  .client-list-grid-cell:nth-child(3),
+  .client-list-grid-cell:nth-child(5) {
+    display: none; /* Ukryj email i ostatni zabieg */
   }
-  .client-list-grid-row, .client-list-grid-header {
-    padding: 0.4rem 0.5rem;
-  }
+  .client-list-grid-cell:nth-child(1) { width: 12%; }  /* Awatar */
+  .client-list-grid-cell:nth-child(2) { width: 25%; } /* Imię */
+  .client-list-grid-cell:nth-child(4) { width: 25%; } /* Telefon */
+  .client-list-grid-cell:nth-child(6) { width: 38%; } /* Przycisk */
 }
+
 @media (max-width: 600px) {
-  .client-list-grid {
-    grid-template-columns: 1fr 1fr;
+  .client-list-grid-cell:nth-child(4) {
+    display: none; /* Ukryj telefon */
   }
-  .client-list-grid-row, .client-list-grid-header {
-    padding: 0.15rem 0.1rem;
-  }
-  .client-list-grid-cell {
-    font-size: 0.95em;
-  }
+  .client-list-grid-cell:nth-child(1) { width: 15%; }  /* Awatar */
+  .client-list-grid-cell:nth-child(2) { width: 35%; } /* Imię */
+  .client-list-grid-cell:nth-child(6) { width: 50%; } /* Przycisk */
+}
+
+/* Przycisk Podgląd - styl dokładnie jak na zrzucie */
+.btn-podglad {
+  background: #232136;
+  color: #fff;
+  border: 2px solid #a855f7;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  padding: 0.5rem 1.5rem;
+  box-shadow: 0 0 0 3px #a855f7, 0 0 16px 2px #a855f7;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px #a855f7;
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+}
+.btn-podglad:hover {
+  border-color: #c084fc;
+  box-shadow: 0 0 0 5px #c084fc, 0 0 32px 6px #a855f7;
+  transform: scale(1.07);
 }

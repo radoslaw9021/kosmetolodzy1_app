@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns';
 import { pl } from 'date-fns/locale';
@@ -100,9 +100,23 @@ const CustomToolbar = (toolbar) => {
 
 const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    
     // --- STATE MANAGEMENT ---
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [currentView, setCurrentView] = useState('month');
+    const [currentDate, setCurrentDate] = useState(() => {
+        // Sprawdź czy przekierowano z dashboardu z określoną datą
+        if (location.state?.selectedDate) {
+            return new Date(location.state.selectedDate);
+        }
+        return new Date();
+    });
+    const [currentView, setCurrentView] = useState(() => {
+        // Sprawdź czy przekierowano z dashboardu z określonym widokiem
+        if (location.state?.view) {
+            return location.state.view;
+        }
+        return 'month';
+    });
     const [isAppointmentFormVisible, setIsAppointmentFormVisible] = useState(false);
     const [isClientFormVisible, setIsClientFormVisible] = useState(false);
     const [treatmentTypes, setTreatmentTypes] = useState([]);

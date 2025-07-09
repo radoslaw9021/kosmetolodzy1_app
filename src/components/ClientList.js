@@ -127,76 +127,50 @@ export default function ClientList({ clients }) {
         </div>
       )}
       <div className="client-list-table-wrapper">
-        <div className="client-list-grid">
-          <div className="client-list-grid-row client-list-grid-header">
-            <div className="client-list-grid-cell">
-              <span className="client-avatar" style={{opacity:0, pointerEvents:'none'}}>AA</span>
-              Klientka
-            </div>
-            <div className="client-list-grid-cell">
-              <Mail size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
-              Email
-            </div>
-            <div className="client-list-grid-cell">
-              <Phone size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
-              Telefon
-            </div>
-            <div className="client-list-grid-cell" style={{justifyContent:'center'}}>Status</div>
-            <div className="client-list-grid-cell last-visit-cell">
-              <Calendar size={14} style={{opacity:0, pointerEvents:'none', marginRight:'0.5rem'}} />
-              Ostatni zabieg
-            </div>
-            <div className="client-list-grid-cell" style={{justifyContent:'flex-end'}}></div>
-          </div>
-          {filteredClients.length === 0 ? (
-            <div className="client-list-grid-row">
-              <div className="client-list-grid-cell" style={{gridColumn: '1 / -1', textAlign: 'center'}}>Brak klientek</div>
-            </div>
-          ) : (
-            filteredClients.map(client => {
-              const status = getClientStatus(client);
-              return (
-                <div className="client-list-grid-row" key={client.id}>
-                  <div className="client-list-grid-cell">
-                    <div className="client-name-cell">
-                      <div className="client-avatar">
-                        {getClientAvatar(client.firstName, client.lastName)}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 600, color: '#fff' }}>
-                          {client.firstName} {client.lastName}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="client-list-grid-cell">
-                    <Mail size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
-                    {client.email}
-                  </div>
-                  <div className="client-list-grid-cell">
-                    <Phone size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
+        <table className="client-list-grid">
+          <thead className="client-list-grid-header">
+            <tr>
+              <th className="client-list-grid-cell">Awatar</th>
+              <th className="client-list-grid-cell">Imię</th>
+              <th className="client-list-grid-cell email">Email</th>
+              <th className="client-list-grid-cell phone">Telefon</th>
+              <th className="client-list-grid-cell last-visit">Ostatni zabieg</th>
+              <th className="client-list-grid-cell button"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredClients.length === 0 ? (
+              <tr className="client-list-grid-row">
+                <td className="client-list-grid-cell" colSpan="6" style={{textAlign: 'center'}}>Brak klientek</td>
+              </tr>
+            ) : (
+              filteredClients.map(client => (
+                <tr className="client-list-grid-row" key={client.id}>
+                  <td className="client-list-grid-cell">
+                    <div className="client-avatar">{getClientAvatar(client.firstName, client.lastName)}</div>
+                  </td>
+                  <td className="client-list-grid-cell">
+                    <span style={{ fontWeight: 600 }}>{client.firstName} {client.lastName}</span>
+                  </td>
+                  <td className="client-list-grid-cell email">{client.email}</td>
+                  <td className="client-list-grid-cell phone">
+                    <Phone size={14} style={{ color: '#a855f7', marginRight: '0.5rem' }} />
                     {client.phone}
-                  </div>
-                  <div className="client-list-grid-cell" style={{justifyContent:'center'}}>
-                    <span className={`client-status ${status}`}>
-                      {getStatusText(status)}
-                    </span>
-                  </div>
-                  <div className="client-list-grid-cell last-visit-cell">
-                    <Calendar size={14} style={{ color: '#a855f7', marginRight:'0.5rem' }} />
+                  </td>
+                  <td className="client-list-grid-cell last-visit">
+                    <Calendar size={14} style={{ color: '#a855f7', marginRight: '0.5rem' }} />
                     {getLastTreatmentDate(client.treatments)}
-                  </div>
-                  <div className="client-list-grid-cell" style={{justifyContent:'flex-end'}}>
-                    <button className="btn btn-secondary" onClick={() => navigate(`/client/${client.id}`)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Eye size={16} />
-                      Podgląd
+                  </td>
+                  <td className="client-list-grid-cell button">
+                    <button className="btn-secondary btn-gradient" onClick={() => navigate(`/client/${client.id}`)}>
+                      <Eye size={16} /> Podgląd
                     </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

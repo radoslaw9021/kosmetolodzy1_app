@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { getTreatmentColor } from "../utils/calendarUtils";
+import { Archive, Trash2 } from "lucide-react";
 import TreatmentForm from "./TreatmentForm";
 import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
@@ -78,6 +79,38 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
 
   const handleGoToAppointment = (event) => {
     navigate(`/client/${clientId}/treatment/${event.id}`);
+  };
+
+  // Funkcja archiwizacji klienta
+  const handleArchiveClient = async () => {
+    if (window.confirm(`Czy na pewno chcesz zarchiwizować klientkę ${client.firstName} ${client.lastName}?`)) {
+      try {
+        const response = await fetch(`http://localhost:4000/api/clients/${client.id}/archive`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          alert('Klientka została zarchiwizowana pomyślnie.');
+          navigate('/clients');
+        } else {
+          alert('Błąd podczas archiwizacji klientki.');
+        }
+      } catch (error) {
+        console.error('Error archiving client:', error);
+        alert('Błąd połączenia z serwerem.');
+      }
+    }
+  };
+
+  // Funkcja usuwania klienta
+  const handleDeleteClient = () => {
+    if (window.confirm(`Czy na pewno chcesz usunąć klientkę ${client.firstName} ${client.lastName}? Ta operacja jest nieodwracalna.`)) {
+      onRemoveClient(client.id);
+      navigate('/clients');
+    }
   };
 
   return (
@@ -228,6 +261,22 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
           onClick={() => navigate('/calendar', { state: { showAppointmentForm: true, clientId: client.id }})}
         >
           Dodaj wizytę
+        </button>
+        <button
+          className="client-card-btn-secondary"
+          onClick={handleArchiveClient}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <Archive size={16} />
+          Zarchiwizuj
+        </button>
+        <button
+          className="client-card-btn-danger"
+          onClick={handleDeleteClient}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+        >
+          <Trash2 size={16} />
+          Usuń
         </button>
       </div>
 
