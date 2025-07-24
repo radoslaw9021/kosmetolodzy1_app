@@ -1,128 +1,57 @@
-// Serwis do zarządzania użytkownikami
-const USERS_KEY = 'users';
-const CURRENT_USER_KEY = 'currentUser';
-
-// Domyślni użytkownicy
-const defaultUsers = [
-  {
-    id: 'admin-1',
-    email: 'admin@salon.pl',
-    password: 'Haslo123!',
-    name: 'Administrator',
-    role: 'admin',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'kosmetolog-1',
-    email: 'anna@salon.pl',
-    password: 'Haslo123!',
-    name: 'Anna Kowalska',
-    role: 'kosmetolog',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'kosmetolog-2',
-    email: 'joanna@salon.pl',
-    password: 'Haslo123!',
-    name: 'Joanna Wójcik',
-    role: 'kosmetolog',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'klient-1',
-    email: 'jan.kowalski@example.com',
-    password: 'Password1!',
-    name: 'Jan Kowalski',
-    firstName: 'Jan',
-    lastName: 'Kowalski',
-    phone: '123456789',
-    role: 'Klient',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'klient-2',
-    email: 'anna.nowak@example.com',
-    password: 'Password1!',
-    name: 'Anna Nowak',
-    firstName: 'Anna',
-    lastName: 'Nowak',
-    phone: '987654321',
-    role: 'Klient',
-    createdAt: new Date().toISOString()
-  }
-];
+// Serwis do zarządzania użytkownikami - pomocnicze funkcje
+import { authAPI } from './apiService';
 
 // Pobierz wszystkich użytkowników
-export const getUsers = () => {
-  const stored = localStorage.getItem(USERS_KEY);
-  if (!stored) {
-    // Inicjalizuj z domyślnymi użytkownikami
-    localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
-    return defaultUsers;
-  }
-  return JSON.parse(stored);
+export const getUsers = async () => {
+  // TODO: Implementacja przez API
+  return [];
 };
 
 // Resetuj użytkowników do domyślnych (dodaje nowe konta)
 export const resetUsersToDefault = () => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
-  return defaultUsers;
+  // TODO: Implementacja przez API
+  return [];
 };
 
 // Zapisz użytkowników
-export const saveUsers = (users) => {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+export const saveUsers = async (users) => {
+  // TODO: Implementacja przez API
 };
 
 // Dodaj nowego użytkownika
-export const addUser = (userData) => {
-  const users = getUsers();
-  const newUser = {
-    ...userData,
-    id: `user-${Date.now()}`,
-    createdAt: new Date().toISOString()
-  };
-  const updatedUsers = [...users, newUser];
-  saveUsers(updatedUsers);
-  return newUser;
+export const addUser = async (userData) => {
+  // TODO: Implementacja przez API
+  return null;
 };
 
 // Aktualizuj użytkownika
-export const updateUser = (userId, userData) => {
-  const users = getUsers();
-  const updatedUsers = users.map(user => 
-    user.id === userId ? { ...user, ...userData } : user
-  );
-  saveUsers(updatedUsers);
-  return updatedUsers.find(user => user.id === userId);
+export const updateUser = async (userId, userData) => {
+  // TODO: Implementacja przez API
+  return null;
 };
 
 // Usuń użytkownika
-export const deleteUser = (userId) => {
-  const users = getUsers();
-  const updatedUsers = users.filter(user => user.id !== userId);
-  saveUsers(updatedUsers);
+export const deleteUser = async (userId) => {
+  // TODO: Implementacja przez API
 };
 
 // Sprawdź dane logowania
-export const authenticateUser = (email, password) => {
-  const users = getUsers();
-  const user = users.find(u => u.email === email && u.password === password);
-  return user || null;
+export const authenticateUser = async (email, password) => {
+  // TODO: Implementacja przez API
+  return null;
 };
 
 // Pobierz aktualnego użytkownika
 export const getCurrentUser = () => {
-  const stored = localStorage.getItem(CURRENT_USER_KEY);
-  return stored ? JSON.parse(stored) : null;
+  return authAPI.getCurrentUser();
 };
 
 // Ustaw aktualnego użytkownika
 export const setCurrentUser = (user) => {
   if (user) {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    localStorage.setItem('currentUser', JSON.stringify(user));
   } else {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem('currentUser');
   }
 };
 
@@ -146,99 +75,34 @@ export const getKosmetolodzy = () => {
 
 // Pobierz wszystkie wizyty dla danego użytkownika
 export const getAppointmentsForUser = (userId, clients) => {
-  if (!userId || !clients) return [];
-  
-  const userAppointments = [];
-  
-  clients.forEach(client => {
-    if (client.appointments && Array.isArray(client.appointments)) {
-      client.appointments.forEach(appointment => {
-        userAppointments.push({
-          ...appointment,
-          clientId: client.id,
-          clientName: client.name,
-          clientPhone: client.phone,
-          ownerId: client.ownerId
-        });
-      });
-    }
-  });
-  
-  return userAppointments;
+  // TODO: Implementacja przez API
+  return [];
 };
 
 // Dodaj wizytę do klienta
 export const addAppointmentToClient = (clientId, appointmentData, clients, setClients) => {
-  const newAppointment = {
-    id: `apt-${Date.now()}`,
-    ...appointmentData,
-    createdAt: new Date().toISOString(),
-    status: 'confirmed'
-  };
-  
-  const updatedClients = clients.map(client => 
-    client.id === clientId 
-      ? { 
-          ...client, 
-          appointments: [...(client.appointments || []), newAppointment] 
-        }
-      : client
-  );
-  
-  setClients(updatedClients);
-  localStorage.setItem("clients", JSON.stringify(updatedClients));
-  return newAppointment;
+  // TODO: Implementacja przez API
+  return null;
 };
 
 // Aktualizuj wizytę
 export const updateAppointment = (clientId, appointmentId, updatedData, clients, setClients) => {
-  const updatedClients = clients.map(client => 
-    client.id === clientId 
-      ? {
-          ...client,
-          appointments: (client.appointments || []).map(apt => 
-            apt.id === appointmentId ? { ...apt, ...updatedData } : apt
-          )
-        }
-      : client
-  );
-  
-  setClients(updatedClients);
-  localStorage.setItem("clients", JSON.stringify(updatedClients));
+  // TODO: Implementacja przez API
 };
 
 // Usuń wizytę
 export const deleteAppointment = (clientId, appointmentId, clients, setClients) => {
-  const updatedClients = clients.map(client => 
-    client.id === clientId 
-      ? {
-          ...client,
-          appointments: (client.appointments || []).filter(apt => apt.id !== appointmentId)
-        }
-      : client
-  );
-  
-  setClients(updatedClients);
-  localStorage.setItem("clients", JSON.stringify(updatedClients));
+  // TODO: Implementacja przez API
 };
 
 // Pobierz wizyty na konkretny dzień
 export const getAppointmentsForDate = (date, userId, clients) => {
-  const allAppointments = getAppointmentsForUser(userId, clients);
-  return allAppointments.filter(apt => apt.date === date);
+  // TODO: Implementacja przez API
+  return [];
 };
 
 // Pobierz nadchodzące wizyty (dzisiaj i później)
 export const getUpcomingAppointments = (userId, clients) => {
-  const allAppointments = getAppointmentsForUser(userId, clients);
-  const today = new Date().toISOString().split('T')[0];
-  
-  return allAppointments
-    .filter(apt => apt.date >= today)
-    .sort((a, b) => {
-      if (a.date === b.date) {
-        return a.time.localeCompare(b.time);
-      }
-      return a.date.localeCompare(b.date);
-    });
+  // TODO: Implementacja przez API
+  return [];
 }; 

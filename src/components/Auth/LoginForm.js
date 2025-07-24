@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authenticateUser, setCurrentUser, getUsers, resetUsersToDefault } from "../../services/userService";
+import { authAPI } from "../../services/apiService";
 
 export default function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -9,28 +9,31 @@ export default function LoginForm({ onLoginSuccess }) {
   const [debugInfo, setDebugInfo] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     
-    const user = authenticateUser(email, password);
+    try {
+      const response = await authAPI.login(email, password);
     
-    if (user) {
-      setCurrentUser(user);
-      onLoginSuccess(user);
+      if (response.success) {
+        onLoginSuccess(response.data.user);
       navigate("/clients");
     } else {
-      setError("Niepoprawny e-mail lub hasło");
+        setError(response.message || "Niepoprawny e-mail lub hasło");
+      }
+    } catch (error) {
+      console.error('Błąd logowania:', error);
+      setError("Błąd połączenia z serwerem");
     }
   };
 
   const handleDebug = () => {
-    const users = getUsers();
-    setDebugInfo(JSON.stringify(users, null, 2));
+    setDebugInfo("Funkcja debug wyłączona - używamy API");
   };
 
   const handleReset = () => {
-    resetUsersToDefault();
-    setDebugInfo("Użytkownicy zresetowani do domyślnych!");
+    setDebugInfo("Funkcja reset wyłączona - używamy API");
   };
 
   return (

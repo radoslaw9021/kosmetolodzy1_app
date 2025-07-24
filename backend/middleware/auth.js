@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Client = require('../models/Client');
+const Treatment = require('../models/Treatment');
+const Signature = require('../models/Signature');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -88,7 +91,7 @@ const requirePermission = (permission) => {
   };
 };
 
-// Middleware sprawdzający rolę (admin lub pracownik)
+// Middleware sprawdzający rolę (admin lub cosmetologist)
 const requireRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
@@ -101,7 +104,7 @@ const requireRole = (roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        error: `Role ${roles.join(' or ')} required`
+        error: `Role required: ${roles.join(', ')}`
       });
     }
     
@@ -109,7 +112,61 @@ const requireRole = (roles) => {
   };
 };
 
-// Generowanie JWT tokena
+// Sprawdź czy użytkownik ma dostęp do zasobu
+const checkResourceOwnership = async (req, res, next) => {
+  try {
+    const resourceId = req.params.id;
+    const resourceType = req.baseUrl.split('/').pop(); // 'clients', 'treatments', etc.
+    
+    let resource;
+    
+    switch (resourceType) {
+      case 'clients':
+        resource = await Client.findById(resourceId);
+        break;
+      case 'treatments':
+        resource = await Treatment.findById(resourceId);
+        break;
+      case 'signatures':
+        resource = await Signature.findById(resourceId);
+        break;
+      default:
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid resource type' 
+        });
+    }
+    
+    if (!resource) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Resource not found' 
+      });
+    }
+    
+    // Admin ma dostęp do wszystkiego
+    if (req.user.role === 'admin') {
+      return next();
+    }
+    
+    // Cosmetologist może edytować tylko swoje zasoby
+    if (resource.owner.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ 
+        success: false,
+        error: 'Access denied' 
+      });
+    }
+    
+    next();
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+};
+
+// Generowanie tokena JWT
 const generateToken = (userId) => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '24h' });
 };
@@ -119,5 +176,6 @@ module.exports = {
   requireAdmin,
   requirePermission,
   requireRole,
+  checkResourceOwnership,
   generateToken
 }; 

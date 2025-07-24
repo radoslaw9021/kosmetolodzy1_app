@@ -70,10 +70,7 @@ export default function Header({ currentUser, onLogout, theme, setTheme }) {
           onMouseMove={handleNavLinkMouseMove}
           onMouseLeave={handleNavLinkMouseLeave}
         >Kalendarz</NavLink>
-        <NavLink to="/inventory" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-          onMouseMove={handleNavLinkMouseMove}
-          onMouseLeave={handleNavLinkMouseLeave}
-        >Zapasy</NavLink>
+
         <NavLink to="/gallery" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
           onMouseMove={handleNavLinkMouseMove}
           onMouseLeave={handleNavLinkMouseLeave}
@@ -82,10 +79,7 @@ export default function Header({ currentUser, onLogout, theme, setTheme }) {
           onMouseMove={handleNavLinkMouseMove}
           onMouseLeave={handleNavLinkMouseLeave}
         >Newsletter</NavLink>
-        <NavLink to="/communication" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-          onMouseMove={handleNavLinkMouseMove}
-          onMouseLeave={handleNavLinkMouseLeave}
-        >Komunikacja</NavLink>
+
         {isAdmin(currentUser) && (
           <NavLink to="/admin" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
             onMouseMove={handleNavLinkMouseMove}

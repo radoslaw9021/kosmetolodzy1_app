@@ -31,6 +31,7 @@ const clientController = {
       }
       const total = await Client.countDocuments(filter);
       const clients = await Client.find(filter)
+        .populate('treatments')
         .sort(sort)
         .skip((page - 1) * limit)
         .limit(limit);
@@ -55,7 +56,7 @@ const clientController = {
   getClientById: async (req, res) => {
     try {
       const { id } = req.params;
-      const client = await Client.findById(id);
+      const client = await Client.findById(id).populate('treatments');
       if (!client) {
         return res.status(404).json({
           success: false,
@@ -78,14 +79,28 @@ const clientController = {
   // Create new client
   createClient: async (req, res) => {
     try {
+      console.log('🔍 Otrzymane dane klienta:', req.body);
+      console.log('👤 Zalogowany użytkownik:', req.user);
+      
       const clientData = req.body;
+      // Dodaj owner z zalogowanego użytkownika
+      clientData.owner = req.user.id;
+      
+      console.log('📝 Dane klienta z owner:', clientData);
+      
       const newClient = await Client.create(clientData);
+      console.log('✅ Klient utworzony:', newClient);
+      
       res.status(201).json({
         success: true,
         data: newClient,
         message: 'Client created successfully'
       });
     } catch (error) {
+      console.error('❌ Błąd tworzenia klienta:', error);
+      console.error('📝 Szczegóły błędu:', error.message);
+      console.error('🔗 Stack trace:', error.stack);
+      
       res.status(500).json({
         success: false,
         error: 'Failed to create client',
@@ -134,6 +149,7 @@ const clientController = {
       }
 
       client.archived = true;
+      client.archivedAt = new Date();
       await client.save();
 
       // Log archiving
@@ -174,6 +190,7 @@ const clientController = {
       }
 
       client.archived = false;
+      client.archivedAt = null;
       await client.save();
 
       // Log unarchiving
@@ -196,6 +213,39 @@ const clientController = {
       res.status(500).json({
         success: false,
         error: 'Failed to unarchive client',
+        message: error.message
+      });
+    }
+  },
+
+  // Delete client
+  deleteClient: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const client = await Client.findByIdAndDelete(id);
+      if (!client) {
+        return res.status(404).json({
+          success: false,
+          error: 'Client not found'
+        });
+      }
+      // Log usunięcia
+      await ActivityLog.createDeletionLog(
+        req.user?.id || 'anonymous',
+        'client',
+        id,
+        req.ip,
+        req.get('User-Agent')
+      );
+      res.json({
+        success: true,
+        message: 'Client deleted successfully',
+        data: client
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: 'Failed to delete client',
         message: error.message
       });
     }

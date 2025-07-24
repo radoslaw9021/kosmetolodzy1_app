@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Folder, Eye, Download, Mail, Edit, FileText, Loader } from 'lucide-react';
+import { Search, Folder, Eye, Download, Mail, Edit, FileText, Loader, RotateCcw } from 'lucide-react';
 import BulkExport from '../components/BulkExport';
 import ActivityLogger from '../components/ActivityLogger';
+import MigrateLocalClientsButton from '../components/MigrateLocalClientsButton';
 import { clientAPI } from '../services/apiService';
 
 const ArchivePage = () => {
@@ -17,7 +18,8 @@ const ArchivePage = () => {
     const loadClients = async () => {
       try {
         setLoading(true);
-        const response = await clientAPI.getAll();
+        // Pobierz tylko zarchiwizowane klientki
+        const response = await clientAPI.getAll({ archived: true });
         if (response.success) {
           setClients(response.data);
         } else {
@@ -50,6 +52,29 @@ const ArchivePage = () => {
   // Helper: pobierz dane klienta niezależnie od struktury
   const getClientData = (client, field) => {
     return client.personalData?.[field] || client[field] || '';
+  };
+
+  // Funkcja odarchiwizacji klientki
+  const handleUnarchiveClient = async (clientId, clientName) => {
+    if (window.confirm(`Czy na pewno chcesz przywrócić klientkę ${clientName} z archiwum?`)) {
+      try {
+        const response = await clientAPI.unarchive(clientId);
+        
+        if (response.success) {
+          alert('Klientka została przywrócona z archiwum pomyślnie.');
+          // Odśwież listę klientek
+          const updatedResponse = await clientAPI.getAll({ archived: true });
+          if (updatedResponse.success) {
+            setClients(updatedResponse.data);
+          }
+        } else {
+          alert('Błąd podczas przywracania klientki z archiwum.');
+        }
+      } catch (error) {
+        console.error('Error unarchiving client:', error);
+        alert('Błąd połączenia z serwerem.');
+      }
+    }
   };
 
   return (
@@ -86,6 +111,9 @@ const ArchivePage = () => {
         {/* Content when loaded */}
         {!loading && !error && (
           <>
+            {/* Migracja danych lokalnych */}
+            <MigrateLocalClientsButton />
+            
             {/* Eksport zbiorczy */}
             <BulkExport clients={clients} isAdmin={true} />
             
@@ -146,6 +174,7 @@ const ArchivePage = () => {
                       </span>
                     </div>
                     <div className="client-cell" data-label="Akcje">
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
                         onClick={() => navigate(`/archive/${client.id}`)} 
                         className="btn btn-primary btn-small"
@@ -153,6 +182,15 @@ const ArchivePage = () => {
                         <Eye size={16} />
                         Podgląd
                       </button>
+                        <button 
+                          onClick={() => handleUnarchiveClient(client.id, `${getClientData(client, 'firstName')} ${getClientData(client, 'lastName')}`)} 
+                          className="btn btn-secondary btn-small"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                        >
+                          <RotateCcw size={16} />
+                          Przywróć
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

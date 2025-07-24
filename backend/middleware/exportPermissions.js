@@ -71,14 +71,19 @@ const logExport = async (req, res, next) => {
     if (res.statusCode === 200 && req.user) {
       const ActivityLog = require('../models/ActivityLog');
       
-      ActivityLog.createExportLog(
-        req.user._id.toString(),
-        'client',
-        req.body.clientIds || [req.params.clientId],
-        req.path.includes('zip') ? 'zip' : 'pdf',
-        req.ip,
-        req.get('User-Agent')
-      ).catch(err => console.error('Failed to log export:', err));
+      const log = new ActivityLog({
+        operation: 'export',
+        resourceType: 'client',
+        resourceId: (req.body.clientIds || [req.params.clientId]).join(','),
+        userId: req.user._id.toString(),
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { 
+          format: req.path.includes('zip') ? 'zip' : 'pdf',
+          clientCount: (req.body.clientIds || [req.params.clientId]).length
+        }
+      });
+      log.save().catch(err => console.error('Failed to log export:', err));
     }
     
     originalSend.call(this, data);

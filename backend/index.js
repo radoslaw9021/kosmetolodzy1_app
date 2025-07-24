@@ -1,4 +1,6 @@
+// Load environment variables
 require('dotenv').config();
+
 const mongoose = require('mongoose');
 const express = require('express');
 const cors = require('cors');
@@ -24,24 +26,28 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// MongoDB connection - tylko jeśli nie w testach i jeśli MongoDB jest dostępne
+// MongoDB connection - wymaga zmiennej środowiskowej
 if (process.env.NODE_ENV !== 'test') {
-  const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/kosmetolodzy';
+  const MONGODB_URI = process.env.MONGO_URI;
   
-  // Sprawdź czy MongoDB jest dostępne
+  if (!MONGODB_URI) {
+    console.error('❌ Błąd: Zmienna środowiskowa MONGO_URI nie jest ustawiona!');
+    console.error('   Ustaw MONGO_URI w pliku .env lub jako zmienną środowiskową');
+    console.error('   Przykład: MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/kosmetolodzy');
+    process.exit(1);
+  }
+  
   const mongoose = require('mongoose');
   mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000, // 5 sekund timeout
+    serverSelectionTimeoutMS: 10000, // 10 sekund timeout
   })
   .then(() => {
     console.log('✅ Połączono z bazą danych MongoDB');
   })
   .catch(err => {
-    console.warn('⚠️ MongoDB niedostępne - aplikacja będzie działać w trybie offline');
-    console.warn('   Błąd:', err.message);
-    // Nie wyłączaj aplikacji, pozwól działać bez bazy danych
+    console.error('❌ Błąd połączenia z MongoDB:', err.message);
+    console.error('   Sprawdź czy MONGO_URI jest poprawne i czy baza danych jest dostępna');
+    process.exit(1);
   });
 }
 

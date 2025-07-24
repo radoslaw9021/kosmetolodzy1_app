@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Download, FileText, Users, Shield, AlertCircle } from 'lucide-react';
+import { exportAPI } from '../services/apiService';
 
 const BulkExport = ({ clients = [], isAdmin = false }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,18 +52,14 @@ const BulkExport = ({ clients = [], isAdmin = false }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:4000/api/export/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await exportAPI.bulkExport({
           clientIds: selectedClients,
           format: exportType // 'pdf' lub 'zip'
-        })
       });
 
-      if (!response.ok) throw new Error('Błąd eksportu');
-
-      const blob = await response.blob();
+      if (response.success) {
+        // Pobierz blob z odpowiedzi
+        const blob = response.blob;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -73,6 +70,9 @@ const BulkExport = ({ clients = [], isAdmin = false }) => {
       window.URL.revokeObjectURL(url);
 
       alert(`Eksport zakończony pomyślnie. Pobrano plik: eksport_klientek_${new Date().toISOString().split('T')[0]}.${exportType}`);
+      } else {
+        throw new Error(response.message || 'Błąd eksportu');
+      }
     } catch (error) {
       alert('Błąd podczas eksportu: ' + error.message);
     } finally {

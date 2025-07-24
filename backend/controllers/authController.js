@@ -30,14 +30,16 @@ const authController = {
       await user.save();
       
       // Log rejestracji
-      const log = ActivityLog.createModificationLog(
-        req.user?.id || 'system',
-        'user',
-        user._id.toString(),
-        { action: 'register', email, role },
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'register',
+        resourceType: 'user',
+        resourceId: user._id.toString(),
+        userId: req.user?.id || 'system',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { action: 'register', email, role }
+      });
+      await log.save();
       
       res.status(201).json({
         success: true,
@@ -98,13 +100,15 @@ const authController = {
       const token = generateToken(user._id);
       
       // Log logowania
-      const log = ActivityLog.createAccessLog(
-        user._id.toString(),
-        'auth',
-        'login',
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'login',
+        resourceType: 'auth',
+        resourceId: user._id.toString(),
+        userId: user._id.toString(),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      await log.save();
       
       res.json({
         success: true,
@@ -152,13 +156,15 @@ const authController = {
   logout: async (req, res) => {
     try {
       // Log wylogowania
-      const log = ActivityLog.createAccessLog(
-        req.user._id.toString(),
-        'auth',
-        'logout',
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'logout',
+        resourceType: 'auth',
+        resourceId: req.user._id.toString(),
+        userId: req.user._id.toString(),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      await log.save();
       
       res.json({
         success: true,

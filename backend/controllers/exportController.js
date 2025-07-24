@@ -3,7 +3,7 @@ const PDFDocument = require('pdfkit');
 const { Readable } = require('stream');
 const archiver = require('archiver');
 
-// Mock PDF generation (replace with actual PDF library like puppeteer or jsPDF)
+// Generowanie PDF z danymi klientów
 const generatePDF = async (data, type) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument();
@@ -20,9 +20,56 @@ const generatePDF = async (data, type) => {
     });
     doc.on('error', reject);
 
-    doc.fontSize(20).text(`Eksport klienta: ${type}`);
-    doc.moveDown();
-    doc.fontSize(14).text(JSON.stringify(data, null, 2));
+    // Nagłówek
+    doc.fontSize(20).text(`Eksport klientów: ${type}`, { align: 'center' });
+    doc.moveDown(2);
+
+    if (Array.isArray(data)) {
+      // Eksport zbiorczy - lista klientów
+      data.forEach((client, index) => {
+        doc.fontSize(16).text(`Klient ${index + 1}: ${client.personalData.firstName} ${client.personalData.lastName}`);
+        doc.fontSize(12).text(`Email: ${client.personalData.email}`);
+        doc.fontSize(12).text(`Telefon: ${client.personalData.phone || 'Brak'}`);
+        doc.fontSize(12).text(`Data urodzenia: ${client.personalData.birthDate ? new Date(client.personalData.birthDate).toLocaleDateString('pl-PL') : 'Brak'}`);
+        doc.fontSize(12).text(`Płeć: ${client.personalData.gender || 'Brak'}`);
+        doc.fontSize(12).text(`Adres: ${client.personalData.address || 'Brak'}`);
+        
+        if (client.medical) {
+          doc.moveDown(0.5);
+          doc.fontSize(12).text('Dane medyczne:');
+          doc.fontSize(10).text(`Choroby przewlekłe: ${client.medical.chronicDiseases || 'Brak'}`);
+          doc.fontSize(10).text(`Leki: ${client.medical.medications || 'Brak'}`);
+          doc.fontSize(10).text(`Suplementy: ${client.medical.supplements || 'Brak'}`);
+          doc.fontSize(10).text(`Alergie: ${client.medical.allergies || 'Brak'}`);
+        }
+        
+        if (client.consents) {
+          doc.moveDown(0.5);
+          doc.fontSize(12).text('Zgody:');
+          doc.fontSize(10).text(`RODO: ${client.consents.rodo ? 'Tak' : 'Nie'}`);
+          doc.fontSize(10).text(`Marketing: ${client.consents.marketing ? 'Tak' : 'Nie'}`);
+          doc.fontSize(10).text(`Newsletter: ${client.consents.newsletter ? 'Tak' : 'Nie'}`);
+          doc.fontSize(10).text(`Zdjęcia: ${client.consents.image ? 'Tak' : 'Nie'}`);
+        }
+        
+        if (client.notes) {
+          doc.moveDown(0.5);
+          doc.fontSize(12).text('Notatki:');
+          doc.fontSize(10).text(client.notes);
+        }
+        
+        doc.moveDown(2);
+        if (index < data.length - 1) {
+          doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+          doc.moveDown(1);
+        }
+      });
+    } else {
+      // Pojedynczy klient
+      doc.fontSize(16).text(`${data.personalData.firstName} ${data.personalData.lastName}`);
+      doc.fontSize(12).text(`Email: ${data.personalData.email}`);
+      doc.fontSize(12).text(`Telefon: ${data.personalData.phone || 'Brak'}`);
+    }
 
     doc.end();
   });
@@ -81,14 +128,16 @@ const exportController = {
       const pdf = await generatePDF(clientData, 'client');
 
       // Log export
-      const log = ActivityLog.createExportLog(
-        req.user?.id || 'anonymous',
-        'client',
-        [clientId],
-        'pdf',
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'export',
+        resourceType: 'client',
+        resourceId: clientId,
+        userId: req.user?.id || 'anonymous',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { format: 'pdf' }
+      });
+      await log.save();
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${pdf.filename}"`);
@@ -121,14 +170,33 @@ const exportController = {
         });
       }
 
-      // In real implementation, fetch clients data from database
-      const clientsData = clientIds.map(id => ({
-        id,
+      // Pobierz rzeczywiste dane klientów z bazy danych
+      const Client = require('../models/Client');
+      const clients = await Client.find({ _id: { $in: clientIds } });
+      
+      if (clients.length === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'No clients found'
+        });
+      }
+      
+      const clientsData = clients.map(client => ({
+        id: client._id,
         personalData: {
-          firstName: `Client ${id}`,
-          lastName: 'Sample',
-          email: `client${id}@email.com`
-        }
+          firstName: client.firstName,
+          lastName: client.lastName,
+          email: client.email,
+          phone: client.phone,
+          birthDate: client.birthDate,
+          gender: client.gender,
+          address: client.address
+        },
+        medical: client.medical,
+        consents: client.consents,
+        notes: client.notes,
+        createdAt: client.createdAt,
+        updatedAt: client.updatedAt
       }));
 
       let exportResult;
@@ -151,15 +219,16 @@ const exportController = {
       }
 
       // Log bulk export
-      const log = ActivityLog.createExportLog(
-        req.user?.id || 'anonymous',
-        'client',
-        clientIds,
-        format,
-        req.ip,
-        req.get('User-Agent')
-      );
-      // Możesz zapisać log do bazy, np. await log.save();
+      const log = new ActivityLog({
+        operation: 'export',
+        resourceType: 'client',
+        resourceId: clientIds.join(','),
+        userId: req.user?.id || 'anonymous',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { format, clientCount: clientIds.length }
+      });
+      await log.save();
     } catch (error) {
       res.status(500).json({
         success: false,
@@ -243,14 +312,16 @@ const exportController = {
       const pdf = await generatePDF(treatmentHistory, 'treatment_history');
 
       // Log export
-      const log = ActivityLog.createExportLog(
-        req.user?.id || 'anonymous',
-        'treatment',
-        [clientId],
-        'pdf',
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'export',
+        resourceType: 'treatment',
+        resourceId: clientId,
+        userId: req.user?.id || 'anonymous',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { format: 'pdf' }
+      });
+      await log.save();
 
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="${pdf.filename}"`);
@@ -373,14 +444,16 @@ const exportController = {
       await archive.finalize();
 
       // Log export
-      const log = ActivityLog.createExportLog(
-        req.user?.id || 'anonymous',
-        'client',
-        clientIds,
-        'zip',
-        req.ip,
-        req.get('User-Agent')
-      );
+      const log = new ActivityLog({
+        operation: 'export',
+        resourceType: 'client',
+        resourceId: clientIds.join(','),
+        userId: req.user?.id || 'anonymous',
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        details: { format: 'zip', clientCount: clientIds.length }
+      });
+      await log.save();
 
     } catch (error) {
       res.status(500).json({

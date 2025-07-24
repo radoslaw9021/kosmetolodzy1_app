@@ -23,7 +23,7 @@ const createAdmin = async () => {
       firstName: 'Administrator',
       lastName: 'Systemu',
       role: 'admin',
-      permissions: ['export_bulk', 'export_zip', 'manage_users', 'view_logs', 'manage_clients'],
+      permissions: ['manage_clients', 'manage_treatments', 'manage_signatures', 'export_data', 'view_reports'],
       isActive: true
     });
 

@@ -7,6 +7,7 @@ import { Archive, Trash2 } from "lucide-react";
 import TreatmentForm from "./TreatmentForm";
 import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
+import { clientAPI, treatmentAPI } from "../services/apiService";
 
 // Premium UI - wszystkie style w theme.css
 
@@ -85,14 +86,9 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const handleArchiveClient = async () => {
     if (window.confirm(`Czy na pewno chcesz zarchiwizować klientkę ${client.firstName} ${client.lastName}?`)) {
       try {
-        const response = await fetch(`http://localhost:4000/api/clients/${client.id}/archive`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await clientAPI.archive(client.id);
         
-        if (response.ok) {
+        if (response.success) {
           alert('Klientka została zarchiwizowana pomyślnie.');
           navigate('/clients');
         } else {
@@ -228,24 +224,24 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
       {/* Informacje medyczne */}
       <div className="client-card-section">
         <div className="client-card-section-title">Informacje medyczne</div>
-        <div className="client-card-info-row"><span className="client-card-label">Choroby przewlekłe:</span> {client.chronicDiseases || '-'}</div>
-        <div className="client-card-info-row"><span className="client-card-label">Uwagi:</span> {client.additionalNotes || '-'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Choroby przewlekłe:</span> {client.medical?.chronicDiseases || '-'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Uwagi:</span> {client.medical?.additionalNotes || '-'}</div>
       </div>
 
       {/* Styl życia */}
       <div className="client-card-section">
         <div className="client-card-section-title">Styl życia</div>
-        <div className="client-card-info-row"><span className="client-card-label">Leki:</span> {client.medications || '-'}</div>
-        <div className="client-card-info-row"><span className="client-card-label">Suplementy:</span> {client.supplements || '-'}</div>
-        <div className="client-card-info-row"><span className="client-card-label">Alergie:</span> {client.allergies || '-'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Leki:</span> {client.medical?.medications || '-'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Suplementy:</span> {client.medical?.supplements || '-'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Alergie:</span> {client.medical?.allergies || '-'}</div>
       </div>
 
       {/* Zgody */}
       <div className="client-card-section">
         <div className="client-card-section-title">Zgody</div>
-        <div className="client-card-info-row"><span className="client-card-label">Zgoda RODO:</span> {client.rodoConsent ? '✓' : '✗'}</div>
-        <div className="client-card-info-row"><span className="client-card-label">Zgoda na newsletter:</span> {client.marketingConsent ? '✓' : '✗'}</div>
-        <div className="client-card-info-row"><span className="client-card-label">Rezygnacja z newslettera:</span> {client.unsubscribed ? '✓' : '✗'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Zgoda RODO:</span> {client.consents?.rodo ? '✓' : '✗'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Zgoda na newsletter:</span> {client.consents?.newsletter ? '✓' : '✗'}</div>
+        <div className="client-card-info-row"><span className="client-card-label">Rezygnacja z newslettera:</span> {client.consents?.unsubscribed ? '✓' : '✗'}</div>
       </div>
 
       {/* Przyciski akcji */}
@@ -283,13 +279,57 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
       {/* Formularz zabiegów */}
       {showForm && (
         <TreatmentForm
-          onAddTreatment={(newTreatment) => {
-            const updatedClient = {
-              ...client,
-              treatments: [...(client.treatments || []), newTreatment],
-            };
-            onUpdateClient(updatedClient);
-            setShowForm(false);
+          onAddTreatment={async (newTreatment) => {
+            try {
+              // Sprawdź czy użytkownik jest zalogowany
+              if (!localStorage.getItem('authToken')) {
+                alert('Musisz być zalogowany, aby dodać zabieg');
+                return;
+              }
+              
+              console.log('🚀 Dodawanie zabiegu:', newTreatment);
+              console.log('👤 Klient:', client);
+              console.log('🆔 Client ID:', client.id, 'Type:', typeof client.id);
+              
+              const treatmentData = {
+                clientId: client.id,
+                type: newTreatment.type,
+                date: newTreatment.date,
+                notesInternal: newTreatment.notesInternal,
+                notesForClient: newTreatment.notesForClient,
+                recommendations: newTreatment.recommendations,
+                images: newTreatment.images
+              };
+              
+              console.log('📤 Dane wysyłane do API:', treatmentData);
+              console.log('🔑 Token:', localStorage.getItem('authToken'));
+              
+              // Sprawdź czy clientId jest prawidłowy
+              if (!client.id || client.id === 'undefined' || client.id === 'null') {
+                alert('Błąd: Nieprawidłowy ID klienta');
+                return;
+              }
+              
+              const response = await treatmentAPI.add(treatmentData);
+              
+              if (response.success) {
+                console.log('✅ Zabieg dodany pomyślnie:', response.data);
+                
+                // Odśwież dane klienta z API
+                const clientResponse = await clientAPI.getById(client.id);
+                if (clientResponse.success) {
+                  onUpdateClient(clientResponse.data);
+                }
+                
+                setShowForm(false);
+              } else {
+                console.error('❌ Błąd dodawania zabiegu:', response);
+                alert('Błąd podczas dodawania zabiegu');
+              }
+            } catch (error) {
+              console.error('❌ Błąd dodawania zabiegu:', error);
+              alert('Błąd połączenia z serwerem');
+            }
           }}
           onCancel={() => setShowForm(false)}
         />

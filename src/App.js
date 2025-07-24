@@ -21,7 +21,7 @@ import TreatmentHistory from "./components/TreatmentHistory";
 import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
 import Gallery from "./components/Gallery/Gallery";
-import CommunicationDashboard from './components/Communication/CommunicationDashboard';
+
 import ArchivePage from './pages/ArchivePage';
 import ArchiveClientDetails from './components/ArchiveClientDetails';
 
@@ -29,44 +29,14 @@ import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
 import DashboardPage from './pages/DashboardPage';
 import TreatmentDetailsPage from './pages/TreatmentDetailsPage';
-import InventoryPage from './pages/InventoryPage';
+
 
 import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
-import { 
-  addAppointmentToClient, 
-  updateAppointment, 
-  deleteAppointment,
-  getAppointmentsForUser,
-  getUpcomingAppointments 
-} from "./services/userService";
+import { clientAPI, authAPI } from "./services/apiService";
 
 export default function App() {
   const [currentUser, setCurrentUserState] = useState(getCurrentUser());
-  const [clients, setClients] = useState(() => {
-    const stored = localStorage.getItem("clients");
-    let parsedClients = [];
-    if (stored) {
-      try {
-        parsedClients = JSON.parse(stored);
-      } catch (e) {
-        console.error("Błąd parsowania klientów z localStorage:", e);
-        // W przypadku błędu, zacznij z pustą listą, aby uniknąć awarii
-        parsedClients = [];
-      }
-    }
-    
-    // Migracja: dodaj pole appointments do istniejących klientów
-    const migratedClients = parsedClients.map(client => ({
-      ...client,
-      appointments: client.appointments || []
-    }));
-    
-    if (stored && JSON.stringify(parsedClients) !== JSON.stringify(migratedClients)) {
-      localStorage.setItem("clients", JSON.stringify(migratedClients));
-    }
-    
-    return migratedClients;
-  });
+  const [clients, setClients] = useState([]);
 
   // JEDYNE ŹRÓDŁO PRAWDY O WIZYTACH
   const [events, setEvents] = useState(() => {
@@ -91,15 +61,37 @@ export default function App() {
       localStorage.setItem('appointments', JSON.stringify(events));
   }, [events]);
 
-  // synchronizacja localStorage <-> stan
+  // Ładowanie klientów z API przy starcie aplikacji
   useEffect(() => {
-    const onStorage = (e) => {
-      if (e.key === "clients") {
-        setClients(e.newValue ? JSON.parse(e.newValue) : []);
+    const loadClients = async () => {
+      try {
+        // Sprawdź czy użytkownik jest zalogowany
+        if (!authAPI.isAuthenticated()) {
+          console.log('Użytkownik nie jest zalogowany - pomijam ładowanie klientów');
+          return;
+        }
+        
+        const response = await clientAPI.getAll();
+        if (response.success) {
+          setClients(response.data);
+        }
+      } catch (error) {
+        console.error('Błąd ładowania klientów:', error);
+        // Jeśli błąd 401, przekieruj na login
+        if (error.message.includes('401')) {
+          window.location.href = '/login';
+        }
       }
     };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+
+    if (currentUser) {
+      loadClients();
+    }
+  }, [currentUser]);
+
+  // synchronizacja localStorage <-> stan (wyłączona - używamy API)
+  useEffect(() => {
+    // Wyłączone - używamy API zamiast localStorage
   }, []);
 
   // Motyw: light/dark
@@ -123,30 +115,50 @@ export default function App() {
     setCurrentUser(null);
   };
 
-  // dodaj lub zaktualizuj klientkę (z ownerId)
-  const handleAddOrUpdateClient = (clientData, isUpdate = false) => {
-    setClients((prev) => {
-      const withOwner = {
-        ...clientData,
-        ownerId: currentUser?.id,
-        // Dodaj datę utworzenia dla nowych klientów
-        createdAt: isUpdate ? clientData.createdAt : new Date().toISOString(),
-      };
-      const next = isUpdate
-        ? prev.map((c) => (c.id === withOwner.id ? withOwner : c))
-        : [...prev, withOwner];
-      localStorage.setItem("clients", JSON.stringify(next));
-      return next;
-    });
+  // dodaj lub zaktualizuj klientkę przez API
+  const handleAddOrUpdateClient = async (clientData, isUpdate = false) => {
+    try {
+      console.log('🚀 Próba zapisania klienta:', { isUpdate, clientData });
+      
+      let response;
+      if (isUpdate) {
+        response = await clientAPI.update(clientData.id, clientData);
+      } else {
+        response = await clientAPI.create(clientData);
+      }
+      
+      console.log('✅ Odpowiedź API:', response);
+      
+      if (response.success) {
+        // Odśwież listę klientów z API
+        const clientsResponse = await clientAPI.getAll();
+        if (clientsResponse.success) {
+          setClients(clientsResponse.data);
+        }
+      } else {
+        console.error('❌ API zwróciło błąd:', response);
+      }
+    } catch (error) {
+      console.error('❌ Błąd zapisywania klienta:', error);
+      console.error('📝 Szczegóły błędu:', error.message);
+      console.error('🔗 Stack trace:', error.stack);
+    }
   };
 
-  // usuń klientkę
-  const handleRemoveClient = (id) => {
-    setClients((prev) => {
-      const next = prev.filter((c) => c.id !== id);
-      localStorage.setItem("clients", JSON.stringify(next));
-      return next;
-    });
+  // usuń klientkę przez API
+  const handleRemoveClient = async (id) => {
+    try {
+      const response = await clientAPI.delete(id);
+      if (response.success) {
+        // Odśwież listę klientów z API
+        const clientsResponse = await clientAPI.getAll();
+        if (clientsResponse.success) {
+          setClients(clientsResponse.data);
+        }
+      }
+    } catch (error) {
+      console.error('Błąd usuwania klienta:', error);
+    }
   };
 
   // aktualizacja zabiegu
@@ -193,27 +205,32 @@ export default function App() {
   
   // dodaj wizytę do klienta
   const handleAddAppointment = (clientId, appointmentData) => {
-    addAppointmentToClient(clientId, appointmentData, clients, setClients);
+    // TODO: Implementacja przez API
+    console.log('Dodawanie wizyty:', clientId, appointmentData);
   };
 
   // aktualizuj wizytę
   const handleUpdateAppointment = (clientId, appointmentId, updatedData) => {
-    updateAppointment(clientId, appointmentId, updatedData, clients, setClients);
+    // TODO: Implementacja przez API
+    console.log('Aktualizacja wizyty:', clientId, appointmentId, updatedData);
   };
 
   // usuń wizytę
   const handleDeleteAppointment = (clientId, appointmentId) => {
-    deleteAppointment(clientId, appointmentId, clients, setClients);
+    // TODO: Implementacja przez API
+    console.log('Usuwanie wizyty:', clientId, appointmentId);
   };
 
   // pobierz wizyty dla użytkownika
   const getUserAppointments = (userId) => {
-    return getAppointmentsForUser(userId, clients);
+    // TODO: Implementacja przez API
+    return [];
   };
 
   // pobierz nadchodzące wizyty
   const getUpcomingUserAppointments = (userId) => {
-    return getUpcomingAppointments(userId, clients);
+    // TODO: Implementacja przez API
+    return [];
   };
 
   return (
@@ -417,22 +434,8 @@ function AppContent({
               </PrivateRoute>
             }
           />
-          <Route
-            path="/communication"
-            element={
-              <PrivateRoute isLoggedIn={!!currentUser}>
-                <CommunicationDashboard clients={filteredClients} events={events} />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/inventory"
-            element={
-              <PrivateRoute isLoggedIn={!!currentUser}>
-                <InventoryPage />
-              </PrivateRoute>
-            }
-          />
+
+
           <Route
             path="/archive"
             element={

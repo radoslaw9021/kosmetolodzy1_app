@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RodoModal from "./RodoModal";
+import SignatureCanvas from "./SignatureCanvas";
 import '../styles/theme.css';
 
 const initialState = {
@@ -10,7 +11,18 @@ const initialState = {
   phone: "",
   birthDate: "",
   gender: "",
-  chronicDiseases: "",
+  address: "",
+  
+  // Informacje medyczne
+  medical: {
+    chronicDiseases: "",
+    medications: "",
+    supplements: "",
+    allergies: "",
+    additionalNotes: ""
+  },
+  
+  // Przeciwwskazania
   contraindications: {
     pregnancy: false,
     diabetes: false,
@@ -29,18 +41,20 @@ const initialState = {
     seriousIllness: false,
     cardioDisease: false,
   },
-  additionalNotes: "",
-  sports: false,
-  plannedPregnancy: false,
-  healthyNutrition: false,
-  metalImplants: false,
-  pacemakerImplant: false,
-  contactLenses: false,
-  claustrophobiaC: false,
-  vacationWarmCountries: false,
-  medications: "",
-  supplements: "",
-  allergies: "",
+  
+  // Styl życia
+  lifestyle: {
+    sports: false,
+    plannedPregnancy: false,
+    healthyNutrition: false,
+    metalImplants: false,
+    pacemakerImplant: false,
+    contactLenses: false,
+    claustrophobiaC: false,
+    vacationWarmCountries: false
+  },
+  
+  // Problemy skórne
   skinIssues: {
     acne: false,
     pigmentation: false,
@@ -51,9 +65,16 @@ const initialState = {
     overSebum: false,
   },
   otherSkinIssue: "",
-  rodoConsent: false,
-  marketingConsent: false,
-  unsubscribed: false,
+  
+  // Zgody
+  consents: {
+    rodo: false,
+    marketing: false,
+    newsletter: false,
+    unsubscribed: false
+  },
+  
+  notes: ""
 };
 
 export default function ClientForm({ onAddClient }) {
@@ -61,6 +82,9 @@ export default function ClientForm({ onAddClient }) {
   const [errors, setErrors] = useState({});
   const [focusField, setFocusField] = useState("");
   const [showRODO, setShowRODO] = useState(false);
+  const [showSignatureCanvas, setShowSignatureCanvas] = useState(false);
+  const [signatureType, setSignatureType] = useState('');
+  const [signedConsents, setSignedConsents] = useState({});
   const navigate = useNavigate();
 
   // Dynamiczna nazwa firmy
@@ -109,8 +133,19 @@ export default function ClientForm({ onAddClient }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    
+    // Sprawdź czy pole należy do zagnieżdżonego obiektu
+    if (name.includes('.')) {
+      const [group, field] = name.split('.');
+      setFormData((prev) => ({
+        ...prev,
+        [group]: { ...prev[group], [field]: value }
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
+  
   const handleCheckboxGroup = (e, group) => {
     const { name, checked } = e.target;
     setFormData((prev) => ({
@@ -118,13 +153,84 @@ export default function ClientForm({ onAddClient }) {
       [group]: { ...prev[group], [name]: checked },
     }));
   };
+  
   const handleSingleCheckbox = (e) => {
     const { name, checked } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: checked }));
+    
+    // Sprawdź czy zgoda jest już podpisana
+    if (signedConsents[name.replace('Consent', '')]) {
+      alert('Nie można zmienić zgody, która została już podpisana elektronicznie.');
+      return;
+    }
+    
+    // Sprawdź czy pole należy do zagnieżdżonego obiektu
+    if (name.includes('.')) {
+      const [group, field] = name.split('.');
+      setFormData((prev) => ({
+        ...prev,
+        [group]: { ...prev[group], [field]: checked }
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    }
   };
   const handleRadio = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSignatureRequest = async (consentType) => {
+    // Sprawdź czy klientka ma już ID (jest zapisana)
+    if (!formData.id || formData.id === 'new') {
+      // Najpierw zapisz klientkę
+      if (typeof onAddClient === "function") {
+        try {
+          // Utwórz tymczasowe ID
+          const tempId = Date.now().toString();
+          const clientData = {
+            ...formData,
+            id: tempId,
+            treatments: [],
+          };
+          
+          // Zapisz klientkę
+          await onAddClient(clientData);
+          
+          // Zaktualizuj formData z nowym ID
+          setFormData(prev => ({ ...prev, id: tempId }));
+          
+          // Teraz możesz podpisać
+          setSignatureType(consentType);
+          setShowSignatureCanvas(true);
+        } catch (error) {
+          alert('Błąd podczas zapisywania klientki. Spróbuj ponownie.');
+          console.error('Error saving client:', error);
+        }
+      } else {
+        alert('Nie można podpisać zgody przed zapisaniem klientki.');
+      }
+    } else {
+      // Klientka już ma ID, możesz podpisać
+      setSignatureType(consentType);
+      setShowSignatureCanvas(true);
+    }
+  };
+
+  const handleSignatureSave = (signatureData) => {
+    setSignedConsents(prev => ({
+      ...prev,
+      [signatureType]: signatureData
+    }));
+    setFormData(prev => ({
+      ...prev,
+      [`${signatureType}Consent`]: true
+    }));
+    setShowSignatureCanvas(false);
+  };
+
+  const handleSignatureCancel = () => {
+    setShowSignatureCanvas(false);
+    setSignatureType('');
   };
 
   const getInputStyle = (field, error) => ({
@@ -157,7 +263,7 @@ export default function ClientForm({ onAddClient }) {
     if (!formData.email.trim()) errs.email = "E-mail jest wymagany";
     if (!formData.phone.trim()) errs.phone = "Telefon jest wymagany";
     if (!formData.gender) errs.gender = "Wybierz płeć";
-    if (!formData.rodoConsent) errs.rodoConsent = "Musisz wyrazić zgodę RODO";
+    if (!formData.consents?.rodo) errs.rodoConsent = "Musisz wyrazić zgodę RODO";
     return errs;
   };
 
@@ -279,12 +385,12 @@ export default function ClientForm({ onAddClient }) {
           <div className="client-form-label">Choroby przewlekłe</div>
           <textarea
             className="client-form-textarea"
-            name="chronicDiseases"
+            name="medical.chronicDiseases"
             rows="2"
-            value={formData.chronicDiseases}
+            value={formData.medical?.chronicDiseases || ""}
             onChange={handleChange}
             placeholder="Choroby przewlekłe"
-            onFocus={() => setFocusField("chronicDiseases")}
+            onFocus={() => setFocusField("medical.chronicDiseases")}
             onBlur={() => setFocusField("")}
           />
           <div className="client-form-label">Przeciwwskazania</div>
@@ -305,12 +411,12 @@ export default function ClientForm({ onAddClient }) {
           <div className="client-form-label">Uwagi</div>
           <textarea
             className="client-form-textarea"
-            name="additionalNotes"
+            name="medical.additionalNotes"
             rows="2"
-            value={formData.additionalNotes}
+            value={formData.medical?.additionalNotes || ""}
             onChange={handleChange}
             placeholder="Uwagi"
-            onFocus={() => setFocusField("additionalNotes")}
+            onFocus={() => setFocusField("medical.additionalNotes")}
             onBlur={() => setFocusField("")}
           />
         </div>
@@ -323,8 +429,8 @@ export default function ClientForm({ onAddClient }) {
                 <input
                   className="client-form-checkbox"
                   type="checkbox"
-                  name={key}
-                  checked={formData[key]}
+                  name={`lifestyle.${key}`}
+                  checked={formData.lifestyle?.[key] || false}
                   onChange={handleSingleCheckbox}
                 />
                 {label}
@@ -334,34 +440,34 @@ export default function ClientForm({ onAddClient }) {
           <div className="client-form-label">Leki</div>
           <textarea
             className="client-form-textarea"
-            name="medications"
+            name="medical.medications"
             rows="2"
-            value={formData.medications}
+            value={formData.medical?.medications || ""}
             onChange={handleChange}
             placeholder="Przyjmowane leki"
-            onFocus={() => setFocusField("medications")}
+            onFocus={() => setFocusField("medical.medications")}
             onBlur={() => setFocusField("")}
           />
           <div className="client-form-label">Suplementy</div>
           <textarea
             className="client-form-textarea"
-            name="supplements"
+            name="medical.supplements"
             rows="2"
-            value={formData.supplements}
+            value={formData.medical?.supplements || ""}
             onChange={handleChange}
             placeholder="Suplementy diety"
-            onFocus={() => setFocusField("supplements")}
+            onFocus={() => setFocusField("medical.supplements")}
             onBlur={() => setFocusField("")}
           />
           <div className="client-form-label">Alergie</div>
           <textarea
             className="client-form-textarea"
-            name="allergies"
+            name="medical.allergies"
             rows="2"
-            value={formData.allergies}
+            value={formData.medical?.allergies || ""}
             onChange={handleChange}
             placeholder="Znane alergie"
-            onFocus={() => setFocusField("allergies")}
+            onFocus={() => setFocusField("medical.allergies")}
             onBlur={() => setFocusField("")}
           />
         </div>
@@ -398,63 +504,154 @@ export default function ClientForm({ onAddClient }) {
         {/* Sekcja F */}
         <div className="client-form-section">
           <div className="client-form-section-title">F. Zgody i newsletter</div>
-          <label className="client-form-checkbox-label">
-            <input
-              className="client-form-checkbox"
-              type="checkbox"
-              name="rodoConsent"
-              checked={formData.rodoConsent}
-              onChange={handleSingleCheckbox}
-              required
-            />
-            Zgoda RODO
+          
+          {/* Zgoda RODO */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label className="client-form-checkbox-label" style={{
+              opacity: signedConsents.rodo ? 0.6 : 1,
+              cursor: signedConsents.rodo ? 'not-allowed' : 'default'
+            }}>
+              <input
+                className="client-form-checkbox"
+                type="checkbox"
+                name="consents.rodo"
+                checked={formData.consents?.rodo || false}
+                onChange={handleSingleCheckbox}
+                required
+                disabled={signedConsents.rodo}
+              />
+              Zgoda RODO
+              {signedConsents.rodo && <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>✓ Podpisano</span>}
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  color: "#1c89fa",
+                  border: "none",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  fontSize: "1em",
+                  marginLeft: 6,
+                  padding: 0,
+                }}
+                onClick={() => setShowRODO(true)}
+              >
+                Zobacz treść zgody
+              </button>
+              <span style={{ color: "#C8373B", marginLeft: 2 }}>*</span>
+            </label>
+            <div className="client-form-error">
+              {errors.rodoConsent}
+            </div>
+            
+            {/* Przycisk podpisu elektronicznego RODO */}
             <button
               type="button"
+              onClick={() => handleSignatureRequest('rodo')}
               style={{
-                background: "none",
-                color: "#1c89fa",
-                border: "none",
-                cursor: "pointer",
-                textDecoration: "underline",
-                fontSize: "1em",
-                marginLeft: 6,
-                padding: 0,
+                background: signedConsents.rodo ? '#10b981' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}
-              onClick={() => setShowRODO(true)}
             >
-              Zobacz treść zgody
+              {signedConsents.rodo ? '✓ Podpisano' : '✍ Podpisz elektronicznie'}
             </button>
-            <span style={{ color: "#C8373B", marginLeft: 2 }}>*</span>
-          </label>
-          <div className="client-form-error">
-            {errors.rodoConsent}
           </div>
+
+          {/* Zgoda na newsletter */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label className="client-form-checkbox-label" style={{
+              opacity: signedConsents.newsletter ? 0.6 : 1,
+              cursor: signedConsents.newsletter ? 'not-allowed' : 'default'
+            }}>
+              <input
+                className="client-form-checkbox"
+                type="checkbox"
+                name="consents.newsletter"
+                checked={formData.consents?.newsletter || false}
+                onChange={handleSingleCheckbox}
+                disabled={signedConsents.newsletter}
+              />
+              Zgoda na newsletter
+              {signedConsents.newsletter && <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>✓ Podpisano</span>}
+            </label>
+            
+            {/* Przycisk podpisu elektronicznego newsletter */}
+            <button
+              type="button"
+              onClick={() => handleSignatureRequest('newsletter')}
+              style={{
+                background: signedConsents.newsletter ? '#10b981' : '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                marginTop: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              {signedConsents.newsletter ? '✓ Podpisano' : '✍ Podpisz elektronicznie'}
+            </button>
+          </div>
+
           <label className="client-form-checkbox-label">
             <input
               className="client-form-checkbox"
               type="checkbox"
-              name="marketingConsent"
-              checked={formData.marketingConsent}
-              onChange={handleSingleCheckbox}
-            />
-            Zgoda na newsletter
-          </label>
-          <label className="client-form-checkbox-label">
-            <input
-              className="client-form-checkbox"
-              type="checkbox"
-              name="unsubscribed"
-              checked={formData.unsubscribed}
+              name="consents.unsubscribed"
+              checked={formData.consents?.unsubscribed || false}
               onChange={handleSingleCheckbox}
             />
             Rezygnuję z newslettera
           </label>
         </div>
+        
+        {/* Modal z treścią zgody RODO */}
         <RodoModal
           open={showRODO}
           onClose={() => setShowRODO(false)}
           companyName={companyName}
         />
+
+        {/* Modal z podpisem elektronicznym */}
+        {showSignatureCanvas && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem'
+          }}>
+            <SignatureCanvas
+              clientId={formData.id || 'new'}
+              consentType={signatureType}
+              consentText={`Zgoda ${signatureType.toUpperCase()} - ${companyName}`}
+              onSave={handleSignatureSave}
+              onCancel={handleSignatureCancel}
+            />
+          </div>
+        )}
+
         <button
           type="submit"
           className="client-form-submit-btn"
