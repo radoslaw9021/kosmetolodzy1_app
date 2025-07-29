@@ -27,7 +27,19 @@ export default function ClientList({ clients }) {
   const getLastTreatmentDate = (treatments = []) => {
     if (!treatments.length) return "-";
     const dates = treatments.map((t) => t.date).filter(Boolean);
-    return dates.length ? dates.reduce((a, b) => (a > b ? a : b)) : "-";
+    if (!dates.length) return "-";
+    
+    const lastDate = dates.reduce((a, b) => (a > b ? a : b));
+    try {
+      const date = new Date(lastDate);
+      return date.toLocaleDateString('pl-PL', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch (error) {
+      return "-";
+    }
   };
 
   // helper: generuj avatar z inicjałów
@@ -130,12 +142,12 @@ export default function ClientList({ clients }) {
         <table className="client-list-grid">
           <thead className="client-list-grid-header">
             <tr>
-              <th className="client-list-grid-cell">Awatar</th>
-              <th className="client-list-grid-cell">Imię</th>
-              <th className="client-list-grid-cell email">Email</th>
-              <th className="client-list-grid-cell phone">Telefon</th>
-              <th className="client-list-grid-cell last-visit">Ostatni zabieg</th>
-              <th className="client-list-grid-cell button"></th>
+              <th>Awatar</th>
+              <th>Imię</th>
+              <th>Email</th>
+              <th>Telefon</th>
+              <th>Ostatni zabieg</th>
+              <th>Akcje</th>
             </tr>
           </thead>
           <tbody>

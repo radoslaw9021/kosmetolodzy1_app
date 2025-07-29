@@ -981,74 +981,7 @@ header h1 {
   gap: 0.5rem;
 }
 
-.client-list-grid {
-  display: grid;
-  grid-template-rows: auto;
-}
-.client-list-grid-row {
-  display: grid;
-  grid-template-columns: minmax(140px,1.1fr) minmax(200px,1.7fr) minmax(120px,1fr) minmax(100px,0.8fr) minmax(120px,1.2fr) max-content;
-  align-items: center;
-  min-height: 56px;
-}
-.client-list-grid-header {
-  font-weight: 800;
-  font-size: 1.18rem;
-  background: linear-gradient(90deg, #a855f7 0%, #6366f1 60%, #ec4899 100%);
-  color: #fff;
-  border-top-left-radius: 2rem;
-  border-top-right-radius: 2rem;
-  box-shadow: 0 2px 16px #a855f7aa;
-}
-.client-list-grid-cell {
-  padding: 1.1rem 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.13rem;
-  color: #f7f3f0;
-}
-.client-list-grid-cell.last-visit-cell {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.client-list-grid-row:not(.client-list-grid-header):hover {
-  background: rgba(168,85,247,0.13);
-  box-shadow: 0 2px 24px #a855f7cc;
-  border-radius: 1.5rem;
-  z-index: 2;
-}
-.client-list-grid-row:not(.client-list-grid-header) {
-  border-bottom: 1.5px solid rgba(168,85,247,0.10);
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.client-list-grid-row:last-child {
-  border-bottom: none;
-}
-@media (max-width: 900px) {
-  .client-list-grid-row {
-    grid-template-columns: 30% 30% 20% 20% 0 0;
-  }
-  .btn {
-    font-size: 0.95rem;
-    padding: 0.6rem 1.1rem;
-  }
-}
-@media (max-width: 600px) {
-  .client-list-grid-row {
-    grid-template-columns: 1fr 1fr;
-    font-size: 0.95rem;
-  }
-  .client-list-grid-cell {
-    padding: 0.7rem 0.5rem;
-    font-size: 0.95rem;
-  }
-  .btn {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.8rem;
-  }
-}
+/* Usunięte konfliktujące style dla client-list-grid - używamy stylów z index.css */
 
 .client-card-container {
   max-width: 700px;

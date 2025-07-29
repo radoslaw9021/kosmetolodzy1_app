@@ -4,9 +4,11 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, isSameDay } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import '../styles/Calendar.css';
 import { toast } from 'react-toastify';
 
 import MonthView from '../components/Calendar/MonthView';
+import DayView from '../components/Calendar/DayView';
 import DaySidebar from '../components/Calendar/DaySidebar';
 import AppointmentModal from '../components/AppointmentModal';
 import ClientForm from '../components/ClientForm';
@@ -272,17 +274,43 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
     
     // --- RENDER ---
         return (
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem' }}>
+        <div style={{ 
+            maxWidth: '1100px', 
+            margin: '0 auto', 
+            padding: '0 2rem',
+            background: '#121018',
+            minHeight: '100vh'
+        }}>
             <div style={{ display: 'flex', padding: '2rem 0', gap: '2rem', justifyContent: 'center' }}>
                 
-                <div style={{ flex: 1, maxWidth: '600px', display: 'flex', flexDirection: 'column' }}>
-                    <h1 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '2rem', fontWeight: 'bold' }}>Kalendarz Spotkań</h1>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h1 style={{ 
+                        textAlign: 'center', 
+                        marginBottom: '1rem', 
+                        fontSize: '2rem', 
+                        fontWeight: 'bold',
+                        background: 'linear-gradient(90deg, #a855f7, #6366f1)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        textShadow: '0 4px 20px #a855f7cc'
+                    }}>Kalendarz Spotkań</h1>
                     {currentView === 'month' ? (
                         <MonthView
                             calendarEvents={events}
                             selectedDate={currentDate}
                             handleSelectDay={handleSelectDay}
                             onMonthChange={handleMonthChange}
+                        />
+                    ) : currentView === 'day' ? (
+                        <DayView
+                            calendarEvents={events}
+                            selectedDate={currentDate}
+                            handleSelectEvent={handleSelectEvent}
+                            handleSelectSlot={handleSelectSlot}
+                            onBackToMonth={() => setCurrentView('month')}
+                            onShowAppointmentForm={handleShowAppointmentForm}
+                            onEditAppointment={handleEditAppointment}
+                            onDeleteAppointment={handleDeleteAppointment}
                         />
                     ) : (
                         <Calendar
@@ -319,7 +347,7 @@ const CalendarPage = ({ clients, events, setEvents, onAddClient }) => {
                     )}
                 </div>
 
-                <div style={{ flex: '0 0 450px', paddingTop: '4.5rem' }}>
+                <div style={{ flex: 1, paddingTop: '4.5rem' }}>
                     {isAppointmentFormVisible ? (
                         isClientFormVisible ? (
                             <ClientForm

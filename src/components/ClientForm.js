@@ -85,6 +85,9 @@ export default function ClientForm({ onAddClient }) {
   const [showSignatureCanvas, setShowSignatureCanvas] = useState(false);
   const [signatureType, setSignatureType] = useState('');
   const [signedConsents, setSignedConsents] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
   const navigate = useNavigate();
 
   // Dynamiczna nazwa firmy
@@ -185,6 +188,9 @@ export default function ClientForm({ onAddClient }) {
       // Najpierw zapisz klientkę
       if (typeof onAddClient === "function") {
         try {
+          setIsLoading(true);
+          setSubmitError("");
+          
           // Utwórz tymczasowe ID
           const tempId = Date.now().toString();
           const clientData = {
@@ -203,11 +209,13 @@ export default function ClientForm({ onAddClient }) {
           setSignatureType(consentType);
           setShowSignatureCanvas(true);
         } catch (error) {
-          alert('Błąd podczas zapisywania klientki. Spróbuj ponownie.');
           console.error('Error saving client:', error);
+          setSubmitError('Błąd podczas zapisywania klientki. Sprawdź połączenie z internetem i spróbuj ponownie.');
+        } finally {
+          setIsLoading(false);
         }
       } else {
-        alert('Nie można podpisać zgody przed zapisaniem klientki.');
+        setSubmitError('Nie można podpisać zgody przed zapisaniem klientki.');
       }
     } else {
       // Klientka już ma ID, możesz podpisać
@@ -267,19 +275,35 @@ export default function ClientForm({ onAddClient }) {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length) return;
+    
     if (typeof onAddClient === "function") {
-      onAddClient({
-        ...formData,
-        id: Date.now().toString(),
-        treatments: [],
-      });
+      try {
+        setIsLoading(true);
+        setSubmitError("");
+        setSubmitSuccess(false);
+        
+        await onAddClient({
+          ...formData,
+          id: Date.now().toString(),
+          treatments: [],
+        });
+        
+        setSubmitSuccess(true);
+        setTimeout(() => {
+          navigate("/clients");
+        }, 1500);
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        setSubmitError('Błąd podczas zapisywania klientki. Sprawdź połączenie z internetem i spróbuj ponownie.');
+      } finally {
+        setIsLoading(false);
+      }
     }
-    navigate("/clients");
   };
 
   return (
@@ -287,6 +311,7 @@ export default function ClientForm({ onAddClient }) {
       <button
         onClick={() => navigate("/clients")}
         className="client-form-back-btn"
+        disabled={isLoading}
       >
         ← Powrót do panelu
       </button>
@@ -295,6 +320,56 @@ export default function ClientForm({ onAddClient }) {
       >
         Karta klientki – dane wstępne
       </h2>
+      
+      {/* Komunikat o błędzie */}
+      {submitError && (
+        <div style={{
+          background: '#fee2e2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          padding: '1rem',
+          borderRadius: '0.5rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+          {submitError}
+          <button
+            onClick={() => setSubmitError("")}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#dc2626',
+              cursor: 'pointer',
+              marginLeft: 'auto',
+              fontSize: '1.2rem'
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      
+      {/* Komunikat o sukcesie */}
+      {submitSuccess && (
+        <div style={{
+          background: '#dcfce7',
+          border: '1px solid #bbf7d0',
+          color: '#16a34a',
+          padding: '1rem',
+          borderRadius: '0.5rem',
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>✅</span>
+          Klientka została zapisana pomyślnie! Przekierowywanie...
+        </div>
+      )}
+      
       <form onSubmit={handleSubmit} autoComplete="off">
         {/* Sekcja A */}
         <div className="client-form-section">
@@ -309,7 +384,13 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Imię"
             onFocus={() => setFocusField("firstName")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
+          {errors.firstName && (
+            <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              {errors.firstName}
+            </div>
+          )}
           <div className="client-form-label">Nazwisko</div>
           <input
             className="client-form-input"
@@ -320,7 +401,13 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Nazwisko"
             onFocus={() => setFocusField("lastName")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
+          {errors.lastName && (
+            <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              {errors.lastName}
+            </div>
+          )}
           <div className="client-form-label">Email</div>
           <input
             className="client-form-input"
@@ -331,7 +418,13 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Email"
             onFocus={() => setFocusField("email")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
+          {errors.email && (
+            <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              {errors.email}
+            </div>
+          )}
           <div className="client-form-label">Telefon</div>
           <input
             className="client-form-input"
@@ -342,7 +435,13 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Telefon"
             onFocus={() => setFocusField("phone")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
+          {errors.phone && (
+            <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              {errors.phone}
+            </div>
+          )}
           <div className="client-form-label">Data urodzenia</div>
           <input
             className="client-form-input"
@@ -352,6 +451,7 @@ export default function ClientForm({ onAddClient }) {
             onChange={handleChange}
             onFocus={() => setFocusField("birthDate")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
           <div className="client-form-label">Płeć</div>
           <div className="client-form-radio-group">
@@ -363,6 +463,7 @@ export default function ClientForm({ onAddClient }) {
                 value="female"
                 checked={formData.gender === "female"}
                 onChange={handleRadio}
+                disabled={isLoading}
               />
               Kobieta
             </label>
@@ -374,10 +475,16 @@ export default function ClientForm({ onAddClient }) {
                 value="male"
                 checked={formData.gender === "male"}
                 onChange={handleRadio}
+                disabled={isLoading}
               />
               Mężczyzna
             </label>
           </div>
+          {errors.gender && (
+            <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+              {errors.gender}
+            </div>
+          )}
         </div>
         {/* Sekcja B */}
         <div className="client-form-section">
@@ -392,6 +499,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Choroby przewlekłe"
             onFocus={() => setFocusField("medical.chronicDiseases")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
           <div className="client-form-label">Przeciwwskazania</div>
           <div className="client-form-checkbox-group">
@@ -403,6 +511,7 @@ export default function ClientForm({ onAddClient }) {
                   name={key}
                   checked={formData.contraindications[key]}
                   onChange={e => handleCheckboxGroup(e, "contraindications")}
+                  disabled={isLoading}
                 />
                 {label}
               </label>
@@ -418,6 +527,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Uwagi"
             onFocus={() => setFocusField("medical.additionalNotes")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
         </div>
         {/* Sekcja C */}
@@ -432,6 +542,7 @@ export default function ClientForm({ onAddClient }) {
                   name={`lifestyle.${key}`}
                   checked={formData.lifestyle?.[key] || false}
                   onChange={handleSingleCheckbox}
+                  disabled={isLoading}
                 />
                 {label}
               </label>
@@ -447,6 +558,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Przyjmowane leki"
             onFocus={() => setFocusField("medical.medications")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
           <div className="client-form-label">Suplementy</div>
           <textarea
@@ -458,6 +570,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Suplementy diety"
             onFocus={() => setFocusField("medical.supplements")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
           <div className="client-form-label">Alergie</div>
           <textarea
@@ -469,6 +582,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Znane alergie"
             onFocus={() => setFocusField("medical.allergies")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
         </div>
         {/* Sekcja D */}
@@ -484,6 +598,7 @@ export default function ClientForm({ onAddClient }) {
                   name={key}
                   checked={formData.skinIssues[key]}
                   onChange={e => handleCheckboxGroup(e, "skinIssues")}
+                  disabled={isLoading}
                 />
                 {label}
               </label>
@@ -499,6 +614,7 @@ export default function ClientForm({ onAddClient }) {
             placeholder="Inne zauważone zmiany"
             onFocus={() => setFocusField("otherSkinIssue")}
             onBlur={() => setFocusField("")}
+            disabled={isLoading}
           />
         </div>
         {/* Sekcja F */}
@@ -518,7 +634,7 @@ export default function ClientForm({ onAddClient }) {
                 checked={formData.consents?.rodo || false}
                 onChange={handleSingleCheckbox}
                 required
-                disabled={signedConsents.rodo}
+                disabled={signedConsents.rodo || isLoading}
               />
               Zgoda RODO
               {signedConsents.rodo && <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>✓ Podpisano</span>}
@@ -535,19 +651,23 @@ export default function ClientForm({ onAddClient }) {
                   padding: 0,
                 }}
                 onClick={() => setShowRODO(true)}
+                disabled={isLoading}
               >
                 Zobacz treść zgody
               </button>
               <span style={{ color: "#C8373B", marginLeft: 2 }}>*</span>
             </label>
-            <div className="client-form-error">
-              {errors.rodoConsent}
-            </div>
+            {errors.rodoConsent && (
+              <div style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                {errors.rodoConsent}
+              </div>
+            )}
             
             {/* Przycisk podpisu elektronicznego RODO */}
             <button
               type="button"
               onClick={() => handleSignatureRequest('rodo')}
+              disabled={isLoading}
               style={{
                 background: signedConsents.rodo ? '#10b981' : '#3b82f6',
                 color: 'white',
@@ -556,11 +676,12 @@ export default function ClientForm({ onAddClient }) {
                 padding: '0.5rem 1rem',
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                cursor: 'pointer',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 marginTop: '0.5rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                opacity: isLoading ? 0.7 : 1
               }}
             >
               {signedConsents.rodo ? '✓ Podpisano' : '✍ Podpisz elektronicznie'}
@@ -579,7 +700,7 @@ export default function ClientForm({ onAddClient }) {
                 name="consents.newsletter"
                 checked={formData.consents?.newsletter || false}
                 onChange={handleSingleCheckbox}
-                disabled={signedConsents.newsletter}
+                disabled={signedConsents.newsletter || isLoading}
               />
               Zgoda na newsletter
               {signedConsents.newsletter && <span style={{ color: '#10b981', marginLeft: '0.5rem' }}>✓ Podpisano</span>}
@@ -589,6 +710,7 @@ export default function ClientForm({ onAddClient }) {
             <button
               type="button"
               onClick={() => handleSignatureRequest('newsletter')}
+              disabled={isLoading}
               style={{
                 background: signedConsents.newsletter ? '#10b981' : '#3b82f6',
                 color: 'white',
@@ -597,11 +719,12 @@ export default function ClientForm({ onAddClient }) {
                 padding: '0.5rem 1rem',
                 fontSize: '0.875rem',
                 fontWeight: 600,
-                cursor: 'pointer',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 marginTop: '0.5rem',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                opacity: isLoading ? 0.7 : 1
               }}
             >
               {signedConsents.newsletter ? '✓ Podpisano' : '✍ Podpisz elektronicznie'}
@@ -615,6 +738,7 @@ export default function ClientForm({ onAddClient }) {
               name="consents.unsubscribed"
               checked={formData.consents?.unsubscribed || false}
               onChange={handleSingleCheckbox}
+              disabled={isLoading}
             />
             Rezygnuję z newslettera
           </label>
@@ -655,10 +779,39 @@ export default function ClientForm({ onAddClient }) {
         <button
           type="submit"
           className="client-form-submit-btn"
+          disabled={isLoading}
+          style={{
+            opacity: isLoading ? 0.7 : 1,
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            position: 'relative'
+          }}
         >
-          Wyślij
+          {isLoading ? (
+            <>
+              <div style={{
+                display: 'inline-block',
+                width: '16px',
+                height: '16px',
+                border: '2px solid #ffffff',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                marginRight: '0.5rem'
+              }}></div>
+              Zapisywanie...
+            </>
+          ) : (
+            'Wyślij'
+          )}
         </button>
       </form>
+      
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

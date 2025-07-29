@@ -60,12 +60,6 @@ export default function Header({ currentUser, onLogout, theme, setTheme }) {
           onMouseMove={handleNavLinkMouseMove}
           onMouseLeave={handleNavLinkMouseLeave}
         >Klienci</NavLink>
-        {isAdmin(currentUser) && (
-          <NavLink to="/archive" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
-            onMouseMove={handleNavLinkMouseMove}
-            onMouseLeave={handleNavLinkMouseLeave}
-          >Archiwum klientek</NavLink>
-        )}
         <NavLink to="/calendar" className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
           onMouseMove={handleNavLinkMouseMove}
           onMouseLeave={handleNavLinkMouseLeave}

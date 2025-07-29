@@ -22,9 +22,6 @@ import PublicClientForm from "./components/PublicClientForm";
 import AdminPanel from "./components/AdminPanel";
 import Gallery from "./components/Gallery/Gallery";
 
-import ArchivePage from './pages/ArchivePage';
-import ArchiveClientDetails from './components/ArchiveClientDetails';
-
 import NewsletterPage from "./pages/NewsletterPage";
 import CalendarPage from "./pages/CalendarPage";
 import DashboardPage from './pages/DashboardPage';
@@ -140,7 +137,7 @@ export default function App() {
       }
     } catch (error) {
       console.error('❌ Błąd zapisywania klienta:', error);
-      console.error('📝 Szczegóły błędu:', error.message);
+      console.error('�� Szczegóły błędu:', error.message);
       console.error('🔗 Stack trace:', error.stack);
     }
   };
@@ -436,7 +433,7 @@ function AppContent({
           />
 
 
-          <Route
+          {/* <Route
             path="/archive"
             element={
               <PrivateRoute isLoggedIn={!!currentUser}>
@@ -451,7 +448,7 @@ function AppContent({
                 <ArchiveClientDetails clients={filteredClients} events={events} />
               </PrivateRoute>
             }
-          />
+          /> */}
           <Route
             path="/"
             element={<Navigate to="/dashboard" />}

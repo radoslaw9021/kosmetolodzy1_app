@@ -1044,31 +1044,40 @@ body.theme-dark .dashboard-title {
   display: table;
   table-layout: fixed;
   width: 100%;
-  border-radius: 18px;
-  background: rgba(30, 20, 50, 0.95);
+  border-radius: 2rem;
+  background: rgba(30, 28, 50, 0.99);
   box-shadow: 0 4px 32px rgba(168, 85, 247, 0.10);
   padding-bottom: 0.5rem;
   overflow-x: auto;
+  border-spacing: 0;
+  border-collapse: separate;
 }
 
 .client-list-grid-header {
   display: table-header-group;
 }
 
-.client-list-grid-header th {
+.client-list-grid-header {
   background: linear-gradient(90deg, #a855f7 0%, #6366f1 60%, #ec4899 100%);
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.18rem;
   border-top-left-radius: 2rem;
   border-top-right-radius: 2rem;
   box-shadow: 0 2px 16px #a855f7aa;
+}
+
+.client-list-grid-header th {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.18rem;
+  padding: 1.4rem 1.1rem;
+  border: none;
+  background: transparent;
 }
 
 .client-list-grid-row {
   display: table-row;
   border-bottom: 1.5px solid rgba(168,85,247,0.10);
   transition: background 0.2s, box-shadow 0.2s;
+  background: rgba(30, 28, 50, 0.99);
 }
 
 .client-list-grid-row:last-child {
@@ -1076,9 +1085,8 @@ body.theme-dark .dashboard-title {
 }
 
 .client-list-grid-row:hover {
-  background: rgba(168, 85, 247, 0.08);
+  background: rgba(168, 85, 247, 0.13);
   box-shadow: 0 2px 24px #a855f7cc;
-  border-radius: 1.5rem;
   z-index: 2;
 }
 
@@ -1088,9 +1096,10 @@ body.theme-dark .dashboard-title {
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
-  padding: 0.5rem 0.75rem;
+  padding: 1.25rem 1.1rem;
   vertical-align: middle;
-  border-radius: 8px;
+  background: rgba(30, 28, 50, 0.99);
+  border: none;
 }
 
 /* Szerokości kolumn w procentach */
@@ -1101,6 +1110,8 @@ body.theme-dark .dashboard-title {
 .client-list-grid-cell:nth-child(5) { width: 15%; } /* Ostatni zabieg */
 .client-list-grid-cell:nth-child(6) { width: 17%; } /* Przycisk */
 
+
+
 .client-list-grid-cell.button {
   display: flex;
   justify-content: flex-end;
@@ -1108,6 +1119,7 @@ body.theme-dark .dashboard-title {
   overflow: visible;
   min-width: 140px;
   max-width: 160px;
+  padding: 1.25rem 1.1rem;
 }
 
 /* Badge statusu */
@@ -1137,13 +1149,6 @@ body.theme-dark .dashboard-title {
   box-shadow: 0 0 12px 2px #a855f7, 0 2px 12px rgba(168, 85, 247, 0.25);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 8px #a855f7;
-  z-index: 1;
-  position: relative;
 }
 .btn-gradient:hover {
   background: linear-gradient(90deg, #9333ea 0%, #0ea5e9 100%);
@@ -1212,3 +1217,4 @@ body.theme-dark .dashboard-title {
   box-shadow: 0 0 0 5px #c084fc, 0 0 32px 6px #a855f7;
   transform: scale(1.07);
 }
+
