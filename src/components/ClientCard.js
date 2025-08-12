@@ -7,6 +7,7 @@ import { Trash2 } from "lucide-react";
 import TreatmentForm from "./TreatmentForm";
 import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
+import TreatmentConsentModal from "./TreatmentConsentModal";
 import { clientAPI, treatmentAPI } from "../services/apiService";
 
 // Premium UI - wszystkie style w theme.css
@@ -18,6 +19,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const [emailStatus, setEmailStatus] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -235,6 +237,12 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
         </button>
         <button
           className="client-card-btn"
+          onClick={() => setShowConsentModal(true)}
+        >
+          Zgoda na zabieg
+        </button>
+        <button
+          className="client-card-btn"
           onClick={() => navigate('/calendar', { state: { showAppointmentForm: true, clientId: client.id }})}
         >
           Dodaj wizytę
@@ -324,6 +332,20 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
           Powrót do listy
         </button>
       </div>
+
+      {/* Modal zgody na zabieg */}
+      <TreatmentConsentModal
+        isOpen={showConsentModal}
+        onClose={() => setShowConsentModal(false)}
+        client={client}
+        onSave={(consentData) => {
+          console.log('Zgoda na zabieg zapisana:', consentData);
+          // Można tutaj dodać logikę aktualizacji klienta
+        }}
+        onPrint={() => {
+          console.log('Drukowanie zgody na zabieg');
+        }}
+      />
     </div>
   );
 }
