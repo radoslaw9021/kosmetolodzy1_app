@@ -64,20 +64,8 @@ const SignatureCanvas = ({ onSave, onCancel, clientName }) => {
     // Konwertuj canvas do base64
     const signatureData = canvasRef.current.toDataURL('image/png');
     
-    // Zapisuj podpis z metadanymi
-    const signature = {
-      data: signatureData,
-      clientId: clientName,
-      signedAt: new Date().toISOString(),
-      type: 'rodo-consent'
-    };
-    
-    // Zapisz do localStorage (tymczasowo, w przyszłości do backendu)
-    const existingSignatures = JSON.parse(localStorage.getItem('signatures') || '[]');
-    existingSignatures.push(signature);
-    localStorage.setItem('signatures', JSON.stringify(existingSignatures));
-    
-    onSave(signature);
+    // Przekaż tylko dane obrazu do rodzica
+    onSave(signatureData);
   };
 
   // Obsługa touch events dla urządzeń mobilnych

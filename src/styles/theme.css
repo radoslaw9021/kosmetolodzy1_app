@@ -1003,6 +1003,29 @@ header h1 {
   gap: 0.7rem;
   margin-bottom: 2.5rem;
 }
+
+.client-card-title-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.consent-status-badge {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
 .client-card-avatar {
   width: 84px;
   height: 84px;

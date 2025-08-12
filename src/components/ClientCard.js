@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -9,6 +9,7 @@ import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
 import TreatmentConsentModal from "./TreatmentConsentModal";
 import { clientAPI, treatmentAPI } from "../services/apiService";
+import treatmentConsentService from "../services/treatmentConsentService";
 
 // Premium UI - wszystkie style w theme.css
 
@@ -20,6 +21,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const [isEditing, setIsEditing] = useState(false);
   const [showFullForm, setShowFullForm] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
+  const [hasValidConsent, setHasValidConsent] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -28,6 +30,20 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   });
 
   const client = clients.find((c) => c.id === clientId);
+
+  // Sprawdź czy klient ma ważną zgodę na zabieg
+  useEffect(() => {
+    if (client) {
+      treatmentConsentService.hasValidConsent(client.id)
+        .then(hasConsent => {
+          setHasValidConsent(hasConsent);
+        })
+        .catch(error => {
+          console.log('Błąd podczas sprawdzania zgody:', error.message);
+          setHasValidConsent(false);
+        });
+    }
+  }, [client]);
 
   // Find and sort appointments for this client
   const clientAppointments = events
@@ -96,7 +112,14 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
     <div className="client-card-container">
       <div className="client-card-header">
         <div className="client-card-avatar">{getInitials(client.firstName, client.lastName)}</div>
-        <h2 className="client-card-title">{client.firstName} {client.lastName}</h2>
+        <div className="client-card-title-section">
+          <h2 className="client-card-title">{client.firstName} {client.lastName}</h2>
+          {hasValidConsent && (
+            <div className="consent-status-badge">
+              ✅ Zgoda na zabieg
+            </div>
+          )}
+        </div>
         <div className="client-card-email-phone">
           <span>{client.email}</span>
           <span>{client.phone}</span>

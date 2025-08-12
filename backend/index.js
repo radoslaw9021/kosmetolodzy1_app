@@ -22,6 +22,7 @@ const exportRoutes = require('./routes/export');
 const logsRoutes = require('./routes/logs');
 const treatmentsRoutes = require('./routes/treatments');
 const authRoutes = require('./routes/auth');
+const treatmentConsentRoutes = require('./routes/treatmentConsents');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -108,6 +109,7 @@ app.use('/api/signatures', signatureRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/logs', logsRoutes);
 app.use('/api/treatments', treatmentsRoutes);
+app.use('/api/treatment-consents', treatmentConsentRoutes);
 
 // Error handling middleware (musi być na końcu)
 app.use(notFoundHandler);

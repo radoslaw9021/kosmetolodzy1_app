@@ -73,6 +73,38 @@ const validateSignatureData = (req, res, next) => {
   next();
 };
 
+const validateConsentData = (req, res, next) => {
+  const { clientId, signature, hasConsented, hasReadTerms } = req.body;
+
+  const errors = [];
+
+  if (!clientId) {
+    errors.push('clientId is required');
+  }
+
+  if (!signature) {
+    errors.push('signature is required');
+  }
+
+  if (typeof hasConsented !== 'boolean') {
+    errors.push('hasConsented must be a boolean');
+  }
+
+  if (typeof hasReadTerms !== 'boolean') {
+    errors.push('hasReadTerms must be a boolean');
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: 'Validation failed',
+      details: errors
+    });
+  }
+
+  next();
+};
+
 const validateExportRequest = (req, res, next) => {
   const { clientIds, format } = req.body;
 
@@ -160,6 +192,7 @@ const rateLimit = (req, res, next) => {
 module.exports = {
   validateClientData,
   validateSignatureData,
+  validateConsentData,
   validateExportRequest,
   sanitizeInput,
   rateLimit

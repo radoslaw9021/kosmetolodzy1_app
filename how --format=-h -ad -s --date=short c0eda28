@@ -1,0 +1,10 @@
+[33mc0eda28[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Poprawki UI kalendarza: wyrównanie ikon, lepsze style tekstu, gradientowe cienie, animacje
+[33m2bf4f49[m Fix client data structure and form submission issues
+[33m21ed76c[m Wdrożenie monitoringu, testów wydajnościowych, trybu offline bez MongoDB i Redis, poprawki skryptów startowych
+[33mf28a052[m Przywrócenie oryginalnego wyglądu dashboardu, tylko dynamiczne dane
+[33mf5b32f5[m Poprawa stylów formularza klientki: nowoczesne inputy, checkboxy, radio, responsywność
+[33m732f2c0[m Naprawa layoutu listy klientek - poprawione wyrównanie kolumn i responsywność
+[33mcdefad5[m Transform inventory module to premium UI - glassmorphism, gradients, glow, dark theme, animations, microinteractions, responsive design
+[33m312179b[m Add premium tooltips and icon styles to theme.css - glassmorphism, gradients, glow effects
+[33ma49eb94[m Complete Communication module refactoring (task 11) - all subtasks done
+[33mffeda8a[m Add notification templates CRUD UI (task 11.4)
