@@ -2018,3 +2018,561 @@ header h1 {
     font-size: 0.95rem;
   }
 }
+
+/* NOWE STYLE DLA ROZSZERZONEGO TREATMENTHISTORY */
+.treatment-history-toggle-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  margin-left: auto;
+}
+
+.treatment-history-toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.appointment-history-section {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.appointment-history-section h4 {
+  color: #a855f7;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.appointment-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr 2fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.appointment-date {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.appointment-treatment {
+  color: #cbd5e1;
+}
+
+.appointment-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  font-weight: 500;
+}
+
+.appointment-status.completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.appointment-status.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.appointment-status-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.appointment-status-btn.completed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.appointment-status-btn.completed:hover {
+  background: rgba(34, 197, 94, 0.3);
+  transform: translateY(-1px);
+}
+
+.appointment-status-btn.cancelled {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.appointment-status-btn.cancelled:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+/* NOWE STYLE DLA MODALI - System pytań i sugestii */
+.status-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.status-modal {
+  background: rgba(30, 28, 50, 0.95);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  color: #fff;
+  border: 2px solid #a855f7;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+  animation: slideInUp 0.3s ease;
+}
+
+.status-modal h3 {
+  color: #a855f7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.status-modal p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #e2e8f0;
+}
+
+.status-modal p strong {
+  color: #a855f7;
+  font-weight: 600;
+}
+
+.status-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.status-modal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.status-modal-btn.primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.status-modal-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.status-modal-btn.secondary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.status-modal-btn.secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.status-modal-btn.cancel {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-modal-btn.cancel:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Modal sugestii kolejnych wizyt */
+.next-appointment-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.next-appointment-suggestion {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 1rem;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  color: #fff;
+}
+
+.next-appointment-suggestion:hover {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: #a855f7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.suggestion-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #a855f7;
+  margin-bottom: 0.5rem;
+}
+
+.suggestion-date {
+  font-size: 1rem;
+  color: #e2e8f0;
+  margin-bottom: 0.3rem;
+}
+
+.suggestion-description {
+  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-style: italic;
+}
+
+/* Modal formularza zabiegu */
+.treatment-form-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.treatment-form-modal {
+  background: rgba(30, 28, 50, 0.95);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  color: #fff;
+  border: 2px solid #a855f7;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.5);
+  animation: slideInUp 0.3s ease;
+}
+
+.treatment-form-modal h3 {
+  color: #a855f7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Animacje */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .status-modal, .treatment-form-modal {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .status-modal-actions {
+    gap: 0.8rem;
+  }
+  
+  .status-modal-btn {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .next-appointment-suggestion {
+    padding: 1rem;
+  }
+}
+
+/* NOWY MODAL - Zatwierdzanie wizyt */
+.appointment-confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.appointment-confirmation-content {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.appointment-confirmation-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.appointment-confirmation-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.appointment-confirmation-info {
+  margin-bottom: 24px;
+}
+
+.appointment-confirmation-treatment {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.appointment-confirmation-date {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.appointment-confirmation-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.appointment-confirmation-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.appointment-confirmation-btn.confirm {
+  background-color: #059669;
+  color: white;
+}
+
+.appointment-confirmation-btn.confirm:hover {
+  background-color: #047857;
+}
+
+.appointment-confirmation-btn.cancel {
+  background-color: #dc2626;
+  color: white;
+}
+
+.appointment-confirmation-btn.cancel:hover {
+  background-color: #b91c1c;
+}
+
+.appointment-confirmation-btn.edit {
+  background-color: #2563eb;
+  color: white;
+}
+
+.appointment-confirmation-btn.edit:hover {
+  background-color: #1d4ed8;
+}
+
+.appointment-confirmation-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.appointment-confirmation-close:hover {
+  color: #6b7280;
+}
+
+.appointment-confirmation-back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.appointment-confirmation-back:hover {
+  color: #374151;
+  background-color: #f3f4f6;
+}
+
+/* NOWY EKRAN - Zatwierdzanie wizyt (pełnoekranowy) */
+.appointment-confirmation-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #581c87 0%, #7c3aed 50%, #581c87 100%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Loading states */
+.appointment-confirmation-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.appointment-confirmation-loading .animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Success and Error messages */
+.appointment-confirmation-message {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+  animation: slideInUp 0.3s ease-out;
+}
+
+.appointment-confirmation-message.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.appointment-confirmation-message.error {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Disabled button states */
+.appointment-confirmation-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.appointment-confirmation-btn:disabled:hover {
+  transform: none !important;
+}
+
+/* Focus management */
+.appointment-confirmation-btn:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}
+
+.appointment-confirmation-back-btn:focus {
+  outline: 2px solid #a855f7;
+  outline-offset: 2px;
+}

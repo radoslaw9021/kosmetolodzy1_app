@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -8,7 +8,8 @@ import TreatmentForm from "./TreatmentForm";
 import TreatmentHistory from "./TreatmentHistory";
 import ClientFormView from "./ClientFormView";
 import TreatmentConsentModal from "./TreatmentConsentModal";
-import { clientAPI, treatmentAPI } from "../services/apiService";
+import AppointmentConfirmationModal from "./AppointmentConfirmationModal";
+import { clientAPI, treatmentAPI, appointmentAPI } from "../services/apiService";
 import treatmentConsentService from "../services/treatmentConsentService";
 
 // Premium UI - wszystkie style w theme.css
@@ -22,6 +23,9 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const [showFullForm, setShowFullForm] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [hasValidConsent, setHasValidConsent] = useState(false);
+  const [showAppointmentConfirmationModal, setShowAppointmentConfirmationModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [appointmentStatuses, setAppointmentStatuses] = useState({});
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -30,6 +34,13 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   });
 
   const client = clients.find((c) => c.id === clientId);
+
+  // Find and sort appointments for this client
+  const clientAppointments = events && Array.isArray(events) 
+    ? events
+        .filter((event) => event && event.resource?.clientId === clientId)
+        .sort((a, b) => new Date(b.start) - new Date(a.start))
+    : [];
 
   // Sprawdź czy klient ma ważną zgodę na zabieg
   useEffect(() => {
@@ -45,10 +56,66 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
     }
   }, [client]);
 
-  // Find and sort appointments for this client
-  const clientAppointments = events
-    .filter((event) => event.resource?.clientId === clientId)
-    .sort((a, b) => new Date(b.start) - new Date(a.start));
+  // Synchronizuj wizyty z kalendarza z bazą danych
+  const synchronizeAppointments = useCallback(async () => {
+    if (clientAppointments && clientAppointments.length > 0 && client) {
+      try {
+        for (const appointment of clientAppointments) {
+          try {
+            // Sprawdź po externalId (ID eventu z kalendarza)
+            await appointmentAPI.getByExternalId(appointment.id);
+          } catch (error) {
+            // Wizyta nie istnieje - utwórz ją
+            const appointmentData = {
+              appointmentId: appointment.id,
+              clientId: client.id,
+              treatment: appointment.resource?.treatment || 'Brak nazwy',
+              start: new Date(appointment.start),
+              end: new Date(appointment.end),
+              color: appointment.color || '#a855f7',
+              status: new Date(appointment.end) < new Date() ? 'completed' : 'pending'
+            };
+            await appointmentAPI.create(appointmentData);
+          }
+        }
+      } catch (error) {
+        console.error('Błąd podczas synchronizacji wizyt:', error);
+      }
+    }
+  }, [clientAppointments, client]);
+
+  // Wczytaj statusy wizyt z bazy danych
+  const loadAppointmentStatuses = useCallback(async () => {
+    if (clientAppointments && clientAppointments.length > 0) {
+      try {
+        const statuses = {};
+        for (const appointment of clientAppointments) {
+          try {
+            const appt = await appointmentAPI.getByExternalId(appointment.id);
+            statuses[appointment.id] = appt.status || 'pending';
+          } catch (error) {
+            const isPast = appointment.start && appointment.end ? new Date(appointment.end) < new Date() : false;
+            statuses[appointment.id] = isPast ? 'completed' : 'pending';
+          }
+        }
+        setAppointmentStatuses(statuses);
+      } catch (error) {
+        console.error('Błąd podczas wczytywania statusów wizyt:', error);
+      }
+    }
+  }, [clientAppointments]);
+
+  // Inicjalizuj statusy wizyt z bazy danych
+  useEffect(() => {
+    const initializeAppointments = async () => {
+      await synchronizeAppointments();
+      await loadAppointmentStatuses();
+    };
+    
+    if (client && clientAppointments) {
+      initializeAppointments();
+    }
+  }, [clientAppointments, client, synchronizeAppointments, loadAppointmentStatuses]);
 
   if (!client) {
     return (
@@ -61,7 +128,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
     );
   }
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setIsEditing(true);
     setForm({
       firstName: client.firstName,
@@ -69,44 +136,104 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
       email: client.email,
       phone: client.phone,
     });
-  };
+  }, [client.firstName, client.lastName, client.email, client.phone]);
 
-  const handleFormChange = (e) => {
+  const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     onUpdateClient({ ...client, ...form });
     setIsEditing(false);
-  };
+  }, [client, form, onUpdateClient]);
 
   // avatar initials
-  const getInitials = (name, surname) =>
-    (name?.[0] || "").toUpperCase() + (surname?.[0] || "").toUpperCase();
+  const getInitials = useCallback((name, surname) =>
+    (name?.[0] || "").toUpperCase() + (surname?.[0] || "").toUpperCase(), []);
 
   // Premium UI - hover effects w CSS
   // --- DODAJ TO DO TWOJEGO PLIKU ---
   // Funkcja do aktualizacji JEDNEGO zabiegu klientki
-  const handleUpdateTreatment = (clientId, updatedTreatment, treatmentIdx) => {
+  const handleUpdateTreatment = useCallback((clientId, updatedTreatment, treatmentIdx) => {
     // Sprawdź czy klientka się zgadza
     if (!client || client.id !== clientId) return;
     const updatedTreatments = [...(client.treatments || [])];
     updatedTreatments[treatmentIdx] = updatedTreatment;
     onUpdateClient({ ...client, treatments: updatedTreatments });
-  };
+  }, [client, onUpdateClient]);
 
-  const handleGoToAppointment = (event) => {
+  // Funkcja do przejścia do szczegółów wizyty
+  const handleGoToAppointment = useCallback((event) => {
     navigate(`/client/${clientId}/treatment/${event.id}`);
-  };
+  }, [clientId, navigate]);
+
+  // NOWE FUNKCJE - Obsługa modalu zatwierdzania wizyt
+  const handleAppointmentClick = useCallback((appointment) => {
+    setSelectedAppointment(appointment);
+    setShowAppointmentConfirmationModal(true);
+  }, []);
+
+  const handleConfirmVisit = useCallback(async (appointment) => {
+    try {
+      await appointmentAPI.confirmByExternal(appointment.id);
+      setAppointmentStatuses(prev => ({ ...prev, [appointment.id]: 'completed' }));
+    } catch (error) {
+      console.error('Błąd podczas potwierdzania wizyty:', error);
+      throw error;
+    }
+  }, []);
+
+  const handleCancelVisit = useCallback(async (appointment) => {
+    try {
+      await appointmentAPI.cancelByExternal(appointment.id);
+      setAppointmentStatuses(prev => ({ ...prev, [appointment.id]: 'cancelled' }));
+    } catch (error) {
+      console.error('Błąd podczas anulowania wizyty:', error);
+      throw error;
+    }
+  }, []);
+
+  const handleEditTreatment = useCallback(async (appointment) => {
+    try {
+      console.log('Przechodzę do edycji zabiegu:', appointment);
+      
+      // Przejdź do strony edycji zabiegu
+      navigate(`/client/${clientId}/treatment/${appointment.id}/edit`);
+      
+    } catch (error) {
+      console.error('Błąd podczas przechodzenia do edycji:', error);
+      throw error; // Przekazujemy błąd do modalu
+    }
+  }, [clientId, navigate]);
+
+  const handleReturnToClient = useCallback(() => {
+    setShowAppointmentConfirmationModal(false);
+    setSelectedAppointment(null);
+  }, []);
 
   // Funkcja usuwania klienta
-  const handleDeleteClient = () => {
+  const handleDeleteClient = useCallback(() => {
     if (window.confirm(`Czy na pewno chcesz usunąć klientkę ${client.firstName} ${client.lastName}? Ta operacja jest nieodwracalna.`)) {
       onRemoveClient(client.id);
       navigate('/clients');
     }
-  };
+  }, [client.firstName, client.lastName, client.id, onRemoveClient, navigate]);
+
+  // Jeśli modal zatwierdzania wizyty jest otwarty, pokaż tylko modal
+  if (showAppointmentConfirmationModal && selectedAppointment) {
+    return (
+      <AppointmentConfirmationModal
+        isOpen={showAppointmentConfirmationModal}
+        onClose={() => setShowAppointmentConfirmationModal(false)}
+        appointment={selectedAppointment}
+        onConfirmVisit={handleConfirmVisit}
+        onCancelVisit={handleCancelVisit}
+        onEditTreatment={handleEditTreatment}
+        onReturnToClient={handleReturnToClient}
+      />
+    );
+  }
 
   return (
     <div className="client-card-container">
@@ -194,37 +321,138 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
       {/* Historia wizyt */}
       <div className="client-card-section">
         <div className="client-card-section-title">Historia wizyt</div>
-        {clientAppointments.length > 0 ? (
+        {clientAppointments && clientAppointments.length > 0 ? (
           <div className="client-card-appointments-list">
             {clientAppointments.map(event => {
-              const isPast = new Date(event.end) < new Date();
-              const color = getTreatmentColor(event.resource?.treatment);
-              return (
-                <div 
-                  key={event.id} 
-                  onClick={() => handleGoToAppointment(event)}
-                  className="client-card-appointment-item"
-                >
-                  <span 
-                    className="client-card-appointment-dot"
-                    style={{ backgroundColor: color, opacity: isPast ? 0.5 : 1 }}
-                  ></span>
-                  <div className="client-card-appointment-content" style={{ opacity: isPast ? 0.6 : 1 }}>
-                    <div className="client-card-appointment-title">{event.resource?.treatment || 'Brak nazwy'}</div>
-                    <div className="client-card-appointment-date">
-                      {format(new Date(event.start), 'd MMMM yyyy, HH:mm', { locale: pl })}
+              if (!event || !event.id) return null;
+              
+              try {
+                const isPast = event.start && event.end ? new Date(event.end) < new Date() : false;
+                const color = event.resource?.treatment ? getTreatmentColor(event.resource.treatment) : '#a855f7';
+                
+                // Sprawdź status wizyty - domyślnie 'completed' jeśli jest przeszła, inaczej 'pending'
+                const appointmentStatus = appointmentStatuses[event.id] || (isPast ? 'completed' : 'pending');
+                
+                // Określ tekst statusu
+                const getStatusText = (status) => {
+                  switch (status) {
+                    case 'completed': return 'Odbyta';
+                    case 'cancelled': return 'Anulowana';
+                    case 'pending': return 'Zaplanowana';
+                    default: return isPast ? 'Odbyta' : 'Zaplanowana';
+                  }
+                };
+                
+                // Określ kolor statusu
+                const getStatusColor = (status) => {
+                  switch (status) {
+                    case 'completed': return '#28a745';
+                    case 'cancelled': return '#dc2626';
+                    case 'pending': return '#f59e0b';
+                    default: return isPast ? '#888' : '#28a745';
+                  }
+                };
+                
+                return (
+                  <div 
+                    key={event.id} 
+                    onClick={() => handleAppointmentClick(event)}
+                    className="client-card-appointment-item cursor-pointer hover:bg-gray-50 transition-colors"
+                    style={{ borderLeft: `4px solid ${color}` }}
+                  >
+                    <span 
+                      className="client-card-appointment-dot"
+                      style={{ 
+                        backgroundColor: color, 
+                        opacity: appointmentStatus === 'cancelled' ? 0.3 : 1,
+                        border: appointmentStatus === 'cancelled' ? '2px solid #dc2626' : 'none'
+                      }}
+                    ></span>
+                    <div className="client-card-appointment-content" style={{ opacity: appointmentStatus === 'cancelled' ? 0.6 : 1 }}>
+                      <div className="client-card-appointment-title">{event.resource?.treatment || 'Brak nazwy'}</div>
+                      <div className="client-card-appointment-date">
+                        {event.start ? format(new Date(event.start), 'd MMMM yyyy, HH:mm', { locale: pl }) : 'Brak daty'}
+                      </div>
                     </div>
+                    <span 
+                      className="client-card-appointment-status" 
+                      style={{ 
+                        color: getStatusColor(appointmentStatus),
+                        textDecoration: appointmentStatus === 'cancelled' ? 'line-through' : 'none',
+                        fontWeight: appointmentStatus === 'cancelled' ? 'normal' : 'bold'
+                      }}
+                    >
+                      {appointmentStatus === 'cancelled' && '❌ '}
+                      {appointmentStatus === 'completed' && '✅ '}
+                      {appointmentStatus === 'pending' && '⏰ '}
+                      {getStatusText(appointmentStatus)}
+                    </span>
                   </div>
-                  <span className="client-card-appointment-status" style={{ color: isPast ? '#888' : '#28a745' }}>
-                    {isPast ? 'Odbyta' : 'Zaplanowana'}
-                  </span>
-                </div>
-              );
+                );
+              } catch (error) {
+                console.error('Błąd podczas renderowania wizyty:', error, event);
+                return null;
+              }
             })}
           </div>
         ) : (
           <p className="client-card-empty-state">Brak zapisanych wizyt.</p>
         )}
+        
+        {/* Historia zabiegów */}
+        <div className="client-card-section-subtitle">Historia zabiegów</div>
+        <TreatmentHistory
+          treatments={client.treatments || []}
+          clientId={client.id}
+          onUpdateTreatment={onUpdateTreatment}
+          onAddTreatment={async (newTreatment) => {
+            try {
+              // Sprawdź czy użytkownik jest zalogowany
+              if (!localStorage.getItem('authToken')) {
+                alert('Musisz być zalogowany, aby dodać zabieg');
+                return;
+              }
+              
+              console.log('🚀 Dodawanie zabiegu po wizycie:', newTreatment);
+              
+              const treatmentData = {
+                clientId: client.id,
+                type: newTreatment.type,
+                date: newTreatment.date,
+                notesInternal: newTreatment.notesInternal,
+                notesForClient: newTreatment.notesForClient,
+                recommendations: newTreatment.recommendations,
+                images: newTreatment.images
+              };
+              
+              console.log('📤 Dane wysyłane do API:', treatmentData);
+              
+              // Sprawdź czy clientId jest prawidłowy
+              if (!client.id || client.id === 'undefined' || client.id === 'null') {
+                alert('Błąd: Nieprawidłowy ID klienta');
+                return;
+              }
+              
+              const response = await treatmentAPI.add(treatmentData);
+              
+              if (response.success) {
+                console.log('✅ Zabieg dodany pomyślnie po wizycie:', response.data);
+                
+                // Odśwież dane klienta z API
+                const clientResponse = await clientAPI.getById(client.id);
+                if (clientResponse.success) {
+                  onUpdateClient(clientResponse.data);
+                }
+              } else {
+                console.error('❌ Błąd dodawania zabiegu po wizycie:', response);
+                alert('Błąd podczas dodawania zabiegu');
+              }
+            } catch (error) {
+              console.error('❌ Błąd dodawania zabiegu po wizycie:', error);
+              alert('Błąd połączenia z serwerem');
+            }
+          }}
+        />
       </div>
 
       {/* Informacje medyczne */}
@@ -338,16 +566,6 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
           onCancel={() => setShowForm(false)}
         />
       )}
-
-      {/* Historia zabiegów */}
-      <div className="client-card-section">
-        <div className="client-card-section-title">Historia zabiegów (z formularzy)</div>
-        <TreatmentHistory
-          treatments={client.treatments || []}
-          clientId={client.id}
-          onUpdateTreatment={onUpdateTreatment}
-        />
-      </div>
 
       {/* Przyciski nawigacji */}
       <div className="client-card-navigation">

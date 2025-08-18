@@ -1,8 +1,9 @@
 // src/components/TreatmentHistory.js
 import React, { useState } from "react";
 import TreatmentDetailsModal from "./TreatmentDetailsModal";
+import TreatmentForm from "./TreatmentForm";
 import { getTreatmentColor } from '../utils/calendarUtils';
-import { Eye } from 'lucide-react';
+import { Eye, Plus } from 'lucide-react';
 
 const style = {
   container: {
@@ -50,11 +51,25 @@ export default function TreatmentHistory({
   clientId,
   treatments,
   onUpdateTreatment,
+  onAddTreatment,
 }) {
   const [openIdx, setOpenIdx] = useState(null);
+  const [showTreatmentForm, setShowTreatmentForm] = useState(false);
+
+  // NOWA FUNKCJONALNOŚĆ - Otwarcie formularza zabiegu
+  const openTreatmentForm = () => {
+    setShowTreatmentForm(true);
+  };
 
   if (!treatments || treatments.length === 0) {
-    return <p className="treatment-history-empty">Brak zapisanych zabiegów.</p>;
+    return (
+      <div className="treatment-history-container">
+        <div className="treatment-history-header">
+          <h3>Historia zabiegów</h3>
+        </div>
+        <p className="treatment-history-empty">Brak zapisanych zabiegów.</p>
+      </div>
+    );
   }
 
   return (
@@ -62,6 +77,8 @@ export default function TreatmentHistory({
       <div className="treatment-history-header">
         <h3>Historia zabiegów</h3>
       </div>
+
+      {/* ISTNIEJĄCA SEKCJA - Historia zabiegów */}
       <div className="treatment-history-row treatment-history-row-head">
         <div className="treatment-history-cell">Typ</div>
         <div className="treatment-history-cell">Data</div>
@@ -97,10 +114,27 @@ export default function TreatmentHistory({
         onClose={() => setOpenIdx(null)}
         treatment={openIdx !== null ? treatments[openIdx] : null}
         onUpdateTreatment={(updatedTreatment) => {
-          // Przekaż clientId i idx do App.js!
           onUpdateTreatment(clientId, updatedTreatment, openIdx);
         }}
       />
+
+      {/* NOWY MODAL - Formularz zabiegu */}
+      {showTreatmentForm && (
+        <div className="treatment-form-modal-overlay">
+          <div className="treatment-form-modal">
+            <h3>Uzupełnij dane zabiegu</h3>
+            <TreatmentForm
+              onAddTreatment={(newTreatment) => {
+                if (onAddTreatment) {
+                  onAddTreatment(newTreatment);
+                }
+                setShowTreatmentForm(false);
+              }}
+              onCancel={() => setShowTreatmentForm(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

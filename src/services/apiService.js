@@ -272,18 +272,93 @@ export const activityAPI = {
   },
 };
 
+// API dla wizyt/kalendarza
+export const appointmentAPI = {
+  // Pobierz wszystkie wizyty
+  getAll: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const endpoint = `/appointments${queryString ? `?${queryString}` : ''}`;
+    return apiRequest(endpoint);
+  },
+
+  // Pobierz wizytę po ID
+  getById: async (id) => {
+    return apiRequest(`/appointments/${id}`);
+  },
+
+  // Pobierz wizyty dla klienta
+  getByClient: async (clientId) => {
+    return apiRequest(`/appointments/client/${clientId}`);
+  },
+
+  // Utwórz nową wizytę
+  create: async (appointmentData) => {
+    return apiRequest('/appointments', {
+      method: 'POST',
+      body: JSON.stringify(appointmentData),
+    });
+  },
+
+  // Aktualizuj wizytę
+  update: async (id, appointmentData) => {
+    return apiRequest(`/appointments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(appointmentData),
+    });
+  },
+
+  // Usuń wizytę
+  delete: async (id) => {
+    return apiRequest(`/appointments/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Potwierdź wizytę (zmień status na 'completed')
+  confirm: async (id) => {
+    return apiRequest(`/appointments/${id}/confirm`, {
+      method: 'POST',
+    });
+  },
+
+  // Anuluj wizytę (zmień status na 'cancelled')
+  cancel: async (id) => {
+    return apiRequest(`/appointments/${id}/cancel`, {
+      method: 'POST',
+    });
+  },
+
+  // Zmień status wizyty
+  updateStatus: async (id, status) => {
+    return apiRequest(`/appointments/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+
+  // --- By external appointmentId ---
+  getByExternalId: async (appointmentId) => {
+    return apiRequest(`/appointments/by-external/${appointmentId}`);
+  },
+  confirmByExternal: async (appointmentId) => {
+    return apiRequest(`/appointments/by-external/${appointmentId}/confirm`, {
+      method: 'POST',
+    });
+  },
+  cancelByExternal: async (appointmentId) => {
+    return apiRequest(`/appointments/by-external/${appointmentId}/cancel`, {
+      method: 'POST',
+    });
+  },
+  updateStatusByExternal: async (appointmentId, status) => {
+    return apiRequest(`/appointments/by-external/${appointmentId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+};
+
 // Health check
 export const healthCheck = async () => {
   return apiRequest('/health');
-};
-
-export default {
-  clientAPI,
-  signatureAPI,
-  consentAPI,
-  exportAPI,
-  treatmentAPI,
-  authAPI,
-  activityAPI,
-  healthCheck,
 }; 
