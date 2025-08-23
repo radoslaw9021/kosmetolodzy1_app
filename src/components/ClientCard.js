@@ -14,7 +14,7 @@ import treatmentConsentService from "../services/treatmentConsentService";
 
 // Premium UI - wszystkie style w theme.css
 
-export default function ClientCard({ clients, events, onUpdateClient, onRemoveClient, onUpdateTreatment }) {
+export default function ClientCard({ clients, events, appointmentStatuses, onUpdateClient, onRemoveClient, onUpdateTreatment }) {
   const { clientId } = useParams();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
@@ -25,7 +25,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const [hasValidConsent, setHasValidConsent] = useState(false);
   const [showAppointmentConfirmationModal, setShowAppointmentConfirmationModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [appointmentStatuses, setAppointmentStatuses] = useState({});
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -56,66 +56,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
     }
   }, [client]);
 
-  // Synchronizuj wizyty z kalendarza z bazą danych
-  const synchronizeAppointments = useCallback(async () => {
-    if (clientAppointments && clientAppointments.length > 0 && client) {
-      try {
-        for (const appointment of clientAppointments) {
-          try {
-            // Sprawdź po externalId (ID eventu z kalendarza)
-            await appointmentAPI.getByExternalId(appointment.id);
-          } catch (error) {
-            // Wizyta nie istnieje - utwórz ją
-            const appointmentData = {
-              appointmentId: appointment.id,
-              clientId: client.id,
-              treatment: appointment.resource?.treatment || 'Brak nazwy',
-              start: new Date(appointment.start),
-              end: new Date(appointment.end),
-              color: appointment.color || '#a855f7',
-              status: new Date(appointment.end) < new Date() ? 'completed' : 'pending'
-            };
-            await appointmentAPI.create(appointmentData);
-          }
-        }
-      } catch (error) {
-        console.error('Błąd podczas synchronizacji wizyt:', error);
-      }
-    }
-  }, [clientAppointments, client]);
 
-  // Wczytaj statusy wizyt z bazy danych
-  const loadAppointmentStatuses = useCallback(async () => {
-    if (clientAppointments && clientAppointments.length > 0) {
-      try {
-        const statuses = {};
-        for (const appointment of clientAppointments) {
-          try {
-            const appt = await appointmentAPI.getByExternalId(appointment.id);
-            statuses[appointment.id] = appt.status || 'pending';
-          } catch (error) {
-            const isPast = appointment.start && appointment.end ? new Date(appointment.end) < new Date() : false;
-            statuses[appointment.id] = isPast ? 'completed' : 'pending';
-          }
-        }
-        setAppointmentStatuses(statuses);
-      } catch (error) {
-        console.error('Błąd podczas wczytywania statusów wizyt:', error);
-      }
-    }
-  }, [clientAppointments]);
-
-  // Inicjalizuj statusy wizyt z bazy danych
-  useEffect(() => {
-    const initializeAppointments = async () => {
-      await synchronizeAppointments();
-      await loadAppointmentStatuses();
-    };
-    
-    if (client && clientAppointments) {
-      initializeAppointments();
-    }
-  }, [clientAppointments, client, synchronizeAppointments, loadAppointmentStatuses]);
 
   if (!client) {
     return (
@@ -177,7 +118,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const handleConfirmVisit = useCallback(async (appointment) => {
     try {
       await appointmentAPI.confirmByExternal(appointment.id);
-      setAppointmentStatuses(prev => ({ ...prev, [appointment.id]: 'completed' }));
+      // Status będzie zaktualizowany przez App.js
     } catch (error) {
       console.error('Błąd podczas potwierdzania wizyty:', error);
       throw error;
@@ -187,7 +128,7 @@ export default function ClientCard({ clients, events, onUpdateClient, onRemoveCl
   const handleCancelVisit = useCallback(async (appointment) => {
     try {
       await appointmentAPI.cancelByExternal(appointment.id);
-      setAppointmentStatuses(prev => ({ ...prev, [appointment.id]: 'cancelled' }));
+      // Status będzie zaktualizowany przez App.js
     } catch (error) {
       console.error('Błąd podczas anulowania wizyty:', error);
       throw error;

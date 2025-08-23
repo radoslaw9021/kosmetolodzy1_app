@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -29,11 +29,12 @@ import TreatmentDetailsPage from './pages/TreatmentDetailsPage';
 
 
 import { getCurrentUser, setCurrentUser, isAdmin } from "./services/userService";
-import { clientAPI, authAPI } from "./services/apiService";
+import { clientAPI, authAPI, appointmentAPI } from "./services/apiService";
 
 export default function App() {
-  const [currentUser, setCurrentUserState] = useState(getCurrentUser());
+  const [currentUser, setCurrentUserState] = useState(null);
   const [clients, setClients] = useState([]);
+  const [appointmentStatuses, setAppointmentStatuses] = useState({});
 
   // JEDYNE ŹRÓDŁO PRAWDY O WIZYTACH
   const [events, setEvents] = useState(() => {
@@ -57,6 +58,12 @@ export default function App() {
   useEffect(() => {
       localStorage.setItem('appointments', JSON.stringify(events));
   }, [events]);
+
+  // Załaduj użytkownika tylko raz przy starcie
+  useEffect(() => {
+    const user = getCurrentUser();
+    setCurrentUserState(user);
+  }, []); // Pusty dependency array = tylko raz przy starcie
 
   // Ładowanie klientów z API przy starcie aplikacji
   useEffect(() => {
@@ -230,6 +237,37 @@ export default function App() {
     return [];
   };
 
+  // Synchronizacja statusów wizyt z bazą danych
+  const syncAppointments = useCallback(async () => {
+    if (!events || events.length === 0) return;
+    
+    try {
+      const statuses = {};
+      for (const event of events) {
+        if (event.resource?.clientId) {
+          try {
+            const appointment = await appointmentAPI.getByExternalId(event.id);
+            statuses[event.id] = appointment.status || 'pending';
+          } catch (error) {
+            // Jeśli wizyta nie istnieje w bazie, ustaw domyślny status
+            const isPast = event.end && new Date(event.end) < new Date();
+            statuses[event.id] = isPast ? 'completed' : 'pending';
+          }
+        }
+      }
+      setAppointmentStatuses(statuses);
+    } catch (error) {
+      console.error('Błąd podczas synchronizacji statusów wizyt:', error);
+    }
+  }, [events]);
+
+  // Uruchom synchronizację przy zmianie wizyt
+  useEffect(() => {
+    if (currentUser) {
+      syncAppointments();
+    }
+  }, [currentUser, syncAppointments]);
+
   return (
     <Router>
       <AppContent
@@ -250,6 +288,7 @@ export default function App() {
         getUpcomingUserAppointments={getUpcomingUserAppointments}
         theme={theme}
         setTheme={setTheme}
+        appointmentStatuses={appointmentStatuses}
       />
     </Router>
   );
@@ -273,6 +312,7 @@ function AppContent({
   getUpcomingUserAppointments,
   theme,
   setTheme,
+  appointmentStatuses,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -350,6 +390,7 @@ function AppContent({
                 <ClientCard
                   clients={filteredClients}
                   events={events}
+                  appointmentStatuses={appointmentStatuses}
                   onRemoveClient={handleRemoveClient}
                   onUpdateClient={(c) => handleAddOrUpdateClient(c, true)}
                   onUpdateTreatment={handleUpdateTreatment}
